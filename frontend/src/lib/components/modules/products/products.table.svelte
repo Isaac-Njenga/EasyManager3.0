@@ -19,10 +19,10 @@
 	import type { Product } from '$lib/types/product.types';
 
 	type Props = {
-		products: Product[];
+		filteredProducts: Product[];
 	};
 
-	let { products }: Props = $props();
+	let { filteredProducts }: Props = $props();
 
 	function viewProduct(product: Product) {
 		console.log('View product:', product._id);
@@ -87,7 +87,7 @@
 {/snippet}
 
 <DataTable
-	data={products}
+	data={filteredProducts}
 	columns={productColumns}
 	getRowKey={(product) => product._id}
 	emptyMessage="No products found."

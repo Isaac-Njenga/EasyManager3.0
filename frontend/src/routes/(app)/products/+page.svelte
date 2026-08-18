@@ -5,6 +5,18 @@
 
 	import { productsData as products } from '$lib/data/products.data';
 	import Search from '$lib/components/common/Search.svelte';
+
+	// 1. Reactive search state
+	let searchTerm = $state('');
+
+	// 2. Automatically derive filtered list based on search term
+	let filteredProducts = $derived(
+		products.filter((item) =>
+			Object.values(item).some((value) =>
+				String(value).toLowerCase().includes(searchTerm.toLowerCase().trim())
+			)
+		)
+	);
 </script>
 
 <div class="space-y-6">
@@ -17,7 +29,8 @@
 
 	<div>
 		<div class="mb-3">
-			<Search />
+			<!-- 3. Pass state and updater callback -->
+			<Search value={searchTerm} onChange={(val) => (searchTerm = val)} />
 		</div>
 		<div>
 			<Button variant="outline">Active</Button>
@@ -25,5 +38,5 @@
 		</div>
 	</div>
 
-	<ProductTable {products} />
+	<ProductTable {filteredProducts} />
 </div>
