@@ -2,4 +2,4 @@
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 </script>
 
-<PageHeader title="Products" description="Manage your products and inventory." />
+<PageHeader title="Expenses" description="Manage your expenses." />
