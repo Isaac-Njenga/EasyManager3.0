@@ -1,17 +1,22 @@
 <script lang="ts">
-	import type { Product } from '$lib/types/product.types';
+	import DataTable from '$lib/components/common/DataTable.svelte';
+	import ImagePreview from '$lib/components/common/ImagePreview.svelte';
+
+	import { Button } from '$lib/components/ui/button';
 
 	import {
-		Table,
-		TableBody,
-		TableCell,
-		TableHead,
-		TableHeader,
-		TableRow
-	} from '$lib/components/ui/table';
+		DropdownMenu,
+		DropdownMenuContent,
+		DropdownMenuItem,
+		DropdownMenuSeparator,
+		DropdownMenuTrigger
+	} from '$lib/components/ui/dropdown-menu';
 
-	import { Badge } from '$lib/components/ui/badge';
-	import ImagePreview from '$lib/components/common/ImagePreview.svelte';
+	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
+
+	import { productColumns } from '$lib/config/product.columns';
+
+	import type { Product } from '$lib/types/product.types';
 
 	type Props = {
 		products: Product[];
@@ -19,102 +24,76 @@
 
 	let { products }: Props = $props();
 
-	function formatCurrency(value: number) {
-		return new Intl.NumberFormat('en-KE', {
-			style: 'currency',
-			currency: 'KES'
-		}).format(value);
+	function viewProduct(product: Product) {
+		console.log('View product:', product._id);
+	}
+
+	function editProduct(product: Product) {
+		console.log('Edit product:', product._id);
+	}
+
+	function deleteProduct(product: Product) {
+		console.log('Delete product:', product._id);
 	}
 </script>
 
-<div class="rounded-lg border">
-	<Table>
-		<TableHeader>
-			<TableRow>
-				<TableHead>Img</TableHead>
-				<TableHead>Product</TableHead>
-				<TableHead>Code</TableHead>
-				<TableHead>SKU</TableHead>
-				<TableHead>Category</TableHead>
-				<TableHead>Price</TableHead>
-				<TableHead>Stock Qty</TableHead>
-				<TableHead>Status</TableHead>
-				<TableHead class="w-[50px]"></TableHead>
-			</TableRow>
-		</TableHeader>
+{#snippet imageCell(_value: unknown, product: Product)}
+	{#if product.image.length > 0}
+		<ImagePreview src={product.image[0]} alt={product.name} class="size-12" />
+	{:else}
+		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
+			<span class="text-xs text-muted-foreground"> No image </span>
+		</div>
+	{/if}
+{/snippet}
 
-		<TableBody>
-			{#each products as product (product._id)}
-				<TableRow>
-					<TableCell>
-						<div>
-							{#if product.image.length > 0}
-								<ImagePreview src={product.image[0]} alt={product.name} class="size-16" />
-							{:else}
-								<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
-									<span class="text-xs text-muted-foreground">No image</span>
-								</div>
-							{/if}
-						</div>
-					</TableCell>
+{#snippet nameCell(_value: unknown, product: Product)}
+	<div class="max-w-[280px]">
+		<div class="truncate font-medium">
+			{product.name}
+		</div>
 
-					<TableCell>
-						<div>
-							<div class="font-medium">
-								{product.name}
-							</div>
+		{#if product.description}
+			<div class="truncate text-xs text-muted-foreground">
+				{product.description}
+			</div>
+		{/if}
+	</div>
+{/snippet}
 
-							{#if product.description}
-								<div class="text-xs text-muted-foreground">
-									{product.description}
-								</div>
-							{/if}
-						</div>
-					</TableCell>
+{#snippet actionsCell(_value: unknown, product: Product)}
+	<DropdownMenu>
+		<DropdownMenuTrigger>
+			<Button variant="ghost" size="icon" class="size-8" aria-label={`Actions for ${product.name}`}>
+				<MoreHorizontal class="size-4" />
+			</Button>
+		</DropdownMenuTrigger>
 
-					<TableCell class="font-mono text-xs">
-						{product.code}
-					</TableCell>
+		<DropdownMenuContent align="end">
+			<DropdownMenuItem onclick={() => viewProduct(product)}>View</DropdownMenuItem>
 
-					<TableCell class="font-mono text-xs">
-						{product.sku}
-					</TableCell>
+			<DropdownMenuItem onclick={() => editProduct(product)}>Edit</DropdownMenuItem>
 
-					<TableCell>
-						{product.category}
-					</TableCell>
+			<DropdownMenuSeparator />
 
-					<TableCell>
-						{formatCurrency(product.price)}
-					</TableCell>
+			<DropdownMenuItem
+				class="text-destructive focus:text-destructive"
+				onclick={() => deleteProduct(product)}
+			>
+				Delete
+			</DropdownMenuItem>
+		</DropdownMenuContent>
+	</DropdownMenu>
+{/snippet}
 
-					<TableCell>
-						<div class="font-medium">
-							{product.quantity}
-						</div>
-
-						{#if product.quantity <= 10}
-							<div class="text-xs text-destructive">Low stock</div>
-						{/if}
-					</TableCell>
-
-					<TableCell>
-						{#if product.status === 'ACTIVE'}
-							<Badge>Active</Badge>
-						{:else}
-							<Badge variant="secondary">Inactive</Badge>
-						{/if}
-					</TableCell>
-
-					<TableCell>
-						<!-- Actions will go here -->
-					</TableCell>
-				</TableRow>
-			{:else}
-				<TableRow>
-					<TableCell colspan={8} class="h-24 text-center">No products found.</TableCell>
-				</TableRow>
-			{/each}
-		</TableBody>
-	</Table>
-</div>
+<DataTable
+	data={products}
+	columns={productColumns}
+	getRowKey={(product) => product._id}
+	emptyMessage="No products found."
+	cells={{
+		imageCell,
+		nameCell,
+		actionsCell
+	}}
+></DataTable>

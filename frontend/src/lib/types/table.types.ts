@@ -1,10 +1,15 @@
-import type { Component } from 'svelte';
-
 export type TableColumn<T> = {
 	key: keyof T | string;
 	header: string;
-
 	class?: string;
 
-	render?: Component;
+	/**
+	 * Use for simple value transformations.
+	 */
+	render?: (value: unknown, record: T) => string | number;
+
+	/**
+	 * Name of a Svelte snippet supplied to DataTable.
+	 */
+	cell?: string;
 };
