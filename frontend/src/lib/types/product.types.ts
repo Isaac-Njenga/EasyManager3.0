@@ -1,4 +1,4 @@
-export type ProductStatus = 'ACTIVE' | 'INACTIVE';
+export type ProductStatus = 'Active' | 'Inactive';
 
 export type Product = {
 	_id: string;

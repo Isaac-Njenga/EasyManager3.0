@@ -7,12 +7,12 @@ export const productsData: Product[] = [
 		sku: 'FUR-ARM-001',
 		code: 'NORD-ARM-GRN',
 		colour: 'Emerald Green',
-		image: ['https://images.unsplash.com/photo-1580481072645-022f9a6d1270'],
+		image: ['https://images.unsplash.com/photo-1505693416388-ac5ce068fe85'],
 		description: 'Ergonomic accent armchair featuring dense foam padding and solid oak legs.',
 		category: 'Living Room',
 		price: 349.99,
 		quantity: 15,
-		status: 'ACTIVE',
+		status: 'Active',
 		location: 'Aisle 3, Shelf B',
 		createdAt: '2026-01-15T08:30:00.000Z',
 		updatedAt: '2026-02-10T14:22:00.000Z'
@@ -28,7 +28,7 @@ export const productsData: Product[] = [
 		category: 'Dining Room',
 		price: 799.0,
 		quantity: 8,
-		status: 'ACTIVE',
+		status: 'Active',
 		location: 'Aisle 1, Bay A',
 		createdAt: '2026-01-18T10:15:00.000Z',
 		updatedAt: '2026-02-12T09:45:00.000Z'
@@ -44,7 +44,7 @@ export const productsData: Product[] = [
 		category: 'Living Room',
 		price: 1299.5,
 		quantity: 4,
-		status: 'ACTIVE',
+		status: 'Active',
 		location: 'Showroom Floor 1',
 		createdAt: '2026-01-20T11:00:00.000Z',
 		updatedAt: '2026-02-01T16:00:00.000Z'
@@ -60,7 +60,7 @@ export const productsData: Product[] = [
 		category: 'Office',
 		price: 189.99,
 		quantity: 0,
-		status: 'INACTIVE',
+		status: 'Inactive',
 		location: 'Warehouse Warehouse Zone C',
 		createdAt: '2025-11-05T14:20:00.000Z',
 		updatedAt: '2026-02-18T11:05:00.000Z'
@@ -76,7 +76,7 @@ export const productsData: Product[] = [
 		category: 'Bedroom',
 		price: 649.0,
 		quantity: 12,
-		status: 'ACTIVE',
+		status: 'Active',
 		location: 'Aisle 5, Shelf D',
 		createdAt: '2026-02-01T09:00:00.000Z',
 		updatedAt: '2026-02-15T13:30:00.000Z'

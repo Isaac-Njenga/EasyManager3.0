@@ -54,7 +54,7 @@ export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'status',
 		header: 'Status',
-		render: (value) => (value === 'ACTIVE' ? 'Active' : 'Inactive')
+		// render: (value) => (value === 'Active' ? 'Active' : 'Inactive')
 	},
 
 	{
