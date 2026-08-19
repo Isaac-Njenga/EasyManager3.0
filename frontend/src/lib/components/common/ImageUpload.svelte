@@ -7,21 +7,7 @@
 	import InboxIcon from '@lucide/svelte/icons/inbox';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
-
-	// // Component Props / Reactive State
-	// let {
-	// 	selectedImages = $bindable([
-	// 		'https://images.unsplash.com/photo-1786665876188-51a711810312?w=900',
-	// 		'https://images.unsplash.com/photo-1785970968425-334741185e10?w=900',
-	// 		'https://images.unsplash.com/photo-1777464888409-bd42a338cb68?w=900'
-	// 	]),
-	// 	imageUploading = false,
-	// 	onUpload
-	// }: {
-	// 	selectedImages?: string[];
-	// 	imageUploading?: boolean;
-	// 	onUpload?: (files: FileList) => void;
-	// } = $props();
+	import { toast } from 'svelte-sonner';
 
 	let {
 		selectedImages = $bindable([]),
@@ -37,6 +23,7 @@
 		if (!files || files.length === 0) return;
 
 		imageUploading = true;
+		// toast.loading('Uploading...');
 		const maxSize = 10 * 1024 * 1024; // 10MB limit
 
 		try {
@@ -58,6 +45,7 @@
 				);
 
 				if (!response.ok) {
+					toast.error('Failed to upload image to Cloudinary. Refresh and try again');
 					throw new Error('Failed to upload image to Cloudinary');
 				}
 
@@ -69,9 +57,16 @@
 
 			// Append newly uploaded image URLs to the bound array
 			selectedImages = [...selectedImages, ...uploadedUrls];
+			toast.success('Uploaded successfully!');
 		} catch (error) {
 			console.error('Upload error:', error);
-			alert(error instanceof Error ? error.message : 'Upload failed');
+			// alert(error instanceof Error ? error.message : 'Upload failed');
+
+			toast.error(
+				error instanceof Error
+					? error.message
+					: 'Failed to upload image to Cloudinary. Refresh and try again'
+			);
 		} finally {
 			imageUploading = false;
 			// Clear input value so selecting the same file again triggers change event

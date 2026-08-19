@@ -9,6 +9,7 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import ImageUpload from '$lib/components/common/ImageUpload.svelte';
+	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		product?: Product;
@@ -66,6 +67,14 @@
 		};
 
 		console.log('Product form:', formData);
+
+		toast.success('Product Saved!', {
+			// description: 'Sunday, December 03, 2023 at 9:00 AM',
+			// action: {
+			// 	label: 'Undo',
+			// 	onClick: () => console.info('Undo')
+			// }
+		});
 
 		await new Promise((resolve) => setTimeout(resolve, 1000));
 
