@@ -20,7 +20,7 @@
 		</div>
 		<div>
 			<p class="text-xs text-muted-foreground">Selling Price</p>
-			<p class="font-medium">${selectedProduct.sellingPrice}</p>
+			<p class="font-medium">KES. {selectedProduct.sellingPrice}</p>
 		</div>
 		<div>
 			<p class="text-xs text-muted-foreground">Stock Quantity</p>
