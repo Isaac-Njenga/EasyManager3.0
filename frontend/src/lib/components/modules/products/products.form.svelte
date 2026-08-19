@@ -30,6 +30,18 @@
 	let location = $state('');
 	let status = $state<ProductStatus>('Active');
 
+	// 1. Map required field keys to user-friendly labels
+	const requiredFieldsConfig = [
+		{ label: 'Product Name', getValue: () => name },
+		{ label: 'SKU', getValue: () => sku },
+		{ label: 'Code', getValue: () => code },
+		{ label: 'Category', getValue: () => category },
+		{ label: 'Cost Price', getValue: () => costPrice },
+		{ label: 'Selling Price', getValue: () => sellingPrice },
+		{ label: 'Current Stock', getValue: () => quantity },
+		{ label: 'Location', getValue: () => location }
+	];
+
 	$effect(() => {
 		name = product?.name ?? '';
 		sku = product?.sku ?? '';
@@ -50,6 +62,17 @@
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 
+		const missingFields = requiredFieldsConfig
+			.filter((field) => !field.getValue()?.toString().trim())
+			.map((field) => field.label);
+
+		if (missingFields.length > 0) {
+			toast.error('Please fill in required fields', {
+				description: `Missing: ${missingFields.join(', ')}`
+			});
+			return;
+		}
+
 		isSubmitting = true;
 
 		const formData = {
@@ -63,6 +86,7 @@
 			costPrice: Number(costPrice),
 			sellingPrice: Number(sellingPrice),
 			quantity: Number(quantity),
+			location,
 			status
 		};
 
@@ -82,7 +106,7 @@
 	}
 </script>
 
-<form onsubmit={handleSubmit} class="space-y-6">
+<form onsubmit={handleSubmit} novalidate class="space-y-6">
 	<div class="flex flex-row justify-center gap-2">
 		<div class="w-full space-y-6">
 			<Card
@@ -93,6 +117,7 @@
 		</div>
 
 		<Separator orientation="vertical" />
+
 		<div class="w-full space-y-6">
 			<Card>
 				<CardHeader>
@@ -101,32 +126,27 @@
 
 				<CardContent class="grid gap-6 sm:grid-cols-2">
 					<div class="space-y-2">
-						<Label for="name">Product Name</Label>
-
-						<Input id="name" bind:value={name} placeholder="ARM CHAIR" required />
+						<Label for="name">Product Name *</Label>
+						<Input id="name" bind:value={name} placeholder="ARM CHAIR" />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="sku">SKU</Label>
-
-						<Input id="sku" bind:value={sku} placeholder="CF-001" required />
+						<Label for="sku">SKU *</Label>
+						<Input id="sku" bind:value={sku} placeholder="CF-001" />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="sku">Code</Label>
-
-						<Input id="sku" bind:value={code} placeholder="ARM-001" required />
+						<Label for="code">Code *</Label>
+						<Input id="code" bind:value={code} placeholder="ARM-001" />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="sku">Colour</Label>
-
-						<Input id="sku" bind:value={colour} placeholder="Red" required />
+						<Label for="colour">Colour</Label>
+						<Input id="colour" bind:value={colour} placeholder="Red" />
 					</div>
 
 					<div class="space-y-2 sm:col-span-2">
 						<Label for="description">Description</Label>
-
 						<Textarea
 							id="description"
 							bind:value={description}
@@ -136,8 +156,8 @@
 					</div>
 
 					<div class="space-y-2 sm:col-span-2">
-						<Label for="category">Category</Label>
-						<Input id="category" bind:value={category} placeholder="Office Chair" required />
+						<Label for="category">Category *</Label>
+						<Input id="category" bind:value={category} placeholder="Office Chair" />
 					</div>
 				</CardContent>
 			</Card>
@@ -149,41 +169,23 @@
 
 				<CardContent class="grid gap-6 sm:grid-cols-2">
 					<div class="space-y-2">
-						<Label for="costPrice">Cost Price</Label>
-
-						<Input
-							id="costPrice"
-							type="number"
-							min="0"
-							step="0.01"
-							bind:value={costPrice}
-							required
-						/>
+						<Label for="costPrice">Cost Price *</Label>
+						<Input id="costPrice" type="number" min="0" step="0.01" bind:value={costPrice} />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="sellingPrice">Selling Price</Label>
-
-						<Input
-							id="sellingPrice"
-							type="number"
-							min="0"
-							step="0.01"
-							bind:value={sellingPrice}
-							required
-						/>
+						<Label for="sellingPrice">Selling Price *</Label>
+						<Input id="sellingPrice" type="number" min="0" step="0.01" bind:value={sellingPrice} />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="quantity">Current Stock</Label>
-
-						<Input id="quantity" type="number" min="0" step="1" bind:value={quantity} required />
+						<Label for="quantity">Current Stock *</Label>
+						<Input id="quantity" type="number" min="0" step="1" bind:value={quantity} />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="quantity">Location</Label>
-
-						<Input id="quantity" type="text" bind:value={location} required />
+						<Label for="location">Location *</Label>
+						<Input id="location" type="text" bind:value={location} />
 					</div>
 				</CardContent>
 			</Card>
@@ -196,15 +198,14 @@
 				<CardContent>
 					<div class="space-y-2">
 						<Label for="status">Product Status</Label>
-
-						<RadioGroup.Root value="status" class="flex flex-col">
+						<RadioGroup.Root bind:value={status} class="flex flex-col">
 							<div class="flex items-center space-x-2">
 								<RadioGroup.Item value="Active" id="active" />
-								<Label for="Active">Active</Label>
+								<Label for="active">Active</Label>
 							</div>
 							<div class="flex items-center space-x-2">
 								<RadioGroup.Item value="Inactive" id="inactive" />
-								<Label for="Inactive">Inactive</Label>
+								<Label for="inactive">Inactive</Label>
 							</div>
 						</RadioGroup.Root>
 					</div>
@@ -212,7 +213,9 @@
 			</Card>
 		</div>
 	</div>
+
 	<Separator />
+
 	<div class="flex justify-center gap-3">
 		<Button type="button" variant="outline" href="/products" size="lg">Cancel</Button>
 
