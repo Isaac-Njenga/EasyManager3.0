@@ -1,9 +1,10 @@
 <script lang="ts">
 	import DataTable from '$lib/components/common/DataTable.svelte';
 	import ImagePreview from '$lib/components/common/ImagePreview.svelte';
+	import DataDrawer from '$lib/components/common/DataDrawer.svelte';
 
-	import { Button } from '$lib/components/ui/button';
-
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
@@ -15,8 +16,8 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { productColumns } from '$lib/config/product.columns';
-
 	import type { Product } from '$lib/types/product.types';
+	import ProductsDetails from './ProductsDetails.svelte';
 
 	type Props = {
 		filteredProducts: Product[];
@@ -24,8 +25,13 @@
 
 	let { filteredProducts }: Props = $props();
 
+	// 1. Reactive state variables using $state
+	let isDrawerOpen = $state(false);
+	let selectedProduct = $state<Product | null>(null);
+
 	function viewProduct(product: Product) {
-		console.log('View product:', product._id);
+		selectedProduct = product;
+		isDrawerOpen = true;
 	}
 
 	function editProduct(product: Product) {
@@ -38,25 +44,22 @@
 </script>
 
 {#snippet imageCell(_value: unknown, product: Product)}
-	{#if product.image.length > 0}
+	{#if product.image && product.image.length > 0}
 		<ImagePreview src={product.image[0]} alt={product.name} class="size-12" />
 	{:else}
 		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
-			<span class="text-xs text-muted-foreground"> No image </span>
+			<span class="text-xs text-muted-foreground">No image</span>
 		</div>
 	{/if}
 {/snippet}
 
 {#snippet nameCell(_value: unknown, product: Product)}
 	<div class="w-full">
-		<div class="truncate font-medium">
-			{product.name}
-		</div>
+		<div class="truncate font-medium">{product.name}</div>
 
 		{#if product.category}
 			<div class="truncate text-xs text-muted-foreground">
-				Category:
-				{product.category}
+				Category: {product.category}
 			</div>
 		{/if}
 	</div>
@@ -79,11 +82,8 @@
 
 		<DropdownMenuContent align="end">
 			<DropdownMenuItem onclick={() => viewProduct(product)}>View</DropdownMenuItem>
-
 			<DropdownMenuItem onclick={() => editProduct(product)}>Edit</DropdownMenuItem>
-
 			<DropdownMenuSeparator />
-
 			<DropdownMenuItem
 				class="text-destructive focus:text-destructive"
 				onclick={() => deleteProduct(product)}
@@ -94,6 +94,7 @@
 	</DropdownMenu>
 {/snippet}
 
+<!-- Data Table -->
 <DataTable
 	data={filteredProducts}
 	columns={productColumns}
@@ -105,4 +106,18 @@
 		codeCell,
 		actionsCell
 	}}
-></DataTable>
+/>
+
+<!-- Reusable Product Drawer -->
+<DataDrawer
+	bind:open={isDrawerOpen}
+	title={selectedProduct?.name ?? 'Product Details'}
+	description={selectedProduct ? `SKU: ${selectedProduct.sku}` : ''}
+	direction="right"
+>
+	<ProductsDetails {selectedProduct} />
+	{#snippet footer()}
+		<Button href={`/products/${selectedProduct?._id}/edit`}>Edit Product</Button>
+		<Drawer.Close class={buttonVariants({ variant: 'outline' })}>Close</Drawer.Close>
+	{/snippet}
+</DataDrawer>
