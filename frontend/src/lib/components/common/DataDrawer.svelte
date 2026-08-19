@@ -22,7 +22,7 @@
 </script>
 
 <Drawer.Root {direction} bind:open>
-	<Drawer.Content class="h-full max-w-md">
+	<Drawer.Content class="h-full max-w-2xl">
 		{#if title || description}
 			<Drawer.Header>
 				{#if title}<Drawer.Title>{title}</Drawer.Title>{/if}

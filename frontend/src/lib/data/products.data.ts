@@ -24,7 +24,7 @@ export const productsData: Product[] = [
 		sku: 'FUR-TBL-002',
 		code: 'OAK-DTBL-NAT',
 		colour: 'Natural Oak',
-		image: ['https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf'],
+		image: ['https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf','https://images.unsplash.com/photo-1555041469-a586c61ea9bc'],
 		description: '6-seater solid oak dining table coated with a protective matte lacquer.',
 		category: 'Dining Room',
 		costPrice: 89,

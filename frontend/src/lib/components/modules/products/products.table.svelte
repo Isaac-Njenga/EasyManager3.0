@@ -15,9 +15,10 @@
 
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
-	import { productColumns } from '$lib/config/product.columns';
+	import { productColumns } from '$lib/components/modules/products/product.columns';
 	import type { Product } from '$lib/types/product.types';
-	import ProductsDetails from './ProductsDetails.svelte';
+	import ProductsDetails from '../../../../routes/(app)/products/ProductsDetails.svelte';
+	import Badge from '$lib/components/ui/badge/badge.svelte';
 
 	type Props = {
 		filteredProducts: Product[];
@@ -72,6 +73,34 @@
 	</div>
 {/snippet}
 
+{#snippet statusCell(_value: unknown, product: Product)}
+	{#if product.status === 'Active'}
+		<Badge
+			variant="outline"
+			class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+		>
+			Active
+		</Badge>
+	{:else}
+		<Badge
+			variant="outline"
+			class="border-zinc-500/30 bg-zinc-500/10 text-zinc-500 dark:text-zinc-400"
+		>
+			{product.status ?? 'Inactive'}
+		</Badge>
+	{/if}
+{/snippet}
+
+{#snippet qtyCell(_value: unknown, product: Product)}
+	<div class="w-full">
+		<p class="text-xs">{product.quantity ?? ''}</p>
+		<!-- low stock alert -->
+		{#if product.quantity <= 5}
+			<p class="text-xs text-muted-foreground">Low stock</p>
+		{/if}
+	</div>
+{/snippet}
+
 {#snippet actionsCell(_value: unknown, product: Product)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>
@@ -104,7 +133,9 @@
 		imageCell,
 		nameCell,
 		codeCell,
-		actionsCell
+		actionsCell,
+		qtyCell,
+		statusCell
 	}}
 />
 
@@ -112,7 +143,7 @@
 <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedProduct?.name ?? 'Product Details'}
-	description={selectedProduct ? `SKU: ${selectedProduct.sku}` : ''}
+	description={selectedProduct ? `CODE: ${selectedProduct.code}` : ''}
 	direction="right"
 >
 	<ProductsDetails {selectedProduct} />

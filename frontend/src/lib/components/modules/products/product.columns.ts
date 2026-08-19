@@ -38,13 +38,16 @@ export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'quantity',
 		header: 'Quantity',
+		cell: 'qtyCell',
 		class: 'text-right',
-		render: (value) => `${Number(value ?? 0)}`
+		// render: (value) => `${Number(value ?? 0)}`
 	},
 
 	{
 		key: 'status',
-		header: 'Status'
+		header: 'Status',
+		class: 'text-center',
+		cell:'statusCell'
 		// render: (value) => (value === 'Active' ? 'Active' : 'Inactive')
 	},
 
