@@ -20,7 +20,10 @@
 
 	import { Button } from '$lib/components/ui/button';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import MoonIcon from '@lucide/svelte/icons/moon';
+	import SunIcon from '@lucide/svelte/icons/sun';
 	import LogOut from '@lucide/svelte/icons/log-out';
+	import { toggleMode } from 'mode-watcher';
 </script>
 
 <Sidebar collapsible="icon">
@@ -73,10 +76,19 @@
 	</SidebarContent>
 
 	<SidebarFooter>
-		<Button variant="ghost" class="w-full justify-start gap-2">
-			<LogOut />
-
-			<span class="group-data-[collapsible=icon]:hidden"> Sign out </span>
-		</Button>
+		<div class="flex flex-row justify-between">
+			<Button variant="ghost" class="">
+				<LogOut />
+				<span class="group-data-[collapsible=icon]:hidden"> Sign out </span>
+			</Button><Button onclick={toggleMode} variant="ghost" class="">
+				<SunIcon
+					class="h-[1.2rem] w-[1.2rem] scale-100 rotate-0 transition-all! dark:scale-0 dark:-rotate-90"
+				/>
+				<MoonIcon
+					class="absolute h-[1.2rem] w-[1.2rem] scale-0 rotate-90 transition-all! dark:scale-100 dark:rotate-0"
+				/>
+				<span class="sr-only">Toggle theme</span>
+			</Button>
+		</div>
 	</SidebarFooter>
 </Sidebar>

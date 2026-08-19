@@ -48,16 +48,24 @@
 {/snippet}
 
 {#snippet nameCell(_value: unknown, product: Product)}
-	<div class="max-w-[280px]">
+	<div class="w-full">
 		<div class="truncate font-medium">
 			{product.name}
 		</div>
 
-		{#if product.description}
+		{#if product.category}
 			<div class="truncate text-xs text-muted-foreground">
-				{product.description}
+				Category:
+				{product.category}
 			</div>
 		{/if}
+	</div>
+{/snippet}
+
+{#snippet codeCell(_value: unknown, product: Product)}
+	<div class="w-full">
+		<p class="text-xs">Code: {product.code ?? ''}</p>
+		<p class="text-xs text-muted-foreground">SKU: {product.sku ?? ''}</p>
 	</div>
 {/snippet}
 
@@ -94,6 +102,7 @@
 	cells={{
 		imageCell,
 		nameCell,
+		codeCell,
 		actionsCell
 	}}
 ></DataTable>

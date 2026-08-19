@@ -11,30 +11,21 @@ export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'image',
 		header: 'Image',
-		class: 'w-[80px]',
 		cell: 'imageCell'
 	},
 
 	{
 		key: 'name',
 		header: 'Product',
-		class: 'min-w-[220px]',
+		class: 'max-w-[160px]',
 		cell: 'nameCell'
 	},
 
 	{
 		key: 'code',
-		header: 'Code'
-	},
-
-	{
-		key: 'sku',
-		header: 'SKU'
-	},
-
-	{
-		key: 'category',
-		header: 'Category'
+		header: 'Code',
+		class: 'max-w-[100px]',
+		cell: 'codeCell'
 	},
 
 	{
@@ -46,14 +37,14 @@ export const productColumns: TableColumn<Product>[] = [
 
 	{
 		key: 'quantity',
-		header: 'Stock Qty',
+		header: 'Quantity',
 		class: 'text-right',
 		render: (value) => `${Number(value ?? 0)}`
 	},
 
 	{
 		key: 'status',
-		header: 'Status',
+		header: 'Status'
 		// render: (value) => (value === 'Active' ? 'Active' : 'Inactive')
 	},
 
