@@ -9,7 +9,8 @@ export type Product = {
 	image: string[];
 	description?: string;
 	category: string;
-	price: number;
+	costPrice: number;
+	sellingPrice: number;
 	quantity: number;
 	status: ProductStatus;
 	location: string;

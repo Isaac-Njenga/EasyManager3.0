@@ -38,7 +38,7 @@ export const productColumns: TableColumn<Product>[] = [
 	},
 
 	{
-		key: 'price',
+		key: 'sellingPrice',
 		header: 'Price',
 		class: 'text-right',
 		render: (value) => formatCurrency(Number(value ?? 0))
