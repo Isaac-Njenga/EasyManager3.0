@@ -74,11 +74,17 @@
 </script>
 
 <form onsubmit={handleSubmit} class="space-y-6">
-	<div class="flex flex-row gap-4">
-		<div><Card><ImageUpload /></Card></div>
+	<div class="flex flex-row justify-center gap-2">
+		<div class="w-full space-y-6">
+			<Card
+				><CardHeader>
+					<CardTitle>Product Images Upload</CardTitle>
+				</CardHeader><ImageUpload /></Card
+			>
+		</div>
 
 		<Separator orientation="vertical" />
-		<div>
+		<div class="w-full space-y-6">
 			<Card>
 				<CardHeader>
 					<CardTitle>Product Information</CardTitle>
@@ -197,10 +203,11 @@
 			</Card>
 		</div>
 	</div>
-	<div class="flex justify-end gap-3">
-		<Button type="button" variant="outline" href="/products">Cancel</Button>
+	<Separator />
+	<div class="flex justify-center gap-3">
+		<Button type="button" variant="outline" href="/products" size="lg">Cancel</Button>
 
-		<Button type="submit" disabled={isSubmitting}>
+		<Button type="submit" disabled={isSubmitting} size="lg">
 			{isSubmitting ? 'Saving...' : product ? 'Update Product' : 'Create Product'}
 		</Button>
 	</div>

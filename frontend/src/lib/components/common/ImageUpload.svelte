@@ -1,25 +1,81 @@
 <script lang="ts">
-	// Import Lucide icons (or your preferred icon library)
+	import {
+		PUBLIC_CLOUDINARY_CLOUD_NAME,
+		PUBLIC_CLOUDINARY_UPLOAD_PRESET
+	} from '$env/static/public';
 	import UploadCloudIcon from '@lucide/svelte/icons/upload-cloud';
 	import InboxIcon from '@lucide/svelte/icons/inbox';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 
-	// Component Props / Reactive State
+	// // Component Props / Reactive State
+	// let {
+	// 	selectedImages = $bindable([
+	// 		'https://images.unsplash.com/photo-1786665876188-51a711810312?w=900',
+	// 		'https://images.unsplash.com/photo-1785970968425-334741185e10?w=900',
+	// 		'https://images.unsplash.com/photo-1777464888409-bd42a338cb68?w=900'
+	// 	]),
+	// 	imageUploading = false,
+	// 	onUpload
+	// }: {
+	// 	selectedImages?: string[];
+	// 	imageUploading?: boolean;
+	// 	onUpload?: (files: FileList) => void;
+	// } = $props();
+
 	let {
 		selectedImages = $bindable([]),
-		imageUploading = false,
-		onUpload
+		imageUploading = $bindable(false)
 	}: {
 		selectedImages?: string[];
 		imageUploading?: boolean;
-		onUpload?: (files: FileList) => void;
 	} = $props();
 
-	function handleFileSelect(event: Event) {
+	async function handleImageUpload(event: Event) {
 		const target = event.target as HTMLInputElement;
-		if (target.files && target.files.length > 0) {
-			onUpload?.(target.files);
+		const files = target.files;
+		if (!files || files.length === 0) return;
+
+		imageUploading = true;
+		const maxSize = 10 * 1024 * 1024; // 10MB limit
+
+		try {
+			const uploadPromises = Array.from(files).map(async (file) => {
+				if (file.size > maxSize) {
+					throw new Error(`File ${file.name} exceeds 10MB size limit.`);
+				}
+
+				const formData = new FormData();
+				formData.append('file', file);
+				formData.append('upload_preset', PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
+				const response = await fetch(
+					`https://api.cloudinary.com/v1_1/${PUBLIC_CLOUDINARY_CLOUD_NAME}/image/upload`,
+					{
+						method: 'POST',
+						body: formData
+					}
+				);
+
+				if (!response.ok) {
+					throw new Error('Failed to upload image to Cloudinary');
+				}
+
+				const data = await response.json();
+				return data.secure_url as string;
+			});
+
+			const uploadedUrls = await Promise.all(uploadPromises);
+
+			// Append newly uploaded image URLs to the bound array
+			selectedImages = [...selectedImages, ...uploadedUrls];
+		} catch (error) {
+			console.error('Upload error:', error);
+			alert(error instanceof Error ? error.message : 'Upload failed');
+		} finally {
+			imageUploading = false;
+			// Clear input value so selecting the same file again triggers change event
+			target.value = '';
 		}
 	}
 
@@ -31,11 +87,10 @@
 <div class="space-y-4">
 	<!-- Upload Dropzone Container -->
 	<div
-		class="relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white p-8 text-center transition-all duration-300 hover:border-primary"
+		class="relative mx-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white p-8 text-center transition-all duration-300 hover:border-primary"
 	>
 		<div class="mb-2 flex items-center gap-2 text-gray-700">
 			<UploadCloudIcon class="h-5 w-5" />
-			<span class="font-medium">Product Images</span>
 		</div>
 
 		<div class="flex flex-col items-center">
@@ -52,7 +107,8 @@
 			type="file"
 			accept="image/*"
 			multiple
-			onchange={handleFileSelect}
+			disabled={imageUploading}
+			onchange={handleImageUpload}
 			class="absolute inset-0 cursor-pointer opacity-0"
 		/>
 	</div>
@@ -66,8 +122,8 @@
 	{/if}
 
 	<!-- Image Preview Grid -->
-	{#if selectedImages.length > 0}
-		<div class="mt-4 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
+	{#if selectedImages?.length > 0}
+		<div class="m-4 grid grid-cols-1 gap-6 sm:grid-cols-2 md:grid-cols-3">
 			{#each selectedImages as item, index (item)}
 				<div
 					class="group relative h-48 overflow-hidden rounded-xl bg-gray-100 shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-md"
