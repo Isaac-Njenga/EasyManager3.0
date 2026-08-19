@@ -33,8 +33,8 @@
 	<PageHeader
 		title="Products"
 		description="Manage your products and inventory."
-		actionLabel="Add Product"
-		// actionHref="/products/new"
+		actionLabel="+ Add Product"
+		actionHref="/products/new"
 	/>
 
 	<div>

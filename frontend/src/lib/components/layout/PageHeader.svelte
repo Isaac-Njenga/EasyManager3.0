@@ -1,14 +1,11 @@
 <script lang="ts">
-	// import { resolve } from '$app/paths';
-	import type { RouteId } from '$app/types';
-
 	import { Button } from '$lib/components/ui/button';
 
 	type Props = {
 		title: string;
 		description?: string;
 		actionLabel?: string;
-		actionHref?: RouteId;
+		actionHref?: string;
 	};
 
 	let { title, description, actionLabel, actionHref }: Props = $props();
