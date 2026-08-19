@@ -8,6 +8,7 @@
 	import { Textarea } from '$lib/components/ui/textarea';
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import ImageUpload from '$lib/components/common/ImageUpload.svelte';
 
 	type Props = {
 		product?: Product;
@@ -74,7 +75,7 @@
 
 <form onsubmit={handleSubmit} class="space-y-6">
 	<div class="flex flex-row gap-4">
-		<div><Card>card</Card></div>
+		<div><Card><ImageUpload /></Card></div>
 
 		<Separator orientation="vertical" />
 		<div>
