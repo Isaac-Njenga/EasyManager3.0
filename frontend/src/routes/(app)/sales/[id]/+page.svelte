@@ -17,7 +17,6 @@
 		actionHref="/sales"
 	/>
 
-    <div><p>{sale._id}</p></div>
 
 	<SaleForm {sale} />
 </div>

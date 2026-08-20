@@ -71,3 +71,199 @@
 		{/if}
 	</div>
 </div>
+
+<!-- <script lang="ts">
+	import type { Sale } from '$lib/types/sale.types';
+	import { Button } from '$lib/components/ui/button';
+	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
+	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
+	import ChevronRight from '@lucide/svelte/icons/chevron-right';
+	import Calendar from '@lucide/svelte/icons/calendar';
+	import { formatCurrency } from '$lib/components/modules/sales/sales.columns';
+
+	type Props = {
+		allSales: Sale[];
+	};
+
+	let { allSales = [] }: Props = $props();
+
+	// --- State ---
+	// Default to current week's Monday
+	let selectedWeekStart = $state(getMonday(new Date()));
+	let selectedDayDateStr = $state<string | null>(null);
+
+	// --- Helper Functions ---
+	function getMonday(d: Date) {
+		const date = new Date(d);
+		const day = date.getDay();
+		const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
+		date.setDate(diff);
+		date.setHours(0, 0, 0, 0);
+		return date;
+	}
+
+	function addDays(date: Date, days: number) {
+		const result = new Date(date);
+		result.setDate(result.getDate() + days);
+		return result;
+	}
+
+	function formatDateKey(date: Date): string {
+		return date.toISOString().split('T')[0];
+	}
+
+	// --- Derived Computations ---
+	// Array of 7 days (Mon-Sun) for the selected week
+	let weekDays = $derived(
+		Array.from({ length: 7 }, (_, i) => {
+			const dayDate = addDays(selectedWeekStart, i);
+			const dateStr = formatDateKey(dayDate);
+			const salesForDay = allSales.filter((s) => s.dateOfSale?.startsWith(dateStr));
+			const totalRevenue = salesForDay.reduce((sum, s) => sum + (s.grandTotal || 0), 0);
+
+			return {
+				date: dayDate,
+				dateStr,
+				dayName: dayDate.toLocaleDateString('en-US', { weekday: 'short' }),
+				displayDate: dayDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+				salesCount: salesForDay.length,
+				totalRevenue,
+				sales: salesForDay
+			};
+		})
+	);
+
+	let totalWeeklyRevenue = $derived(weekDays.reduce((acc, d) => acc + d.totalRevenue, 0));
+	let totalWeeklySalesCount = $derived(weekDays.reduce((acc, d) => acc + d.salesCount, 0));
+
+	let activeDayData = $derived(weekDays.find((d) => d.dateStr === selectedDayDateStr) ?? null);
+
+	// --- Week Navigation Actions ---
+	function prevWeek() {
+		selectedWeekStart = addDays(selectedWeekStart, -7);
+		selectedDayDateStr = null;
+	}
+
+	function nextWeek() {
+		selectedWeekStart = addDays(selectedWeekStart, 7);
+		selectedDayDateStr = null;
+	}
+
+	function selectDay(dateStr: string) {
+		selectedDayDateStr = selectedDayDateStr === dateStr ? null : dateStr;
+	}
+</script>
+
+<div class="space-y-6">
+	<!-- 1. Week Controller & Summary Header -->
+<!-- <div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-lg border bg-card p-4 shadow-sm">
+		<div class="flex items-center gap-2">
+			<Calendar class="size-5 text-muted-foreground" />
+			<div>
+				<h2 class="text-sm font-semibold">
+					{weekDays[0].displayDate} - {weekDays[6].displayDate}, {selectedWeekStart.getFullYear()}
+				</h2>
+				<p class="text-xs text-muted-foreground">
+					Total Revenue: <span class="font-bold text-emerald-600">{formatCurrency(totalWeeklyRevenue)}</span> | 
+					Total Sales: <span class="font-bold text-foreground">{totalWeeklySalesCount}</span>
+				</p>
+			</div>
+		</div>
+
+		<div class="flex items-center gap-2">
+			<Button variant="outline" size="sm" onclick={prevWeek}>
+				<ChevronLeft class="mr-1 size-4" /> Prev Week
+			</Button>
+			<Button variant="outline" size="sm" onclick={() => (selectedWeekStart = getMonday(new Date()))}>
+				This Week
+			</Button>
+			<Button variant="outline" size="sm" onclick={nextWeek}>
+				Next Week <ChevronRight class="ml-1 size-4" />
+			</Button>
+		</div>
+	</div>
+
+	<!-- 2. Weekly Day Overview Grid (7 Days) -->
+<!-- <div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+		{#each weekDays as day}
+			<button
+				type="button"
+				onclick={() => selectDay(day.dateStr)}
+				class="text-left transition-all"
+			>
+				<Card
+					class={`hover:border-primary cursor-pointer ${
+						selectedDayDateStr === day.dateStr ? 'border-primary bg-accent/40 ring-1 ring-primary' : ''
+					}`}
+				>
+					<CardHeader class="p-3 pb-1">
+						<CardTitle class="text-xs font-semibold text-muted-foreground">
+							{day.dayName} <span class="text-[11px] font-normal">({day.displayDate})</span>
+						</CardTitle>
+					</CardHeader>
+					<CardContent class="p-3 pt-1">
+						<p class="text-sm font-bold text-foreground">
+							{formatCurrency(day.totalRevenue)}
+						</p>
+						<p class="text-[11px] text-muted-foreground">
+							{day.salesCount} {day.salesCount === 1 ? 'sale' : 'sales'}
+						</p>
+					</CardContent>
+				</Card>
+			</button>
+		{/each}
+	</div> -->
+
+<!-- 3. Drill-down Table for Selected Day -->
+<!-- {#if activeDayData}
+		<div class="rounded-lg border bg-card p-4 shadow-sm space-y-4">
+			<div class="flex items-center justify-between border-b pb-3">
+				<div>
+					<h3 class="text-sm font-bold">
+						Sales for {activeDayData.dayName}, {activeDayData.displayDate}
+					</h3>
+					<p class="text-xs text-muted-foreground">
+						{activeDayData.salesCount} transactions totaling {formatCurrency(activeDayData.totalRevenue)}
+					</p>
+				</div>
+				<Button variant="ghost" size="sm" onclick={() => (selectedDayDateStr = null)}>
+					Close Detail View
+				</Button>
+			</div>
+
+			{#if activeDayData.sales.length === 0}
+				<p class="py-8 text-center text-xs text-muted-foreground">No sales recorded on this day.</p>
+			{:else}
+				<div class="overflow-x-auto">
+					<table class="w-full text-left text-xs">
+						<thead class="border-b bg-muted/50 text-muted-foreground">
+							<tr>
+								<th class="p-2">Receipt #</th>
+								<th class="p-2">Customer</th>
+								<th class="p-2">Items</th>
+								<th class="p-2">Payment</th>
+								<th class="p-2 text-right">Total</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y">
+							{#each activeDayData.sales as sale (sale._id)}
+								<tr class="hover:bg-muted/30">
+									<td class="p-2 font-mono font-medium">{sale.receiptNumber}</td>
+									<td class="p-2">{sale.customer?.name || 'Walk-in'}</td>
+									<td class="p-2">{sale.items?.length || 0} items</td>
+									<td class="p-2">{sale.paymentMethod} ({sale.paymentStatus})</td>
+									<td class="p-2 text-right font-semibold">{formatCurrency(sale.grandTotal)}</td>
+								</tr>
+							{/each}
+						</tbody>
+					</table>
+				</div>
+			{/if}
+		</div>
+	{:else}
+		<div class="rounded-lg border border-dashed p-8 text-center text-xs text-muted-foreground">
+			Click on any day above to expand and view individual transaction records.
+		</div>
+	{/if}
+</div> -->
+--> -->

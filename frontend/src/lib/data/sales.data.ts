@@ -26,12 +26,12 @@ export const salesData: Sale[] = [
         subTotal: 70000,
         discountTotal: 0,
         grandTotal: 70000,
-        dateOfSale: '2026-02-15',
+        dateOfSale: '2026-08-20',
         paymentMethod: 'M-Pesa',
         paymentStatus: 'Paid',
         status: 'Completed',
         saleperson: 'Sarah Jenkins',
-        createdAt: '2026-02-15T09:15:00.000Z',
+        createdAt: '2026-02-20T09:15:00.000Z',
         updatedAt: '2026-02-15T09:15:00.000Z'
     },
     {
