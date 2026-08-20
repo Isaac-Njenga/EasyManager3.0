@@ -94,13 +94,13 @@
 {/snippet}
 
 <!-- Payment Method -->
-{#snippet paymentCell(_value: unknown, sale: Sale)}
+<!-- {#snippet paymentCell(_value: unknown, sale: Sale)}
 	<div class="w-full">
 		<Badge variant="outline" class="text-[11px] font-normal">
 			{sale.paymentMethod}
 		</Badge>
 	</div>
-{/snippet}
+{/snippet} -->
 
 {#snippet totalCell(_value: unknown, sale: Sale)}
 	<div class="w-full">
