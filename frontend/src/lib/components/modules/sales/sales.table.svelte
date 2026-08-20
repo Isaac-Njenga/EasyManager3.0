@@ -104,7 +104,7 @@
 
 {#snippet totalCell(_value: unknown, sale: Sale)}
 	<div class="w-full">
-		<p class="font-normal text-green-600">
+		<p class="font-normal text-green-400">
 			{formatCurrency(sale.grandTotal)}
 		</p>
 	</div>
@@ -118,32 +118,30 @@
 
 <!-- Transaction Status -->
 {#snippet statusCell(_value: unknown, sale: Sale)}
-	{#if sale.status === 'Completed'}
-		<Badge
-			variant="outline"
-			class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-		>
-			Completed
-		</Badge>
-	{:else if sale.status === 'Processing'}
-		<Badge
-			variant="outline"
-			class="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-		>
-			Processing
-		</Badge>
-	{:else if sale.status === 'Cancelled'}
-		<Badge
-			variant="outline"
-			class="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-		>
-			Cancelled
-		</Badge>
-	{:else}
-		<Badge variant="outline" class="border-zinc-500/30 bg-zinc-500/10 text-zinc-500">
-			{sale.status}
-		</Badge>
-	{/if}
+	<div class="item-start flex flex-col gap-2">
+		<div>
+			{#if sale.paymentStatus === 'Paid'}
+				<Badge
+					variant="outline"
+					class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+				>
+					Paid
+				</Badge>
+			{:else if sale.paymentStatus === 'Pending'}
+				<Badge
+					variant="outline"
+					class="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
+				>
+					Pending
+				</Badge>
+			
+			{:else}
+				<Badge variant="outline" class="border-green-200/30 bg-green-200/10 text-green-200">
+					{sale.paymentStatus}
+				</Badge>
+			{/if}
+		</div>
+	</div>
 {/snippet}
 
 <!-- Row Actions -->
@@ -184,7 +182,6 @@
 		receiptCell,
 		itemsCell,
 		customerCell,
-		paymentCell,
 		statusCell,
 		actionsCell,
 		totalCell,
@@ -196,7 +193,7 @@
 <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedSale?.receiptNumber ?? 'Sale Details'}
-	description={selectedSale ? `Processed by ${selectedSale.saleperson}` : ''}
+	description={selectedSale ? `Sale by ${selectedSale.saleperson}` : ''}
 	direction="right"
 >
 	{#if selectedSale}

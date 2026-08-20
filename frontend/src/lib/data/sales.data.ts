@@ -227,7 +227,7 @@ export const salesData: Sale[] = [
         grandTotal: 35000,
         dateOfSale: '2026-02-17',
         paymentMethod: 'Credit Card',
-        paymentStatus: 'Refunded',
+        paymentStatus: 'Partially Paid',
         status: 'Returned',
         saleperson: 'Sarah Jenkins',
         notes: 'Customer returned item due to color mismatch.',

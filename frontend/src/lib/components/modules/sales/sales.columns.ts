@@ -27,38 +27,33 @@ export const saleColumns: TableColumn<Sale>[] = [
 	{
 		key: 'items',
 		header: 'Items',
-		class: 'min-w-[200px]',
+		class: 'max-w-[120px]',
 		cell: 'itemsCell'
 	},
 	{
 		key: 'customer',
 		header: 'Customer',
-		class: 'min-w-[140px]',
+		class: 'w-auto',
 		cell: 'customerCell'
 	},
-	{
-		key: 'paymentMethod',
-		header: 'Payment',
-		class: 'w-[120px]',
-		cell: 'paymentCell'
-	},
+
 	{
 		key: 'grandTotal',
 		header: 'Total',
-		class: 'text-right w-[110px]',
+		class: 'text-left ',
 		cell: 'totalCell'
 		// render: (sale: unknown) => formatCurrency(sale.grandTotal)
 	},
 	{
 		key: 'status',
 		header: 'Status',
-		class: 'text-center w-[110px]',
+		class: 'text-left ',
 		cell: 'statusCell'
 	},
 	{
 		key: 'createdAt',
 		header: 'Date',
-		class: 'text-right w-[110px]',
+		class: 'text-right',
 		cell: 'dateCell'
 		// render: (sale) => formatDate(sale.createdAt)
 	},

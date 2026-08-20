@@ -1,5 +1,5 @@
 export type PaymentMethod = 'Cash' | 'M-Pesa' | 'Credit Card' | 'Bank Transfer';
-export type PaymentStatus = 'Paid' | 'Pending' | 'Partially Paid' | 'Refunded';
+export type PaymentStatus = 'Paid' | 'Pending' | 'Partially Paid';
 export type SaleStatus = 'Completed' | 'Processing' | 'Cancelled' | 'Returned';
 
 export type SaleItem = {

@@ -29,7 +29,7 @@
 	<PageHeader
 		title="Sales"
 		description="Manage sales and transactions."
-		actionLabel="+ Record A Sale"
+		actionLabel="Record A Sale"
 		actionHref="/sales/new"
 	/>
 
