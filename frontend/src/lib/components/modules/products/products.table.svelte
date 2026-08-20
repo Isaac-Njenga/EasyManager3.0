@@ -21,6 +21,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 
 	type Props = {
 		filteredProducts: Product[];
@@ -30,6 +31,7 @@
 
 	// 1. Reactive state variables using $state
 	let isDrawerOpen = $state(false);
+	let isDeleteProductOpen = $state(false);
 	let selectedProduct = $state<Product | null>(null);
 
 	function viewProduct(product: Product) {
@@ -42,8 +44,16 @@
 		goto(resolve(`/products/${product._id}`));
 	}
 
+	function openDeleteModal(product: Product) {
+		selectedProduct = product;
+		isDeleteProductOpen = true;
+	}
+
 	function deleteProduct(product: Product) {
 		console.log('Delete product:', product._id);
+		isDeleteProductOpen = false;
+		selectedProduct = null;
+		isDrawerOpen = false;
 	}
 </script>
 
@@ -118,7 +128,7 @@
 			<DropdownMenuSeparator />
 			<DropdownMenuItem
 				class="text-destructive focus:text-destructive"
-				onclick={() => deleteProduct(product)}
+				onclick={() => openDeleteModal(product)}
 			>
 				Delete
 			</DropdownMenuItem>
@@ -151,9 +161,31 @@
 >
 	<ProductsDetails {selectedProduct} />
 	{#snippet footer()}
-		<Button href={`/products/${selectedProduct?._id}`} size="xs">Edit Product</Button>
+		<div class="flex w-full flex-col gap-2">
+			<!-- Top row: Edit and Delete take 50% width each -->
+			<div class="grid w-full grid-cols-2 gap-2">
+				<Button href={`/products/${selectedProduct?._id}`} size="xs" class="w-full">
+					Edit Product
+				</Button>
+				<Button
+					onclick={() => openDeleteModal(selectedProduct!)}
+					size="xs"
+					variant="destructive"
+					class="w-full"
+				>
+					Delete Product
+				</Button>
+			</div>
 
-		<Drawer.Close class={buttonVariants({ variant: 'destructive', size: 'xs' })}>Close</Drawer.Close
-		>
+			<!-- Bottom row: Close takes 100% width -->
+			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>
+				Close
+			</Drawer.Close>
+		</div>
 	{/snippet}
 </DataDrawer>
+
+<DeleteDialog
+	bind:open={isDeleteProductOpen}
+	handleDelete={() => deleteProduct(selectedProduct!)}
+/>
