@@ -82,10 +82,10 @@
 <div class="space-y-4">
 	<!-- Upload Dropzone Container -->
 	<div
-		class="relative mx-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 bg-white p-8 text-center transition-all duration-300 hover:border-primary"
+		class="relative mx-4 flex flex-col items-center justify-center rounded-2xl border-2 border-dashed border-gray-300 p-8 text-center transition-all duration-300 hover:border-primary"
 	>
 		<div class="mb-2 flex items-center gap-2 text-gray-700">
-			<UploadCloudIcon class="h-5 w-5" />
+			<UploadCloudIcon class="h-5 w-5 text-primary" />
 		</div>
 
 		<div class="flex flex-col items-center">
@@ -137,7 +137,7 @@
 		</div>
 	{:else if !imageUploading}
 		<!-- Empty State -->
-		<div class="mt-4 flex flex-col items-center rounded-xl bg-white p-8 text-center text-gray-400">
+		<div class="mt-4 flex flex-col items-center rounded-xl p-8 text-center text-gray-400">
 			<InboxIcon class="mb-2 h-9 w-9" />
 			<div class="text-sm">No images selected yet</div>
 		</div>

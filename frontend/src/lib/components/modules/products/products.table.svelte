@@ -49,7 +49,7 @@
 
 {#snippet imageCell(_value: unknown, product: Product)}
 	{#if product.image && product.image.length > 0}
-		<ImagePreview src={product.image[0]} alt={product.name} class="size-12" />
+		<ImagePreview src={product.image[0]} alt={product.name} class="size-14" />
 	{:else}
 		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
 			<span class="text-xs text-muted-foreground">No image</span>

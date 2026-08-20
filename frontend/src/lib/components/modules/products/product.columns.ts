@@ -11,6 +11,7 @@ export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'image',
 		header: 'Image',
+		class: 'max-w-[60px]',
 		cell: 'imageCell'
 	},
 
@@ -39,7 +40,7 @@ export const productColumns: TableColumn<Product>[] = [
 		key: 'quantity',
 		header: 'Quantity',
 		cell: 'qtyCell',
-		class: 'text-right',
+		class: 'text-right'
 		// render: (value) => `${Number(value ?? 0)}`
 	},
 
@@ -47,7 +48,7 @@ export const productColumns: TableColumn<Product>[] = [
 		key: 'status',
 		header: 'Status',
 		class: 'text-center',
-		cell:'statusCell'
+		cell: 'statusCell'
 		// render: (value) => (value === 'Active' ? 'Active' : 'Inactive')
 	},
 

@@ -112,7 +112,7 @@
 			<Card
 				><CardHeader>
 					<CardTitle>Product Images Upload</CardTitle>
-				</CardHeader><ImageUpload /></Card
+				</CardHeader><ImageUpload selectedImages={image} /></Card
 			>
 		</div>
 
