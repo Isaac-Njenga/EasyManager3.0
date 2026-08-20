@@ -29,7 +29,7 @@
 <Sidebar collapsible="icon">
 	<!-- Header -->
 	<SidebarHeader>
-		<div class="flex h-10 items-center gap-3 px-1.5">
+		<div class="flex h-10 items-center gap-3 ">
 			<div
 				class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
 			>
