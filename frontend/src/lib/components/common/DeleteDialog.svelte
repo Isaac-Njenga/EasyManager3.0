@@ -11,7 +11,7 @@
 </script>
 
 <Dialog.Root bind:open>
-	<Dialog.Content class="max-w-[425px]">
+	<Dialog.Content class="max-w-106.25">
 		<Dialog.Header>
 			<Dialog.Title>Are you sure?</Dialog.Title>
 			<Dialog.Description>You cannot undo this action</Dialog.Description>

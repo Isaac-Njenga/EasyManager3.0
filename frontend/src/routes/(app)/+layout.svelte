@@ -1,7 +1,7 @@
 <script lang="ts">
-	import { SidebarProvider,  } from "$lib/components/ui/sidebar";
-	import AppSidebar from "$lib/components/layout/AppSidebar.svelte";
-	// import Header from "$lib/components/layout/Header.svelte";
+	import { SidebarProvider } from '$lib/components/ui/sidebar';
+	import AppSidebar from '$lib/components/layout/AppSidebar.svelte';
+	// import Header from '$lib/components/layout/Header.svelte';
 
 	let { children } = $props();
 </script>

@@ -8,41 +8,62 @@ import Receipt from '@lucide/svelte/icons/receipt';
 import ChartNoAxesCombined from '@lucide/svelte/icons/chart-no-axes-combined';
 import Settings from '@lucide/svelte/icons/settings';
 
-type NavigationItem = {
+export type NavigationItem = {
 	title: string;
 	href: Pathname;
 	icon: Component;
 };
 
-export const navigation: NavigationItem[] = [
+export type NavigationGroup = {
+	label: string;
+	items: NavigationItem[];
+};
+
+export const navigationGroups: NavigationGroup[] = [
 	{
-		title: 'Dashboard',
-		href: '/dashboard',
-		icon: LayoutDashboard
+		label: 'Overview',
+		items: [
+			{
+				title: 'Dashboard',
+				href: '/dashboard',
+				icon: LayoutDashboard
+			}
+		]
 	},
 	{
-		title: 'Sales',
-		href: '/sales',
-		icon: ShoppingCart
+		label: 'Commerce',
+		items: [
+			{
+				title: 'Products',
+				href: '/products',
+				icon: Package
+			},
+			{
+				title: 'Sales',
+				href: '/sales',
+				icon: ShoppingCart
+			},
+
+			{
+				title: 'Expenses',
+				href: '/expenses',
+				icon: Receipt
+			}
+		]
 	},
 	{
-		title: 'Products',
-		href: '/products',
-		icon: Package
-	},
-	{
-		title: 'Expenses',
-		href: '/expenses',
-		icon: Receipt
-	},
-	{
-		title: 'Reports',
-		href: '/reports',
-		icon: ChartNoAxesCombined
-	},
-	{
-		title: 'Settings',
-		href: '/settings',
-		icon: Settings
+		label: 'System',
+		items: [
+			{
+				title: 'Reports',
+				href: '/reports',
+				icon: ChartNoAxesCombined
+			},
+			{
+				title: 'Settings',
+				href: '/settings',
+				icon: Settings
+			}
+		]
 	}
 ];
