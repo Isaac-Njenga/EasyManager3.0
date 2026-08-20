@@ -17,7 +17,7 @@
 
 	import { productColumns } from '$lib/components/modules/products/product.columns';
 	import type { Product } from '$lib/types/product.types';
-	import ProductsDetails from '../../../../routes/(app)/products/ProductsDetails.svelte';
+	import ProductsDetails from '../../../../routes/(app)/products/ProductDetails.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';

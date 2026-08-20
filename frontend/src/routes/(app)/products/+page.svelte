@@ -1,7 +1,8 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ProductTable from '$lib/components/modules/products/products.table.svelte';
-	import Button from '$lib/components/ui/button/button.svelte';
+	// import Button from '$lib/components/ui/button/button.svelte';
+	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 
 	import { productsData as products } from '$lib/data/products.data';
@@ -33,11 +34,11 @@
 	<PageHeader
 		title="Products"
 		description="Manage your products and inventory."
-		actionLabel="+ Add Product"
+		actionLabel="+ Add A Product"
 		actionHref="/products/new"
 	/>
 
-	<div>
+	<div class="mb-3">
 		<div class="mb-3">
 			<!-- 3. Pass state and updater callback -->
 			<Search
@@ -46,14 +47,15 @@
 				onChange={(val) => (searchTerm = val)}
 			/>
 		</div>
-		<div class="flex gap-2">
+		<div class="flex gap-2 ">
 			{#each statusTags as tag (tag)}
-				<Button
+				<Badge
 					variant={selectedStatus === tag ? 'default' : 'outline'}
 					onclick={() => (selectedStatus = tag)}
+					class="pointer-fine:cursor-pointer"
 				>
 					{tag}
-				</Button>
+				</Badge>
 			{/each}
 		</div>
 	</div>

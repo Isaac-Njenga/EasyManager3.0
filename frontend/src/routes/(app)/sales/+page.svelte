@@ -1,10 +1,73 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
+	import Search from '$lib/components/common/Search.svelte';
+	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import Loader2Icon from '@lucide/svelte/icons/loader-2';
+	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
+	import { salesData } from '$lib/data/sales.data';
+
+	let searchTerm = $state('');
+	let selectedStatus = $state('All');
+
+	let isSearching = $state(false);
+	const statusTags = ['All', 'Active', 'Inactive'];
+
+	let filteredSales = $derived(
+		salesData.filter((item) => {
+			const normalizedSearch = searchTerm.trim().toLowerCase();
+
+			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
+			const matchesSearch =
+				!normalizedSearch ||
+				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			return matchesSearch && matchesStatus;
+		})
+	);
 </script>
 
-<PageHeader
-	title="Sales"
-	description="Manage sales and transactions."
-	actionLabel="+ Add sale"
-	actionHref="/sales/new"
-/>
+<div class="space-y-6">
+	<PageHeader
+		title="Sales"
+		description="Manage sales and transactions."
+		actionLabel="+ Record A Sale"
+		actionHref="/sales/new"
+	/>
+
+	<div class="mb-3">
+		<div class="mb-3">
+			<!-- 3. Pass state and updater callback -->
+			<Search
+				value={searchTerm}
+				bind:isLoading={isSearching}
+				onChange={(val) => (searchTerm = val)}
+			/>
+		</div>
+		<div class="flex gap-2">
+			{#each statusTags as tag (tag)}
+				<Badge
+					variant={selectedStatus === tag ? 'default' : 'outline'}
+					onclick={() => (selectedStatus = tag)}
+					class="pointer-fine:cursor-pointer"
+				>
+					{tag}
+				</Badge>
+			{/each}
+		</div>
+	</div>
+
+	<div>
+		{#if isSearching}
+			<div class="align-center flex flex-row items-center justify-center gap-4">
+				<Loader2Icon class="animate-spin" />
+				<div class="py-8 text-center text-muted-foreground">Loading sales...</div>
+			</div>
+		{:else}
+			{#if searchTerm}
+				<div class="mb-2 text-sm text-muted-foreground">
+					Showing results for <b>"{searchTerm}"</b>
+				</div>
+			{/if}
+			<SalesTable {filteredSales} />
+		{/if}
+	</div>
+</div>
