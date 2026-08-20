@@ -59,7 +59,7 @@
 	let customerPhone = $state('');
 	let customerEmail = $state('');
 
-	let paymentMethod = $state<PaymentMethod>('M-Pesa');
+	let paymentMethod = $state<PaymentMethod>('Cash');
 	let paymentStatus = $state<PaymentStatus>('Paid');
 	let saleStatus = $state<SaleStatus>('Completed');
 	let saleperson = $state('');
@@ -73,6 +73,20 @@
 		{ label: 'Sale Status', getValue: () => saleStatus },
 		{ label: 'Date of Sale', getValue: () => dateOfSale }
 	];
+
+	$effect(() => {
+		selectedItems = sale?.items ?? [];
+		customerName = sale?.customer?.name ?? '';
+		customerPhone = sale?.customer?.phone ?? '';
+		customerEmail = sale?.customer?.email ?? '';
+
+		paymentMethod = sale?.paymentMethod ?? 'Cash';
+		paymentStatus = sale?.paymentStatus ?? 'Paid';
+		saleStatus = sale?.status ?? 'Completed';
+		saleperson = sale?.saleperson ?? '';
+		dateOfSale = sale?.dateOfSale ?? new Date().toISOString().split('T')[0];
+		notes = sale?.notes ?? '';
+	});
 
 	let isSubmitting = $state(false);
 
@@ -159,6 +173,8 @@
 	function handleSubmit(e: SubmitEvent) {
 		e.preventDefault();
 
+		const rawItems = $state.snapshot(selectedItems);
+
 		const missingFields = requiredFieldsConfig
 			.filter((field) => !field.getValue()?.toString().trim())
 			.map((field) => field.label);
@@ -184,7 +200,7 @@
 				phone: customerPhone || undefined,
 				email: customerEmail || undefined
 			},
-			items: selectedItems,
+			items: rawItems,
 			subTotal,
 			discountTotal,
 			grandTotal,
@@ -316,7 +332,7 @@
 							<div class="flex-1 space-y-0.5">
 								<p class="font-semibold text-foreground">{item.productName}</p>
 								<p class="text-[11px] text-muted-foreground">
-									 {item.code}
+									{item.code}
 								</p>
 							</div>
 
@@ -386,7 +402,8 @@
 	</div>
 
 	<!-- RIGHT PANEL: Customer Info, Payment Details & Summary (5 Cols) -->
-	<div class="space-y-6 lg:col-span-5"><!-- Payment & Status Options -->
+	<div class="space-y-6 lg:col-span-5">
+		<!-- Payment & Status Options -->
 		<div class="space-y-3 rounded-lg border bg-card p-4 shadow-sm">
 			<h3 class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
 				Transaction Details
@@ -505,8 +522,6 @@
 				</div>
 			</div>
 		</div>
-
-		
 
 		<!-- Financial Summary Card & Submit Button -->
 		<div class="space-y-3 rounded-lg border bg-card p-4 shadow-sm">
