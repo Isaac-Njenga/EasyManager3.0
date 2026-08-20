@@ -8,6 +8,7 @@
 		description?: string;
 		direction?: 'left' | 'right' | 'top' | 'bottom';
 		children?: Snippet;
+		width?: string;
 		footer?: Snippet;
 	};
 
@@ -16,13 +17,14 @@
 		title,
 		description,
 		direction = 'right',
+		width = 'w-[700px]',
 		children,
 		footer
 	}: Props = $props();
 </script>
 
-<Drawer.Root {direction} bind:open>
-	<Drawer.Content class="h-full max-w-2xl">
+<Drawer.Root {direction} bind:open modal={false}
+	><Drawer.Content class={`h-full max-w-[90vw] ${width}`}>
 		{#if title || description}
 			<Drawer.Header>
 				{#if title}<Drawer.Title>{title}</Drawer.Title>{/if}

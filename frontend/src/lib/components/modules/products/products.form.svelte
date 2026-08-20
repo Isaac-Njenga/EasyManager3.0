@@ -21,7 +21,7 @@
 	let sku = $state('');
 	let code = $state('');
 	let colour = $state('');
-	let image = $state('');
+	let image = $state<string[]>([]);
 	let description = $state('');
 	let category = $state('');
 	let costPrice = $state('');
@@ -47,7 +47,7 @@
 		sku = product?.sku ?? '';
 		code = product?.code ?? '';
 		colour = product?.colour ?? '';
-		// image = product?.image ?? '';
+		image = product?.image ?? [];
 		description = product?.description ?? '';
 		category = product?.category ?? '';
 		costPrice = product?.costPrice?.toString() ?? '';

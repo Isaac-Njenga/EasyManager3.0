@@ -19,6 +19,8 @@
 	import type { Product } from '$lib/types/product.types';
 	import ProductsDetails from '../../../../routes/(app)/products/ProductsDetails.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
 
 	type Props = {
 		filteredProducts: Product[];
@@ -36,7 +38,8 @@
 	}
 
 	function editProduct(product: Product) {
-		console.log('Edit product:', product._id);
+		// console.log('Edit product:', product._id);
+		goto(resolve(`/products/${product._id}`));
 	}
 
 	function deleteProduct(product: Product) {
@@ -148,7 +151,9 @@
 >
 	<ProductsDetails {selectedProduct} />
 	{#snippet footer()}
-		<Button href={`/products/${selectedProduct?._id}/edit`}>Edit Product</Button>
-		<Drawer.Close class={buttonVariants({ variant: 'outline' })}>Close</Drawer.Close>
+		<Button href={`/products/${selectedProduct?._id}`} size="xs">Edit Product</Button>
+
+		<Drawer.Close class={buttonVariants({ variant: 'destructive', size: 'xs' })}>Close</Drawer.Close
+		>
 	{/snippet}
 </DataDrawer>

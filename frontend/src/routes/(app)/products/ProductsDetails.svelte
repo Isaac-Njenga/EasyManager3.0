@@ -15,7 +15,7 @@
 	import Layers from '@lucide/svelte/icons/layers';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import DollarSign from '@lucide/svelte/icons/dollar-sign';
+	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 
 	type Props = {
 		selectedProduct: Product | null;
@@ -62,15 +62,25 @@
 					/>
 
 					<!-- Status Badge Overlay -->
-					<div class="absolute top-3 left-3">
+					<div class="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
 						<Badge
 							variant={selectedProduct.status === 'Active' ? 'default' : 'secondary'}
 							class={selectedProduct.status === 'Active'
-								? 'bg-emerald-600 hover:bg-emerald-700'
+								? 'bg-emerald-600 text-white hover:bg-emerald-700'
 								: ''}
 						>
 							{selectedProduct.status}
 						</Badge>
+
+						{#if selectedProduct.quantity < 5}
+							<Badge
+								variant="secondary"
+								class="flex items-center gap-1 border-amber-500/30 bg-red-500 text-xs font-medium text-white"
+							>
+								<TriangleAlert class="size-3" />
+								Low Stock
+							</Badge>
+						{/if}
 					</div>
 
 					<!-- Carousel Controls (Show if multiple images) -->
@@ -127,23 +137,30 @@
 		</div>
 
 		<!-- 2. Price & Inventory Stat Cards -->
-		<div class="grid grid-cols-2 gap-3">
-			<Card class="bg-muted/40 p-3 shadow-none">
+		<div class="grid grid-cols-3 gap-3">
+			<Card class="bg-muted/40 p-2 shadow-none">
 				<p class="text-xs font-medium text-muted-foreground">Selling Price</p>
-				<p class="mt-1 text-lg font-bold text-primary">
+				<p class="text-md mt-0 font-bold text-green-600">
 					{formatCurrency(selectedProduct.sellingPrice)}
 				</p>
 			</Card>
 
-			<Card class="bg-muted/40 p-3 shadow-none">
-				<p class="text-xs font-medium text-muted-foreground">Stock Level</p>
-				<div class="mt-1 flex items-center gap-2">
-					<span class="text-lg font-bold">{selectedProduct.quantity}</span>
-					{#if selectedProduct.quantity < 5}
-						<Badge variant="outline" class="border-amber-500/30 bg-amber-500/10 text-amber-600"
-							>Low Stock</Badge
-						>
-					{/if}
+			<Card class="bg-muted/40 p-2 shadow-none">
+				<p class="text-xs font-medium text-muted-foreground">Cost Price</p>
+				<p class="text-md mt-0 font-bold text-red-400">
+					{formatCurrency(selectedProduct.costPrice)}
+				</p>
+			</Card>
+
+			<Card class="bg-muted/40 p-2 shadow-none">
+				<p class="mb-0.5 text-xs font-medium text-muted-foreground">Stock Level</p>
+
+				<div class="flex items-center gap-2">
+					<span
+						class={selectedProduct.quantity < 5
+							? 'text-md font-bold text-amber-600'
+							: 'text-md font-bold'}>{selectedProduct.quantity}</span
+					>
 				</div>
 			</Card>
 		</div>
@@ -155,9 +172,8 @@
 			<div class="flex items-start gap-2.5">
 				<Barcode class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 				<div>
-					<p class="text-xs text-muted-foreground">SKU / Code</p>
+					<p class="text-xs text-muted-foreground">SKU</p>
 					<p class="font-medium">{selectedProduct.sku}</p>
-					<p class="text-xs text-muted-foreground">{selectedProduct.code}</p>
 				</div>
 			</div>
 
@@ -189,7 +205,7 @@
 				</div>
 			{/if}
 
-			{#if selectedProduct.costPrice}
+			<!-- {#if selectedProduct.costPrice}
 				<div class="flex items-start gap-2.5">
 					<DollarSign class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 					<div>
@@ -197,7 +213,7 @@
 						<p class="font-medium">{formatCurrency(selectedProduct.costPrice)}</p>
 					</div>
 				</div>
-			{/if}
+			{/if} -->
 		</div>
 
 		<!-- 4. Description -->
