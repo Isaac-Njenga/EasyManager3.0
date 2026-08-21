@@ -7,6 +7,9 @@ import Package from '@lucide/svelte/icons/package';
 import Receipt from '@lucide/svelte/icons/receipt';
 import ChartNoAxesCombined from '@lucide/svelte/icons/chart-no-axes-combined';
 import Settings from '@lucide/svelte/icons/settings';
+import Store from '@lucide/svelte/icons/store';
+import Warehouse from '@lucide/svelte/icons/warehouse';
+import Users from '@lucide/svelte/icons/users';
 
 export type NavigationItem = {
 	title: string;
@@ -43,12 +46,23 @@ export const navigationGroups: NavigationGroup[] = [
 				href: '/sales',
 				icon: ShoppingCart
 			},
-
+			{
+				title: 'Customers',
+				href: '/customers',
+				icon: Users
+			},
 			{
 				title: 'Expenses',
 				href: '/expenses',
 				icon: Receipt
 			}
+		]
+	},
+	{
+		label: 'Locations',
+		items: [
+			{ title: 'Shops', href: '/shops', icon: Store },
+			{ title: 'Warehouses', href: '/warehouses', icon: Warehouse }
 		]
 	},
 	{

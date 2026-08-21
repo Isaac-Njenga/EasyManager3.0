@@ -29,7 +29,7 @@
 <Sidebar collapsible="icon">
 	<!-- Header -->
 	<SidebarHeader>
-		<div class="flex h-10 items-center gap-3 ">
+		<div class="flex h-8 items-center gap-3 ">
 			<div
 				class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
 			>
@@ -75,7 +75,7 @@
 	</SidebarContent>
 
 	<!-- Footer -->
-	<SidebarFooter class="gap-2 p-2">
+	<SidebarFooter class="gap-2 px-2">
 		<SidebarMenu>
 			<!-- Toggle Collapse Trigger -->
 			<SidebarMenuItem class="flex justify-start">

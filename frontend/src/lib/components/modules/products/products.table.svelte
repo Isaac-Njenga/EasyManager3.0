@@ -109,7 +109,7 @@
 		<p class="text-xs">{product.quantity ?? ''}</p>
 		<!-- low stock alert -->
 		{#if product.quantity <= 5}
-			<p class="text-xs text-muted-foreground">Low stock</p>
+			<p class="text-xs text-amber-500">Low stock</p>
 		{/if}
 	</div>
 {/snippet}
