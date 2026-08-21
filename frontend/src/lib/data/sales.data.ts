@@ -59,7 +59,7 @@ export const salesData: Sale[] = [
         subTotal: 15000,
         discountTotal: 1000,
         grandTotal: 14000,
-        dateOfSale: '2026-02-15',
+        dateOfSale: '2026-08-21',
         paymentMethod: 'M-Pesa',
         paymentStatus: 'Paid',
         status: 'Completed',
