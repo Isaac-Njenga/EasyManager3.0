@@ -16,6 +16,7 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
+	import { formatCurrency } from '$lib/utils';
 
 	type Props = {
 		selectedProduct: Product | null;
@@ -38,14 +39,6 @@
 		if (images.length > 0) {
 			activeImageIndex = (activeImageIndex - 1 + images.length) % images.length;
 		}
-	}
-
-	function formatCurrency(amount: number) {
-		return new Intl.NumberFormat('en-KE', {
-			style: 'currency',
-			currency: 'KES',
-			minimumFractionDigits: 2
-		}).format(amount);
 	}
 </script>
 
@@ -232,13 +225,13 @@
 			<div class="flex justify-between">
 				<span>Created:</span>
 				<span class="font-medium text-foreground"
-					>{format(new Date(selectedProduct.createdAt), 'PPPp')}</span
+					>{format(new Date(selectedProduct.createdAt), 'PPPPp')}</span
 				>
 			</div>
 			<div class="flex justify-between">
 				<span>Last Updated:</span>
 				<span class="font-medium text-foreground"
-					>{format(new Date(selectedProduct.updatedAt), 'PPPp')}</span
+					>{format(new Date(selectedProduct.updatedAt), 'PPPPp')}</span
 				>
 			</div>
 		</div>

@@ -41,7 +41,6 @@
 	}
 
 	function editExpense(expense: Expense) {
-		// console.log('Edit Expense:', Expense._id);
 		goto(resolve(`/expenses/${expense._id}`));
 	}
 

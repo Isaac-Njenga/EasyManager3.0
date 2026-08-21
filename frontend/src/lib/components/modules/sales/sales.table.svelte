@@ -14,7 +14,7 @@
 
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
-	import { formatCurrency, saleColumns } from '$lib/components/modules/sales/sales.columns';
+	import {  saleColumns } from '$lib/components/modules/sales/sales.columns';
 	import type { Sale } from '$lib/types/sale.types';
 	import SalesDetails from '../../../../routes/(app)/sales/SaleDetails.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
@@ -22,6 +22,7 @@
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { format } from 'date-fns';
+	import { formatCurrency } from '$lib/utils';
 
 	type Props = {
 		filteredSales: Sale[];

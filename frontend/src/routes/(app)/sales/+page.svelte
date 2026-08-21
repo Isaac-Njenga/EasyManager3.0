@@ -6,7 +6,7 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import Calendar from '@lucide/svelte/icons/calendar';
-	import { formatCurrency } from '$lib/components/modules/sales/sales.columns';
+	import { formatCurrency } from '$lib/utils';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import { salesData } from '$lib/data/sales.data';
 	import Search from '$lib/components/common/Search.svelte';

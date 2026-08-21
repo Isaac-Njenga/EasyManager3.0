@@ -60,7 +60,8 @@
 	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
 		<h3
 			class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
-		> Overview
+		>
+			Overview
 		</h3>
 		<Separator />
 
@@ -103,4 +104,18 @@
 			</p>
 		</div>
 	{/if}
+	<div class="space-y-1 rounded-lg border bg-muted/10 p-3 text-[11px] text-muted-foreground">
+		<div class="flex justify-between">
+			<span>Created:</span>
+			<span class="font-medium text-foreground"
+				>{expense?.createdAt ? format(new Date(expense?.createdAt), 'PPPPp') : ''}</span
+			>
+		</div>
+		<div class="flex justify-between">
+			<span>Last Updated:</span>
+			<span class="font-medium text-foreground"
+				>{expense?.updatedAt ? format(new Date(expense?.updatedAt), 'PPPPp') : ''}</span
+			>
+		</div>
+	</div>
 </div>

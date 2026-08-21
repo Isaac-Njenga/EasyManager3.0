@@ -22,7 +22,7 @@
 	import Package from '@lucide/svelte/icons/package';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import { productsData } from '$lib/data/products.data';
-	import { formatCurrency } from '$lib/components/modules/sales/sales.columns';
+	import { formatCurrency } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 
 	const paymentStatusOptions = [

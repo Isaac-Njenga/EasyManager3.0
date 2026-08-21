@@ -1,11 +1,8 @@
 import type { TableColumn } from '$lib/types/table.types';
 import type { Product } from '$lib/types/product.types';
+import { formatCurrency } from '$lib/utils';
 
-const formatCurrency = (value: number) =>
-	new Intl.NumberFormat('en-KE', {
-		style: 'currency',
-		currency: 'KES'
-	}).format(Number(value ?? 0));
+
 
 export const productColumns: TableColumn<Product>[] = [
 	{

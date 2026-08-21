@@ -6,7 +6,7 @@
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import Package from '@lucide/svelte/icons/package';
-	import { formatCurrency } from '$lib/components/modules/sales/sales.columns';
+	import { formatCurrency } from '$lib/utils';
 	import { format } from 'date-fns';
 
 	type Props = {
@@ -48,33 +48,6 @@
 
 			<!-- Transaction Badges -->
 			<div class="flex flex-col items-end gap-1.5">
-				<!-- {#if selectedSale.status === 'Completed'}
-					<Badge
-						variant="outline"
-						class="border-emerald-500/30 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-					>
-						Completed
-					</Badge>
-				{:else if selectedSale.status === 'Processing'}
-					<Badge
-						variant="outline"
-						class="border-amber-500/30 bg-amber-500/10 text-amber-600 dark:text-amber-400"
-					>
-						Processing
-					</Badge>
-				{:else if selectedSale.status === 'Cancelled'}
-					<Badge
-						variant="outline"
-						class="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
-					>
-						Cancelled
-					</Badge>
-				{:else}
-					<Badge variant="outline" class="border-zinc-500/30 bg-zinc-500/10 text-zinc-500">
-						{selectedSale.status}
-					</Badge>
-				{/if} -->
-
 				<Badge
 					variant="secondary"
 					class={selectedSale.paymentStatus === 'Paid'
@@ -87,31 +60,6 @@
 				</Badge>
 			</div>
 		</div>
-
-		<!-- Customer Summary -->
-		<!-- <div class="rounded-lg border bg-card p-4 shadow-sm">
-			<h4 class="mb-3 text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-				Customer Details
-			</h4>
-			<div class="grid grid-cols-1 gap-2 sm:grid-cols-2">
-				<div class="flex items-center gap-2 text-xs">
-					<User class="size-3.5 text-muted-foreground" />
-					<span class="font-medium">{selectedSale.customer?.name || 'Walk-in Customer'}</span>
-				</div>
-				{#if selectedSale.customer?.phone}
-					<div class="flex items-center gap-2 text-xs">
-						<Phone class="size-3.5 text-muted-foreground" />
-						<span>{selectedSale.customer.phone}</span>
-					</div>
-				{/if}
-				{#if selectedSale.customer?.email}
-					<div class="flex items-center gap-2 text-xs sm:col-span-2">
-						<Mail class="size-3.5 text-muted-foreground" />
-						<span class="truncate">{selectedSale.customer.email}</span>
-					</div>
-				{/if}
-			</div>
-		</div> -->
 
 		<!-- Purchased Line Items -->
 		<div class="space-y-3">
@@ -211,5 +159,19 @@
 		{/if}
 
 		<!-- Additional Actions -->
+		<div class="space-y-1 rounded-lg border bg-muted/10 p-3 text-[11px] text-muted-foreground">
+			<div class="flex justify-between">
+				<span>Created:</span>
+				<span class="font-medium text-foreground"
+					>{format(new Date(selectedSale.createdAt), 'PPPPp')}</span
+				>
+			</div>
+			<div class="flex justify-between">
+				<span>Last Updated:</span>
+				<span class="font-medium text-foreground"
+					>{format(new Date(selectedSale.updatedAt), 'PPPPp')}</span
+				>
+			</div>
+		</div>
 	</div>
 {/if}
