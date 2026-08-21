@@ -1,22 +1,6 @@
 import type { TableColumn } from '$lib/types/table.types';
 import type { Sale } from '$lib/types/sale.types';
 
-export const formatCurrency = (value: number) =>
-	new Intl.NumberFormat('en-KE', {
-		style: 'currency',
-		currency: 'KES',
-		minimumFractionDigits: 0
-	}).format(Number(value ?? 0));
-
-// const formatDate = (dateStr: string) => {
-// 	if (!dateStr) return '';
-// 	return new Date(dateStr).toLocaleDateString('en-KE', {
-// 		month: 'short',
-// 		day: 'numeric',
-// 		year: 'numeric'
-// 	});
-// };
-
 export const saleColumns: TableColumn<Sale>[] = [
 	{
 		key: 'receiptNumber',
@@ -42,7 +26,6 @@ export const saleColumns: TableColumn<Sale>[] = [
 		header: 'Total',
 		class: 'text-left ',
 		cell: 'totalCell'
-		// render: (sale: unknown) => formatCurrency(sale.grandTotal)
 	},
 	{
 		key: 'status',
@@ -55,7 +38,6 @@ export const saleColumns: TableColumn<Sale>[] = [
 		header: 'Date',
 		class: 'text-right',
 		cell: 'dateCell'
-		// render: (sale) => formatDate(sale.createdAt)
 	},
 	{
 		key: 'actions',

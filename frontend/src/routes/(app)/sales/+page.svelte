@@ -1,78 +1,6 @@
-<!-- <script lang="ts">
-	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import Search from '$lib/components/common/Search.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
-	import Loader2Icon from '@lucide/svelte/icons/loader-2';
-	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
-	import { salesData } from '$lib/data/sales.data';
-
-	let searchTerm = $state('');
-	let selectedStatus = $state('All');
-
-	let isSearching = $state(false);
-	const statusTags = ['All', 'Active', 'Inactive'];
-
-	let filteredSales = $derived(
-		salesData.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
-			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
-			return matchesSearch && matchesStatus;
-		})
-	);
-</script>
-
-<div class="space-y-6">
-	<PageHeader
-		title="Sales"
-		description="Manage sales and transactions."
-		actionLabel="Record A Sale"
-		actionHref="/sales/new"
-	/>
-
-	<div class="mb-3">
-		<div class="mb-3">
-			<Search
-				value={searchTerm}
-				bind:isLoading={isSearching}
-				onChange={(val) => (searchTerm = val)}
-			/>
-		</div>
-		<div class="flex gap-2">
-			{#each statusTags as tag (tag)}
-				<Badge
-					variant={selectedStatus === tag ? 'default' : 'outline'}
-					onclick={() => (selectedStatus = tag)}
-					class="pointer-fine:cursor-pointer"
-				>
-					{tag}
-				</Badge>
-			{/each}
-		</div>
-	</div>
-
-	<div>
-		{#if isSearching}
-			<div class="align-center flex flex-row items-center justify-center gap-4">
-				<Loader2Icon class="animate-spin" />
-				<div class="py-8 text-center text-muted-foreground">Loading sales...</div>
-			</div>
-		{:else}
-			{#if searchTerm}
-				<div class="mb-2 text-sm text-muted-foreground">
-					Showing results for <b>"{searchTerm}"</b>
-				</div>
-			{/if}
-			<SalesTable {filteredSales} />
-		{/if}
-	</div>
-</div> -->
-
 <script lang="ts">
 	// import type { Sale } from '$lib/types/sale.types';
+	import { SvelteDate } from 'svelte/reactivity';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
@@ -94,12 +22,12 @@
 
 	// --- State ---
 	// Default to current week's Monday
-	let selectedWeekStart = $state(getMonday(new Date()));
+	let selectedWeekStart = $state(getMonday(new SvelteDate()));
 	let selectedDayDateStr = $state<string | null>(null);
 
 	// --- Helper Functions ---
-	function getMonday(d: Date) {
-		const date = new Date(d);
+	function getMonday(d: Date | SvelteDate) {
+		const date = new SvelteDate(d);
 		const day = date.getDay();
 		const diff = date.getDate() - day + (day === 0 ? -6 : 1); // adjust when day is sunday
 		date.setDate(diff);
@@ -107,8 +35,8 @@
 		return date;
 	}
 
-	function addDays(date: Date, days: number) {
-		const result = new Date(date);
+	function addDays(date: Date | SvelteDate, days: number) {
+		const result = new SvelteDate(date);
 		result.setDate(result.getDate() + days);
 		return result;
 	}
@@ -256,10 +184,10 @@
 
 	<!-- 2. Weekly Day Overview Grid (7 Days) -->
 	<div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-		{#each weekDays as day}
+		{#each weekDays as day (day)}
 			<button type="button" onclick={() => selectDay(day.dateStr)} class="text-left transition-all">
 				<Card
-					class={`cursor-pointer hover:border-primary  shadow-sm hover:shadow-md ${
+					class={`cursor-pointer shadow-sm  hover:border-primary hover:shadow-md ${
 						selectedDayDateStr === day.dateStr
 							? 'border-primary bg-accent/40 ring-1 ring-primary'
 							: ''
