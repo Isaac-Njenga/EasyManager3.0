@@ -15,6 +15,7 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { expenseColumns } from '$lib/components/modules/expenses/expenses.column';
+	import ExpenseDetails from '../../../../routes/(app)/expenses/ExpenseDetails.svelte';
 	import type { Expense } from '$lib/types/expense.types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -86,19 +87,19 @@
 		>
 			Paid
 		</Badge>
-	{:else if expense.paymentStatus === 'Pending'}
+	{:else if expense.paymentStatus === 'Cancelled'}
 		<Badge
 			variant="outline"
 			class="border-rose-500/30 bg-rose-500/10 text-rose-600 dark:text-rose-400"
 		>
-			Pending
+			Cancelled
 		</Badge>
 	{:else}
 		<Badge
 			variant="outline"
-			class="border-zinc-500/30 bg-zinc-500/10 text-zinc-500 dark:text-zinc-400"
+			class="border-amber-500/30 bg-amber-500/10 text-amber-500 dark:text-amber-400"
 		>
-			{expense.paymentStatus ?? 'Cancelled'}
+			{expense.paymentStatus}
 		</Badge>
 	{/if}
 {/snippet}
@@ -106,7 +107,7 @@
 {#snippet actionsCell(_value: unknown, expense: Expense)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>
-			<Button variant="ghost" size="icon" class="size-8" aria-label={`Actions for ${expense.name}`}>
+			<Button variant="ghost" size="icon" class="size-8">
 				<MoreHorizontal class="size-4" />
 			</Button>
 		</DropdownMenuTrigger>
@@ -144,15 +145,15 @@
 <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedExpense?.title ?? 'Expense Details'}
-	description={selectedExpense ? `NO: ${selectedExpense.expenseNumber}` : ''}
+	description={selectedExpense ? `${selectedExpense.expenseNumber}` : ''}
 	direction="right"
 >
-	<!-- <ExpensesDetails {selectedExpense} /> -->
+	<ExpenseDetails {selectedExpense} />
 	{#snippet footer()}
 		<div class="flex w-full flex-col gap-2">
 			<!-- Top row: Edit and Delete take 50% width each -->
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/expense/${selectedExpense?._id}`} size="xs" class="w-full">
+				<Button href={`/expenses/${selectedExpense?._id}`} size="xs" class="w-full">
 					Edit Expense
 				</Button>
 				<Button

@@ -23,7 +23,7 @@ export const expensesData: Expense[] = [
 		amount: 12500,
 		dateOfExpense: '2026-08-05',
 		paymentMethod: 'M-Pesa',
-		paymentStatus: 'Paid',
+		paymentStatus: 'Cancelled',
 		payee: 'Kenya Power / Safaricom Business',
 		notes: 'KPLC token top-up and Fiber Internet renewal.',
 		createdAt: '2026-08-05T10:15:00Z',
