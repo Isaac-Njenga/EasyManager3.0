@@ -1,0 +1,78 @@
+<script lang="ts">
+	import PageHeader from '$lib/components/layout/PageHeader.svelte';
+	// import Button from '$lib/components/ui/button/button.svelte';
+	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import Loader2Icon from '@lucide/svelte/icons/loader-2';
+	import ShopTable from '$lib/components/modules/shop/shop.table.svelte';
+
+	import { shopsData as shops } from '$lib/data/shop.data';
+	import Search from '$lib/components/common/Search.svelte';
+
+	// 1. Reactive search state
+	let searchTerm = $state('');
+	let selectedStatus = $state('All');
+
+	let isSearching = $state(false);
+
+	const statusTags = ['All', 'Active', 'Inactive'];
+
+	// 2. Automatically derive filtered list based on search term
+	let filteredShops = $derived(
+		shops.filter((item) => {
+			const normalizedSearch = searchTerm.trim().toLowerCase();
+
+			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
+			const matchesSearch =
+				!normalizedSearch ||
+				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			return matchesSearch && matchesStatus;
+		})
+	);
+</script>
+
+<div class="space-y-6">
+	<PageHeader
+		title="Shops"
+		description="Manage your shops and locations."
+		actionLabel="+ Add A Shop"
+		actionHref="/shops/new"
+	/>
+
+	<div class="mb-3">
+		<div class="mb-3">
+			<!-- 3. Pass state and updater callback -->
+			<Search
+				value={searchTerm}
+				bind:isLoading={isSearching}
+				onChange={(val) => (searchTerm = val)}
+			/>
+		</div>
+		<div class="flex gap-2">
+			{#each statusTags as tag (tag)}
+				<Badge
+					variant={selectedStatus === tag ? 'default' : 'outline'}
+					onclick={() => (selectedStatus = tag)}
+					class="pointer-fine:cursor-pointer"
+				>
+					{tag}
+				</Badge>
+			{/each}
+		</div>
+	</div>
+
+	<div>
+		{#if isSearching}
+			<div class="align-center flex flex-row items-center justify-center gap-4">
+				<Loader2Icon class="animate-spin" />
+				<div class="py-8 text-center text-muted-foreground">Loading shops...</div>
+			</div>
+		{:else}
+			{#if searchTerm}
+				<div class="mb-2 text-sm text-muted-foreground">
+					Showing results for <b>"{searchTerm}"</b>
+				</div>
+			{/if}
+			<ShopTable {filteredShops} />
+		{/if}
+	</div>
+</div>

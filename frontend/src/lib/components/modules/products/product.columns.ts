@@ -2,8 +2,6 @@ import type { TableColumn } from '$lib/types/table.types';
 import type { Product } from '$lib/types/product.types';
 import { formatCurrency } from '$lib/utils';
 
-
-
 export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'image',
