@@ -111,9 +111,9 @@
 <!-- eslint-disable-next-line -->
 {#snippet qtyCell(_value: unknown, product: Product)}
 	<div class="w-full">
-		<p class="text-xs">{product.quantity ?? ''}</p>
+		<p class="text-xs">{product.totalQuantity ?? ''}</p>
 		<!-- low stock alert -->
-		{#if product.quantity <= 5}
+		{#if product.totalQuantity <= 5}
 			<p class="text-xs text-amber-500">Low stock</p>
 		{/if}
 	</div>

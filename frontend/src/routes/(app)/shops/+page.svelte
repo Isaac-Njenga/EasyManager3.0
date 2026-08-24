@@ -81,7 +81,7 @@
 				<Store class="size-4 text-primary" />
 			</div>
 			<div class="mt-2 flex items-baseline gap-2">
-				<span class="text-2xl font-bold tracking-tight text-foreground">
+				<span class="text-2xl font-bold tracking-tight text-green-300">
 					{analytics.activeShops}
 				</span>
 				<span class="text-xs text-muted-foreground">/ {analytics.totalShops} total</span>
@@ -95,7 +95,7 @@
 				<DollarSign class="size-4 text-emerald-500" />
 			</div>
 			<div class="mt-2">
-				<span class="text-2xl font-bold tracking-tight text-foreground">
+				<span class="text-2xl font-bold tracking-tight text-green-500">
 					{formatCurrency(analytics.totalStockValue)}
 				</span>
 			</div>
@@ -108,7 +108,7 @@
 				<Package class="size-4 text-blue-500" />
 			</div>
 			<div class="mt-2">
-				<span class="text-2xl font-bold tracking-tight text-foreground">
+				<span class="text-2xl font-bold tracking-tight text-orange-300">
 					{analytics.totalUnits.toLocaleString()}
 				</span>
 			</div>

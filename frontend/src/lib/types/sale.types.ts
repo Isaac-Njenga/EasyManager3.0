@@ -14,7 +14,7 @@ export type SaleItem = {
 	sellingPrice: number; // Price at time of sale
 	costPrice: number; // Cost price at time of sale (for profit metrics)
 	quantity: number;
-	location: string;
+	shop: string;
 	discount: number; // Discount per item (in KES)
 	totalPrice: number; // (unitPrice * quantity) - discount
 };

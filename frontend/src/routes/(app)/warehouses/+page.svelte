@@ -101,7 +101,7 @@
 				</div>
 			</div>
 			<div class="mt-3">
-				<span class="text-2xl font-bold tracking-tight text-foreground">
+				<span class="text-2xl font-bold tracking-tight text-green-500">
 					{formatCurrency(analytics.totalStockValue)}
 				</span>
 			</div>
@@ -118,7 +118,7 @@
 				</div>
 			</div>
 			<div class="mt-3">
-				<span class="text-2xl font-bold tracking-tight text-foreground">
+				<span class="text-2xl font-bold tracking-tight text-orange-300">
 					{analytics.totalUnitsStored.toLocaleString()}
 				</span>
 			</div>

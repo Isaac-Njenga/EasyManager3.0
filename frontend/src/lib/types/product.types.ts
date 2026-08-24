@@ -1,5 +1,11 @@
 export type ProductStatus = 'Active' | 'Inactive';
 
+export interface LocationStock {
+	locationId: string; // Mongo ID referencing Warehouse or Shop
+	locationType: 'Warehouse' | 'Shop';
+	quantity: number;
+}
+
 export type Product = {
 	_id: string;
 	name: string;
@@ -11,9 +17,9 @@ export type Product = {
 	category: string;
 	costPrice: number;
 	sellingPrice: number;
-	quantity: number;
+	totalQuantity: number;
 	status: ProductStatus;
-	location: string;
+	inventory: LocationStock[];
 	createdAt: string;
 	updatedAt: string;
 };
