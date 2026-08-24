@@ -27,7 +27,6 @@
 	let costPrice = $state('');
 	let sellingPrice = $state('');
 	let quantity = $state('');
-	let location = $state('');
 	let status = $state<ProductStatus>('Active');
 
 	// 1. Map required field keys to user-friendly labels
@@ -39,7 +38,6 @@
 		{ label: 'Cost Price', getValue: () => costPrice },
 		{ label: 'Selling Price', getValue: () => sellingPrice },
 		{ label: 'Current Stock', getValue: () => quantity },
-		{ label: 'Location', getValue: () => location }
 	];
 
 	$effect(() => {
@@ -52,8 +50,7 @@
 		category = product?.category ?? '';
 		costPrice = product?.costPrice?.toString() ?? '';
 		sellingPrice = product?.sellingPrice?.toString() ?? '';
-		quantity = product?.quantity?.toString() ?? '';
-		location = product?.location?.toString() ?? '';
+		quantity = product?.totalQuantity?.toString() ?? '';
 		status = product?.status ?? 'Active';
 	});
 
@@ -181,11 +178,6 @@
 					<div class="space-y-2">
 						<Label for="quantity">Current Stock *</Label>
 						<Input id="quantity" type="number" min="0" step="1" bind:value={quantity} />
-					</div>
-
-					<div class="space-y-2">
-						<Label for="location">Location *</Label>
-						<Input id="location" type="text" bind:value={location} />
 					</div>
 				</CardContent>
 			</Card>

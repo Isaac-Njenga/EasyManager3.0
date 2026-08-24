@@ -151,7 +151,7 @@
 				sellingPrice: product.sellingPrice,
 				costPrice: product.costPrice,
 				quantity: 1,
-				shop: product.shop,
+				shop: product.inventory[],
 				discount: 0,
 				totalPrice: product.sellingPrice
 			};

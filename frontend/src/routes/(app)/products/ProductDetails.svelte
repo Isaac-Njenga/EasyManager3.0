@@ -4,19 +4,18 @@
 	import { Separator } from '$lib/components/ui/separator';
 	import { Card } from '$lib/components/ui/card';
 	import { format } from 'date-fns';
-	// import ImagePreview from '$lib/components/common/ImagePreview.svelte';
+	import { formatCurrency } from '$lib/utils';
 
 	// Lucide Icons
-	// import Tag from 'lucide-static/icons/tag.svg?raw'; // or standard @lucide/svelte icons
 	import Package from '@lucide/svelte/icons/package';
-	import MapPin from '@lucide/svelte/icons/map-pin';
 	import Palette from '@lucide/svelte/icons/palette';
 	import Barcode from '@lucide/svelte/icons/barcode';
 	import Layers from '@lucide/svelte/icons/layers';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
-	import { formatCurrency } from '$lib/utils';
+	import Warehouse from '@lucide/svelte/icons/warehouse';
+	import Store from '@lucide/svelte/icons/store';
 
 	type Props = {
 		selectedProduct: Product | null;
@@ -28,6 +27,14 @@
 	let activeImageIndex = $state(0);
 
 	let images = $derived(selectedProduct?.image ?? []);
+	let inventory = $derived(selectedProduct?.inventory ?? []);
+
+	// Safety check to reset carousel index when switching products
+	$effect(() => {
+		if (activeImageIndex >= images.length) {
+			activeImageIndex = 0;
+		}
+	});
 
 	function nextImage() {
 		if (images.length > 0) {
@@ -65,7 +72,7 @@
 							{selectedProduct.status}
 						</Badge>
 
-						{#if selectedProduct.quantity < 5}
+						{#if selectedProduct.totalQuantity < 5}
 							<Badge
 								variant="secondary"
 								class="flex items-center gap-1 border-amber-500/30 bg-red-500 text-xs font-medium text-white"
@@ -76,7 +83,7 @@
 						{/if}
 					</div>
 
-					<!-- Carousel Controls (Show if multiple images) -->
+					<!-- Carousel Controls -->
 					{#if images.length > 1}
 						<button
 							onclick={prevImage}
@@ -94,7 +101,6 @@
 							<ChevronRight class="size-4" />
 						</button>
 
-						<!-- Counter Pill -->
 						<div
 							class="absolute right-2 bottom-2 rounded-full bg-black/60 px-2.5 py-0.5 text-xs text-white backdrop-blur"
 						>
@@ -119,7 +125,7 @@
 							onclick={() => (activeImageIndex = i)}
 							class="relative aspect-square size-14 shrink-0 overflow-hidden rounded-md border-2 transition-all {activeImageIndex ===
 							i
-								? 'border-primary '
+								? 'border-primary'
 								: 'border-transparent opacity-60 hover:opacity-100'}"
 						>
 							<img src={img} alt="" class="h-full w-full object-cover" />
@@ -129,18 +135,18 @@
 			{/if}
 		</div>
 
-		<!-- 2. Price & Inventory Stat Cards -->
+		<!-- 2. Price & Total Stock Stat Cards -->
 		<div class="grid grid-cols-3 gap-3">
 			<Card class="bg-muted/40 p-2 shadow-none">
 				<p class="text-xs font-medium text-muted-foreground">Selling Price</p>
-				<p class="text-md mt-0 font-bold text-green-600">
+				<p class="text-md font-bold text-green-500">
 					{formatCurrency(selectedProduct.sellingPrice)}
 				</p>
 			</Card>
 
 			<Card class="bg-muted/40 p-2 shadow-none">
 				<p class="text-xs font-medium text-muted-foreground">Cost Price</p>
-				<p class="text-md mt-0 font-bold text-red-400">
+				<p class="text-md font-bold text-red-400">
 					{formatCurrency(selectedProduct.costPrice)}
 				</p>
 			</Card>
@@ -150,23 +156,50 @@
 
 				<div class="flex items-center gap-2">
 					<span
-						class={selectedProduct.quantity < 5
+						class={selectedProduct.totalQuantity < 5
 							? 'text-md font-bold text-amber-600'
-							: 'text-md font-bold'}>{selectedProduct.quantity}</span
+							: 'text-md font-bold'}>{selectedProduct.totalQuantity}</span
 					>
 				</div>
 			</Card>
 		</div>
 
-		<Separator />
+		<!-- 3. Multi-Location Inventory Breakdown -->
+		<div class="space-y-2 rounded-xl border bg-muted/20 p-3">
+			<div class="flex items-center justify-between">
+				<p class="text-xs font-semibold text-foreground">Stock Breakdown by Location</p>
+				<span class="text-[11px] text-muted-foreground">{inventory.length} Locations</span>
+			</div>
 
-		<!-- 3. Details Grid -->
-		<div class="grid grid-cols-2 gap-x-2 gap-y-4 text-sm">
+			<div class="space-y-1.5 pt-1">
+				{#each inventory as loc (loc.locationId)}
+					<div
+						class="flex items-center justify-between rounded-lg border bg-card px-3 py-2 text-xs shadow-sm"
+					>
+						<div class="flex items-center gap-2">
+							{#if loc.locationType === 'Warehouse'}
+								<Warehouse class="size-3.5 text-muted-foreground" />
+							{:else}
+								<Store class="size-3.5 text-muted-foreground" />
+							{/if}
+							<div>
+								<span class="font-medium">{loc.locationId}</span>
+								<span class="ml-1 text-[10px] text-muted-foreground">({loc.locationType})</span>
+							</div>
+						</div>
+						<span class="font-bold text-foreground">{loc.quantity} pcs</span>
+					</div>
+				{/each}
+			</div>
+		</div>
+
+		<!-- 4. Specifications Grid -->
+		<div class="grid grid-cols-3 items-center gap-x-2 gap-y-4 text-sm">
 			<div class="flex items-start gap-2.5">
 				<Barcode class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
 				<div>
 					<p class="text-xs text-muted-foreground">SKU</p>
-					<p class="font-medium">{selectedProduct.sku}</p>
+					<p class="font-medium">{selectedProduct.sku ? selectedProduct.sku : 'N/A'}</p>
 				</div>
 			</div>
 
@@ -187,29 +220,9 @@
 					</div>
 				</div>
 			{/if}
-
-			{#if selectedProduct.location}
-				<div class="flex items-start gap-2.5">
-					<MapPin class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div>
-						<p class="text-xs text-muted-foreground">Location</p>
-						<p class="font-medium">{selectedProduct.location}</p>
-					</div>
-				</div>
-			{/if}
-
-			<!-- {#if selectedProduct.costPrice}
-				<div class="flex items-start gap-2.5">
-					<DollarSign class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
-					<div>
-						<p class="text-xs text-muted-foreground">Cost Price</p>
-						<p class="font-medium">{formatCurrency(selectedProduct.costPrice)}</p>
-					</div>
-				</div>
-			{/if} -->
 		</div>
 
-		<!-- 4. Description -->
+		<!-- 5. Description -->
 		{#if selectedProduct.description}
 			<Separator />
 			<div>
@@ -220,19 +233,19 @@
 			</div>
 		{/if}
 
-		<!-- 5. Metadata Footer -->
+		<!-- 6. Metadata Footer -->
 		<div class="space-y-1 rounded-lg border bg-muted/10 p-3 text-[11px] text-muted-foreground">
 			<div class="flex justify-between">
 				<span>Created:</span>
-				<span class="font-medium text-foreground"
-					>{format(new Date(selectedProduct.createdAt), 'PPPPp')}</span
-				>
+				<span class="font-medium text-foreground">
+					{format(new Date(selectedProduct.createdAt), 'PPPPp')}
+				</span>
 			</div>
 			<div class="flex justify-between">
 				<span>Last Updated:</span>
-				<span class="font-medium text-foreground"
-					>{format(new Date(selectedProduct.updatedAt), 'PPPPp')}</span
-				>
+				<span class="font-medium text-foreground">
+					{format(new Date(selectedProduct.updatedAt), 'PPPPp')}
+				</span>
 			</div>
 		</div>
 	</div>
