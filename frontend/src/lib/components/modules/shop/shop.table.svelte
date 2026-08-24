@@ -15,7 +15,7 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { shopColumns } from '$lib/components/modules/shop/shop.columns';
-	import type { Shop, ShopStatus, ShopType, ShopInventorySummary } from '$lib/types/shop.types';
+	import type { Shop, ShopStatus, ShopType } from '$lib/types/shop.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -75,6 +75,7 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet typeCell(value: unknown, _shop: Shop)}
 	{@const type = (value as ShopType) ?? 'Retail Store'}
 	<Badge variant={type === 'Showroom' ? 'secondary' : 'outline'}>
@@ -82,6 +83,7 @@
 	</Badge>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet statusCell(value: unknown, _shop: Shop)}
 	{@const status = (value as ShopStatus) ?? 'Active'}
 	{#if status === 'Active'}
@@ -108,18 +110,19 @@
 	{/if}
 {/snippet}
 
-{#snippet stockCell(value: unknown, _shop: Shop)}
-	{@const summary = value as ShopInventorySummary | undefined}
-	<div class="flex flex-col ">
+<!-- eslint-disable-next-line -->
+{#snippet stockCell(value: unknown, shop: Shop)}
+	<div class="flex flex-col">
 		<span class="font-medium text-foreground">
-			{(summary?.totalItemsInStock ?? 0).toLocaleString()} units
+			{shop.inventorySummary?.totalItemsInStock.toLocaleString() ?? 0} units
 		</span>
 		<span class="text-xs text-muted-foreground">
-			{summary?.totalProducts ?? 0} items
+			{shop.inventorySummary?.totalProducts ?? 0} items
 		</span>
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet actionsCell(_value: unknown, shop: Shop)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>

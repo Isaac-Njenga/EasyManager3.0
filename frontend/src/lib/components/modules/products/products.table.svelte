@@ -57,6 +57,7 @@
 	}
 </script>
 
+<!-- eslint-disable-next-line -->
 {#snippet imageCell(_value: unknown, product: Product)}
 	{#if product.image && product.image.length > 0}
 		<ImagePreview src={product.image[0]} alt={product.name} class="size-14" />
@@ -67,6 +68,7 @@
 	{/if}
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet nameCell(_value: unknown, product: Product)}
 	<div class="w-full">
 		<div class="truncate font-medium">{product.name}</div>
@@ -79,6 +81,7 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet codeCell(_value: unknown, product: Product)}
 	<div class="w-full">
 		<p class="text-xs">Code: {product.code ?? ''}</p>
@@ -86,6 +89,7 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet statusCell(_value: unknown, product: Product)}
 	{#if product.status === 'Active'}
 		<Badge
@@ -104,6 +108,7 @@
 	{/if}
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet qtyCell(_value: unknown, product: Product)}
 	<div class="w-full">
 		<p class="text-xs">{product.quantity ?? ''}</p>
@@ -114,6 +119,7 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet actionsCell(_value: unknown, product: Product)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>

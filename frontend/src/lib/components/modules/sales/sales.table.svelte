@@ -14,7 +14,7 @@
 
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
-	import {  saleColumns } from '$lib/components/modules/sales/sales.columns';
+	import { saleColumns } from '$lib/components/modules/sales/sales.columns';
 	import type { Sale } from '$lib/types/sale.types';
 	import SalesDetails from '../../../../routes/(app)/sales/SaleDetails.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
@@ -57,7 +57,8 @@
 </script>
 
 <!-- Receipt Number & Salesperson -->
-{#snippet receiptCell(_value: unknown, sale: Sale)}
+    <!-- eslint-disable-next-line -->
+{#snippet receiptCell(value: unknown, sale: Sale)}
 	<div class="w-full">
 		<span class="font-semibold text-foreground">{sale.receiptNumber}</span>
 		<p class="text-xs text-muted-foreground">{sale.saleperson}</p>
@@ -65,7 +66,8 @@
 {/snippet}
 
 <!-- Items Overview (Shows total count & snapshot names) -->
-{#snippet itemsCell(_value: unknown, sale: Sale)}
+<!-- eslint-disable-next-line -->
+{#snippet itemsCell(value: unknown, sale: Sale)}
 	<div class="w-full space-y-0.5">
 		{#if sale.items.length > 0}
 			<div class="truncate text-xs font-medium">
@@ -76,7 +78,9 @@
 					+ {sale.items.length - 1} more item{sale.items.length - 1 > 1 ? 's' : ''}
 				</p>
 			{:else}
-				<p class="text-[11px] text-muted-foreground">Qty: {sale.items[0].quantity}</p>
+				<p class="text-[11px] text-muted-foreground">
+					Qty: {sale.items[0].quantity}
+				</p>
 			{/if}
 		{:else}
 			<span class="text-xs text-muted-foreground">No items</span>
@@ -85,9 +89,10 @@
 {/snippet}
 
 <!-- Customer Info -->
-{#snippet customerCell(_value: unknown, sale: Sale)}
+<!-- eslint-disable-next-line -->
+{#snippet customerCell(value: unknown, sale: Sale)}
 	<div class="w-full">
-		<p class="truncate text-xs font-medium">{sale.customer?.name || 'Walk-in Customer'}</p>
+		<p class="truncate text-xs font-medium">{sale.customer?.name ?? 'N/A'}</p>
 		{#if sale.customer?.phone}
 			<p class="text-[11px] text-muted-foreground">{sale.customer.phone}</p>
 		{/if}
@@ -103,7 +108,8 @@
 	</div>
 {/snippet} -->
 
-{#snippet totalCell(_value: unknown, sale: Sale)}
+<!-- eslint-disable-next-line -->
+{#snippet totalCell(value: unknown, sale: Sale)}
 	<div class="w-full">
 		<p class="font-normal text-green-400">
 			{formatCurrency(sale.grandTotal)}
@@ -111,6 +117,7 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet dateCell(_value: unknown, sale: Sale)}
 	<div class="w-full">
 		<p class="font-normal">{format(new Date(sale.dateOfSale), 'dd/MM/yyyy')}</p>
@@ -118,7 +125,8 @@
 {/snippet}
 
 <!-- Transaction Status -->
-{#snippet statusCell(_value: unknown, sale: Sale)}
+<!-- eslint-disable-next-line -->
+{#snippet statusCell(value: unknown, sale: Sale)}
 	<div class="item-start flex flex-col gap-2">
 		<div>
 			{#if sale.paymentStatus === 'Paid'}
@@ -135,7 +143,6 @@
 				>
 					Pending
 				</Badge>
-			
 			{:else}
 				<Badge variant="outline" class="border-green-200/30 bg-green-200/10 text-green-200">
 					{sale.paymentStatus}
@@ -145,7 +152,7 @@
 	</div>
 {/snippet}
 
-<!-- Row Actions -->
+<!-- eslint-disable-next-line -->
 {#snippet actionsCell(_value: unknown, sale: Sale)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>

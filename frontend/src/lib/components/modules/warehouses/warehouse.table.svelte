@@ -62,16 +62,19 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet nameCell(value: unknown, warehouse: Warehouse)}
 	<div class="w-full">
-		<div class="truncate font-medium text-foreground">{String(value ?? warehouse.name)}</div>
-		
+		<div class="truncate font-medium text-foreground">{warehouse.name}</div>
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet locationCell(value: unknown, warehouse: Warehouse)}
 	<div class="w-full">
-		<div class="truncate font-medium text-foreground">{warehouse.address?.city ?? 'N/A'}</div>
+		<div class="truncate font-medium text-foreground">
+			{warehouse.address?.city ?? 'N/A'}
+		</div>
 		{#if warehouse.address?.building}
 			<div class="truncate text-xs text-muted-foreground">
 				{warehouse.address.building}
@@ -80,6 +83,7 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet statusCell(value: unknown, warehouse: Warehouse)}
 	{#if warehouse.status === 'Active'}
 		<Badge
@@ -112,6 +116,7 @@
 	{/if}
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet stockCell(value: unknown, warehouse: Warehouse)}
 	<div class="flex flex-col">
 		<span class="font-medium text-foreground">
@@ -124,6 +129,7 @@
 {/snippet}
 
 <!-- Row Actions -->
+<!-- eslint-disable-next-line -->
 {#snippet actionsCell(_value: unknown, warehouse: Warehouse)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>

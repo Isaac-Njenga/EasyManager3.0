@@ -10,7 +10,7 @@ export const warehouseColumns: TableColumn<Warehouse>[] = [
 	},
 	{
 		key: 'name',
-		header: 'Warehouse Name',
+		header: 'Warehouse',
 		cell: 'nameCell',
 		class: 'max-w-[80px]',
 	},
