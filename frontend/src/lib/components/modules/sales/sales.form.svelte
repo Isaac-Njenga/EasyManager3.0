@@ -22,6 +22,7 @@
 	import Package from '@lucide/svelte/icons/package';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import { productsData } from '$lib/data/products.data';
+	import { shopsData } from '$lib/data/shop.data';
 	import { formatCurrency } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 
@@ -110,6 +111,10 @@
 		products.filter((p) => {
 			const isActive = p.status === 'Active';
 			if (!isActive) return false;
+			const hasShopStock = p.inventory.some(
+				(stock) => stock.locationType === 'Shop' && stock.quantity > 0
+			);
+			if (!hasShopStock) return false;
 			if (!searchQuery.trim()) return true;
 
 			const q = searchQuery.toLowerCase();
@@ -131,9 +136,24 @@
 
 	let grandTotal = $derived(subTotal - discountTotal);
 
+	function getShopName(locationId: string) {
+		const shop = shopsData.find((item) => item._id === locationId);
+		return shop ? `${shop.name} (${shop.shopCode})` : locationId;
+	}
+
+	function getShopStock(product: Product) {
+		return product.inventory.filter((stock) => stock.locationType === 'Shop' && stock.quantity > 0);
+	}
+
+	function getItemShopStock(item: SaleItem) {
+		const product = products.find((candidate) => candidate._id === item.productId);
+		return product ? getShopStock(product) : [];
+	}
+
 	// --- Actions ---
 	function addProductToSale(product: Product) {
 		const existingIndex = selectedItems.findIndex((i) => i.productId === product._id);
+		const shopStock = getShopStock(product);
 
 		if (existingIndex > -1) {
 			selectedItems[existingIndex].quantity += 1;
@@ -151,7 +171,7 @@
 				sellingPrice: product.sellingPrice,
 				costPrice: product.costPrice,
 				quantity: 1,
-				shop: product.inventory[],
+				shop: shopStock[0].locationId,
 				discount: 0,
 				totalPrice: product.sellingPrice
 			};
@@ -221,9 +241,9 @@
 	}
 </script>
 
-<form onsubmit={handleSubmit} class="grid grid-cols-1 gap-6 lg:grid-cols-12">
+<form onsubmit={handleSubmit} class="grid grid-cols-1 gap-3 lg:grid-cols-12">
 	<!-- LEFT PANEL: Item Selection & Line Items (7 Cols) -->
-	<div class="space-y-6 lg:col-span-7">
+	<div class="space-y-6 lg:col-span-8">
 		<!-- Product Picker / Search Combobox -->
 		<div class="space-y-2">
 			<!-- <Label for="product-search" class="flex items-center gap-1">
@@ -291,7 +311,7 @@
 									<div>
 										<p class="text-xs font-semibold">{product.name}</p>
 										<p class="text-[11px] text-muted-foreground">
-											{product.code} | Qty: {product.totalQuantity}
+											{product.code} | Qty: {product.totalQuantity} | Colour: {product.colour}
 										</p>
 									</div>
 								</div>
@@ -323,37 +343,61 @@
 					<p class="text-[11px]">Click or search above to select products.</p>
 				</div>
 			{:else}
-				<div class="space-y-3">
+				<div class="space-y-2">
 					{#each selectedItems as item, index (item.productId)}
 						<div
-							class="flex flex-col gap-3 rounded-md border p-3 text-xs sm:flex-row sm:items-center sm:justify-between"
+							class="flex flex-col gap-2 rounded-md border p-2 text-xs sm:flex-row sm:items-center sm:justify-between"
 						>
 							<!-- Item Identity -->
 							<div class="flex-1 space-y-0.5">
 								<p class="font-semibold text-foreground">{item.productName}</p>
-								<p class="text-[11px] text-muted-foreground">
-									{item.code}
+								<p class="text-[9px] text-muted-foreground">
+									{item.code} | {item.colour}
 								</p>
 							</div>
 
+							<!-- Fulfillment shop -->
+
 							<!-- Controls: Negotiated Price, Quantity, Line Discount, Line Total -->
 							<div class="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+								<div class="w-36">
+									<Label class="mb-1 text-[11px] font-bold">Selling Shop</Label>
+									<Select.Root type="single" bind:value={item.shop}>
+										<Select.Trigger
+											class="flex h-8 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
+										>
+											{getShopName(item.shop)}
+										</Select.Trigger>
+										<Select.Content>
+											<Select.Group>
+												{#each getItemShopStock(item) as stock (stock.locationId)}
+													<Select.Item
+														value={stock.locationId}
+														label={getShopName(stock.locationId)}
+													>
+														{getShopName(stock.locationId)} ({stock.quantity} available)
+													</Select.Item>
+												{/each}
+											</Select.Group>
+										</Select.Content>
+									</Select.Root>
+								</div>
 								<!-- Editable Selling Price -->
 								<div class="w-24">
-									<Label class="mb-1 text-[11px]">Unit Price</Label>
+									<Label class="mb-1 text-[11px] font-bold">Unit Price</Label>
 									<Input
 										type="number"
 										min="0"
 										step="any"
 										bind:value={item.sellingPrice}
 										oninput={() => recalculateItemTotal(index)}
-										class="h-8 text-xs font-medium"
+										class="h-8 text-xs"
 									/>
 								</div>
 
 								<!-- Quantity -->
-								<div class="w-16">
-									<Label class="mb-1 text-[11px]">Qty</Label>
+								<div class="w-15">
+									<Label class="mb-1 text-[11px] font-bold">Qty</Label>
 									<Input
 										type="number"
 										min="1"
@@ -364,8 +408,8 @@
 								</div>
 
 								<!-- Line Discount -->
-								<div class="w-20">
-									<Label class="mb-1 text-[11px]">Discount</Label>
+								<div class="w-15">
+									<Label class="mb-1 text-[11px] font-bold">Discount</Label>
 									<Input
 										type="number"
 										min="0"
@@ -376,12 +420,16 @@
 								</div>
 
 								<!-- Line Total -->
-								<div class="min-w-20 text-right">
-									<Label class="mb-1 text-[11px] text-muted-foreground">Total</Label>
-									<p class="pt-1 font-bold text-foreground">
-										{formatCurrency(item.totalPrice)}
-									</p>
-								</div>
+								<!-- <div class="w-20">
+									<Label class="mb-1 text-[11px]">Total</Label>
+									<Input
+										type="number"
+										min="0"
+										bind:value={item.total}
+										oninput={() => recalculateItemTotal(index)}
+										class="h-8 text-xs"
+									/>
+								</div> -->
 
 								<!-- Remove Button -->
 								<Button
@@ -402,7 +450,7 @@
 	</div>
 
 	<!-- RIGHT PANEL: Customer Info, Payment Details & Summary (5 Cols) -->
-	<div class="space-y-6 lg:col-span-5">
+	<div class="space-y-6 lg:col-span-4">
 		<!-- Payment & Status Options -->
 		<div class="space-y-3 rounded-lg border bg-card p-4 shadow-sm">
 			<h3 class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">

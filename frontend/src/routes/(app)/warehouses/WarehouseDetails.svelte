@@ -11,6 +11,7 @@
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
 	import FileText from '@lucide/svelte/icons/file-text';
+	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
 	type Props = {
 		selectedWarehouse?: Warehouse | null;
@@ -134,6 +135,9 @@
 				</p>
 			</div>
 		{/if}
+
+		
+		<LogFooter createTimestamp={selectedWarehouse.createdAt} updateTimestamp={selectedWarehouse.updatedAt} />
 	</div>
 {:else}
 	<div class="py-12 text-center text-xs text-muted-foreground">

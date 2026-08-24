@@ -2,12 +2,14 @@
 	import type { Sale } from '$lib/types/sale.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	
 
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import Package from '@lucide/svelte/icons/package';
 	import { formatCurrency } from '$lib/utils';
 	import { format } from 'date-fns';
+	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
 	type Props = {
 		selectedSale: Sale | null;
@@ -159,19 +161,9 @@
 		{/if}
 
 		<!-- Additional Actions -->
-		<div class="space-y-1 rounded-lg border bg-muted/10 p-3 text-[11px] text-muted-foreground">
-			<div class="flex justify-between">
-				<span>Created:</span>
-				<span class="font-medium text-foreground"
-					>{format(new Date(selectedSale.createdAt), 'PPPPp')}</span
-				>
-			</div>
-			<div class="flex justify-between">
-				<span>Last Updated:</span>
-				<span class="font-medium text-foreground"
-					>{format(new Date(selectedSale.updatedAt), 'PPPPp')}</span
-				>
-			</div>
-		</div>
+		<LogFooter
+			createTimestamp={selectedSale.createdAt}
+			updateTimestamp={selectedSale.updatedAt}
+		/>
 	</div>
 {/if}

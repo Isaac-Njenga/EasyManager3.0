@@ -3,7 +3,6 @@
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Card } from '$lib/components/ui/card';
-	import { format } from 'date-fns';
 	import { formatCurrency } from '$lib/utils';
 
 	// Lucide Icons
@@ -16,6 +15,7 @@
 	import TriangleAlert from '@lucide/svelte/icons/triangle-alert';
 	import Warehouse from '@lucide/svelte/icons/warehouse';
 	import Store from '@lucide/svelte/icons/store';
+	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
 	type Props = {
 		selectedProduct: Product | null;
@@ -234,19 +234,9 @@
 		{/if}
 
 		<!-- 6. Metadata Footer -->
-		<div class="space-y-1 rounded-lg border bg-muted/10 p-3 text-[11px] text-muted-foreground">
-			<div class="flex justify-between">
-				<span>Created:</span>
-				<span class="font-medium text-foreground">
-					{format(new Date(selectedProduct.createdAt), 'PPPPp')}
-				</span>
-			</div>
-			<div class="flex justify-between">
-				<span>Last Updated:</span>
-				<span class="font-medium text-foreground">
-					{format(new Date(selectedProduct.updatedAt), 'PPPPp')}
-				</span>
-			</div>
-		</div>
+		<LogFooter
+			createTimestamp={selectedProduct.createdAt}
+			updateTimestamp={selectedProduct.updatedAt}
+		/>
 	</div>
 {/if}

@@ -11,6 +11,7 @@
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
 	import FileText from '@lucide/svelte/icons/file-text';
+	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
 	type Props = {
 		selectedShop?: Shop | null;
@@ -75,8 +76,6 @@
 				</p>
 			</div>
 
-			
-
 			<!-- Low Stock Alert -->
 			<div class="rounded-lg border bg-card p-3 shadow-sm">
 				<div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
@@ -95,7 +94,8 @@
 			<h3
 				class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
 			>
-				<MapPin class="size-4 text-primary" /> Location		</h3>
+				<MapPin class="size-4 text-primary" /> Location
+			</h3>
 			<Separator />
 
 			<div class="space-y-3 text-xs">
@@ -129,6 +129,8 @@
 				</p>
 			</div>
 		{/if}
+
+		<LogFooter createTimestamp={selectedShop.createdAt} updateTimestamp={selectedShop.updatedAt} />
 	</div>
 {:else}
 	<div class="py-12 text-center text-xs text-muted-foreground">

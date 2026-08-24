@@ -9,6 +9,7 @@
 	import Tag from '@lucide/svelte/icons/tag';
 	import { formatCurrency } from '$lib/utils';
 	import { format } from 'date-fns';
+	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
 	type Props = {
 		selectedExpense: Expense | null;
@@ -104,18 +105,8 @@
 			</p>
 		</div>
 	{/if}
-	<div class="space-y-1 rounded-lg border bg-muted/10 p-3 text-[11px] text-muted-foreground">
-		<div class="flex justify-between">
-			<span>Created:</span>
-			<span class="font-medium text-foreground"
-				>{expense?.createdAt ? format(new Date(expense?.createdAt), 'PPPPp') : ''}</span
-			>
-		</div>
-		<div class="flex justify-between">
-			<span>Last Updated:</span>
-			<span class="font-medium text-foreground"
-				>{expense?.updatedAt ? format(new Date(expense?.updatedAt), 'PPPPp') : ''}</span
-			>
-		</div>
-	</div>
+	<LogFooter
+		createTimestamp={expense?.createdAt ? expense.createdAt : new Date().toISOString()}
+		updateTimestamp={expense?.updatedAt ? expense.updatedAt : new Date().toISOString()}
+	/>
 </div>

@@ -6,7 +6,7 @@ export type SaleItem = {
 	productId: string; // Refers to Product._id
 	productName: string;
 	image?: string[];
-    category:string;
+	category: string;
 	colour: string;
 	description?: string;
 	code?: string; // Cached for snapshot/historical integrity
@@ -33,7 +33,7 @@ export type Sale = {
 	subTotal: number;
 	// taxAmount: number;        // VAT or local tax calculation
 	discountTotal: number;
-    dateOfSale:string;
+	dateOfSale: string;
 	grandTotal: number; // subTotal + taxAmount - discountTotal
 	paymentMethod: PaymentMethod;
 	paymentStatus: PaymentStatus;
