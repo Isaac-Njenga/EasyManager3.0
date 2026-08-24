@@ -17,19 +17,21 @@
 	import { warehouseColumns } from '$lib/components/modules/warehouses/warehouse.columns';
 	import type { Warehouse } from '$lib/types/warehouse.types';
 	import WarehousesDetails from '../../../../routes/(app)/warehouses/WarehouseDetails.svelte';
-	import TransferPage from '../../../../routes/(app)/transfers/+page.svelte';
+	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
 	import { shopsData as shops } from '$lib/data/shop.data';
+	import { transferStore } from '$lib/stores/transfer.svelte';
 
 	type Props = {
 		filteredWarehouses: Warehouse[];
+		// handleTransfer: () => void;
 	};
 
-	let { filteredWarehouses }: Props = $props();
+	let { filteredWarehouses  }: Props = $props();
 
 	let isDrawerOpen = $state(false);
 	let isTransferDrawerOpen = $state(false);
@@ -67,7 +69,15 @@
 
 	function transferStock(warehouse: Warehouse) {
 		selectedWarehouse = warehouse;
+		transferStore.sourceId = warehouse._id;
 		isTransferDrawerOpen = true;
+	}
+
+	function executeTransferAction() {
+		transferStore.handleTransfer(allLocations);
+		if (transferStore.items.length === 0) {
+			isTransferDrawerOpen = false;
+		}
 	}
 
 	function deleteWarehouse(warehouse: Warehouse) {
@@ -227,17 +237,17 @@
 	direction="right"
 >
 	{#if selectedWarehouse}
-		<TransferPage
-			locations={allLocations}
-			preselectedSourceId={selectedWarehouse._id}
-			onClose={() => (isTransferDrawerOpen = false)}
-		/>
+		<TransferForm locations={allLocations} preselectedSourceId={selectedWarehouse._id} />
 	{/if}
 	{#snippet footer()}
-		<div class="flex w-full">
-			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>
-				Close
-			</Drawer.Close>
+		<div class="flex w-full flex-row items-center justify-end gap-2">
+			<Button
+				size="xs"
+				variant="default"
+				disabled={transferStore.items.length === 0}
+				onclick={executeTransferAction}>Initiate Transfer</Button
+			>
+			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Drawer.Close>
 		</div>
 	{/snippet}
 </DataDrawer>
