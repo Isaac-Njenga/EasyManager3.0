@@ -17,10 +17,13 @@
 	import { warehouseColumns } from '$lib/components/modules/warehouses/warehouse.columns';
 	import type { Warehouse } from '$lib/types/warehouse.types';
 	import WarehousesDetails from '../../../../routes/(app)/warehouses/WarehouseDetails.svelte';
+	import TransferPage from '../../../../routes/(app)/transfers/+page.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
+	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
+	import { shopsData as shops } from '$lib/data/shop.data';
 
 	type Props = {
 		filteredWarehouses: Warehouse[];
@@ -29,8 +32,24 @@
 	let { filteredWarehouses }: Props = $props();
 
 	let isDrawerOpen = $state(false);
+	let isTransferDrawerOpen = $state(false);
 	let isDeleteWarehouseOpen = $state(false);
 	let selectedWarehouse = $state<Warehouse | null>(null);
+
+	//TO DO: move this into a +page.ts
+	// Map warehouses and shops into unified LocationOption format
+	const allLocations = $derived([
+		...warehouses.map((wh) => ({
+			id: wh._id,
+			name: wh.name,
+			type: 'Warehouse' as const
+		})),
+		...shops.map((shop) => ({
+			id: shop._id,
+			name: shop.name,
+			type: 'Shop' as const
+		}))
+	]);
 
 	function viewWarehouse(warehouse: Warehouse) {
 		selectedWarehouse = warehouse;
@@ -44,6 +63,11 @@
 	function openDeleteModal(warehouse: Warehouse) {
 		selectedWarehouse = warehouse;
 		isDeleteWarehouseOpen = true;
+	}
+
+	function transferStock(warehouse: Warehouse) {
+		selectedWarehouse = warehouse;
+		isTransferDrawerOpen = true;
 	}
 
 	function deleteWarehouse(warehouse: Warehouse) {
@@ -142,6 +166,8 @@
 			<DropdownMenuItem onclick={() => viewWarehouse(warehouse)}>View</DropdownMenuItem>
 			<DropdownMenuItem onclick={() => editWarehouse(warehouse)}>Edit</DropdownMenuItem>
 			<DropdownMenuSeparator />
+			<DropdownMenuItem onclick={() => transferStock(warehouse)}>Transfer</DropdownMenuItem>
+			<DropdownMenuSeparator />
 			<DropdownMenuItem
 				class="text-destructive focus:text-destructive"
 				onclick={() => openDeleteModal(warehouse)}
@@ -187,6 +213,28 @@
 				</Button>
 			</div>
 
+			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>
+				Close
+			</Drawer.Close>
+		</div>
+	{/snippet}
+</DataDrawer>
+
+<DataDrawer
+	bind:open={isTransferDrawerOpen}
+	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
+	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
+	direction="right"
+>
+	{#if selectedWarehouse}
+		<TransferPage
+			locations={allLocations}
+			preselectedSourceId={selectedWarehouse._id}
+			onClose={() => (isTransferDrawerOpen = false)}
+		/>
+	{/if}
+	{#snippet footer()}
+		<div class="flex w-full">
 			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>
 				Close
 			</Drawer.Close>

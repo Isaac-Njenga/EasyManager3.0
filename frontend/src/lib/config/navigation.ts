@@ -10,6 +10,7 @@ import Settings from '@lucide/svelte/icons/settings';
 import Store from '@lucide/svelte/icons/store';
 import Warehouse from '@lucide/svelte/icons/warehouse';
 import Users from '@lucide/svelte/icons/users';
+import ArrowRightLeft from '@lucide/svelte/icons/arrow-right-left';
 
 export type NavigationItem = {
 	title: string;
@@ -62,7 +63,8 @@ export const navigationGroups: NavigationGroup[] = [
 		label: 'Locations',
 		items: [
 			{ title: 'Shops', href: '/shops', icon: Store },
-			{ title: 'Warehouses', href: '/warehouses', icon: Warehouse }
+			{ title: 'Warehouses', href: '/warehouses', icon: Warehouse },
+			{ title: 'Transfers', href: '/transfers', icon: ArrowRightLeft }
 		]
 	},
 	{
