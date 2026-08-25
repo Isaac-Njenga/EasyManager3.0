@@ -1,3 +1,5 @@
+import type { Product } from './product.types';
+
 export type ShopStatus = 'Active' | 'Inactive' | 'Under Maintenance';
 
 export type ShopType = 'Retail Store' | 'Showroom';
@@ -22,6 +24,7 @@ export type Shop = {
 	status: ShopStatus;
 	address: ShopAddress;
 	inventorySummary?: ShopInventorySummary;
+	inventoryItems: Product[];
 	notes?: string;
 	createdAt: string;
 	updatedAt: string;

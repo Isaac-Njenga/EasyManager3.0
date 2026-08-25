@@ -34,11 +34,12 @@
 
 	function viewShop(shop: Shop) {
 		selectedShop = shop;
-		isDrawerOpen = true;
+		goto(resolve(`/shops/${shop._id}`));
+		// isDrawerOpen = true;
 	}
 
 	function editShop(shop: Shop) {
-		goto(resolve(`/shops/${shop._id}`));
+		goto(resolve(`/shops/${shop._id}/edit`));
 	}
 
 	function openDeleteModal(shop: Shop) {

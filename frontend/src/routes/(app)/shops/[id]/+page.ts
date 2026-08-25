@@ -9,7 +9,6 @@ export const load: PageLoad = ({ params }) => {
 
     if (!shop) {
         throw error(404, 'Shop not found');
-        // toast.error('Product not found. Refresh the page and try again');
     }
 
     return {

@@ -1,5 +1,6 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import type { Shop } from '$lib/types/shop.types';
+	import type { Product } from '$lib/types/product.types';
 	import { formatCurrency } from '$lib/utils';
 
 	import { Badge } from '$lib/components/ui/badge';
@@ -11,7 +12,10 @@
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
 	import FileText from '@lucide/svelte/icons/file-text';
+	import Boxes from '@lucide/svelte/icons/boxes';
+
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
+	import ProductsTable from '$lib/components/modules/products/products.table.svelte';
 
 	type Props = {
 		selectedShop?: Shop | null;
@@ -27,11 +31,18 @@
 				? 'secondary'
 				: 'outline'
 	);
+
+	// Filter populated Product objects from string IDs safely
+	const populatedProducts = $derived.by<Product[]>(() => {
+		if (!selectedShop?.inventoryItems) return [];
+		return selectedShop.inventoryItems.filter(
+			(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
+		);
+	});
 </script>
 
 {#if selectedShop}
 	<div class="space-y-6 p-1">
-		<!-- Shop Header Card -->
 		<div class="rounded-xl border bg-card p-5 shadow-sm">
 			<div class="flex items-start justify-between gap-4">
 				<div class="space-y-1">
@@ -54,19 +65,19 @@
 			</div>
 		</div>
 
-		<!-- Quick Stock Metrics Grid -->
-		<div class="grid grid-cols-2 gap-1 sm:grid-cols-3">
-			<!-- Total Stock Value -->
+		
+		<div class="grid grid-cols-2 gap-3 sm:grid-cols-3">
+		
 			<div class="rounded-lg border bg-card p-3 shadow-sm">
 				<div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
 					<DollarSign class="size-3.5 text-primary" /> Stock Value
 				</div>
-				<p class="mt-1 text-sm font-bold text-green-500">
+				<p class="mt-1 text-sm font-bold text-emerald-600 dark:text-emerald-400">
 					{formatCurrency(selectedShop.inventorySummary?.totalStockValue ?? 0)}
 				</p>
 			</div>
 
-			<!-- Total Units -->
+		
 			<div class="rounded-lg border bg-card p-3 shadow-sm">
 				<div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
 					<Package class="size-3.5 text-primary" /> Total Units
@@ -76,7 +87,7 @@
 				</p>
 			</div>
 
-			<!-- Low Stock Alert -->
+
 			<div class="rounded-lg border bg-card p-3 shadow-sm">
 				<div class="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
 					<AlertTriangle class="size-3.5 text-amber-500" /> Low Stock
@@ -89,7 +100,32 @@
 			</div>
 		</div>
 
-		<!-- Location & Address -->
+	
+		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
+			<div class="flex items-center justify-between">
+				<h3
+					class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
+				>
+					<Boxes class="size-4 text-primary" /> Inventory Items
+				</h3>
+				<span class="text-xs font-medium text-muted-foreground">
+					{populatedProducts.length} Products
+				</span>
+			</div>
+			<Separator />
+
+			{#if populatedProducts.length > 0}
+				<ProductsTable
+					filteredProducts={populatedProducts}
+					// shopId={selectedShop._id}
+				/>
+			{:else}
+				<div class="py-8 text-center text-xs text-muted-foreground">
+					No detailed product records loaded for this shop.
+				</div>
+			{/if}
+		</div>
+
 		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
 			<h3
 				class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
@@ -113,7 +149,6 @@
 			</div>
 		</div>
 
-		<!-- Notes Section -->
 		{#if selectedShop.notes}
 			<div class="space-y-2 rounded-xl border bg-card p-5 shadow-sm">
 				<h3
@@ -136,4 +171,4 @@
 	<div class="py-12 text-center text-xs text-muted-foreground">
 		No shop selected to display details.
 	</div>
-{/if}
+{/if} -->
