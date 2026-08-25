@@ -17,18 +17,33 @@
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import Package from '@lucide/svelte/icons/package';
 	import PackageSearch from '@lucide/svelte/icons/package-search';
+	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
+	import { shopsData as shops } from '$lib/data/shop.data';
 
 	import { formatCurrency } from '$lib/utils';
 
 	type LocationOption = { id: string; name: string; type: LocationType };
 
+	const locations: LocationOption[] = $derived([
+		...warehouses.map((wh) => ({
+			id: wh._id,
+			name: wh.name,
+			type: 'Warehouse' as const
+		})),
+		...shops.map((shop) => ({
+			id: shop._id,
+			name: shop.name,
+			type: 'Shop' as const
+		}))
+	]);
+
+
 	type Props = {
-		locations: LocationOption[];
 		products?: Product[];
 		preselectedSourceId?: string;
 	};
 
-	let { products = productsData, locations, preselectedSourceId }: Props = $props();
+	let { products = productsData,  preselectedSourceId }: Props = $props();
 
 	let searchQuery = $state('');
 	let isProductSearchOpen = $state(false);
@@ -116,7 +131,7 @@
 	<Separator />
 
 	<!-- Line Items Builder -->
-	<div class="space-y-3">
+	<div class="space-y-3 rounded-xl border bg-card p-5 shadow-sm">
 		<div class="flex items-center justify-between">
 			<span class="text-xs font-bold tracking-wider text-muted-foreground uppercase">
 				Items to Transfer ({transferStore.items.length})
@@ -175,7 +190,7 @@
 									{#if product.image?.[0]}
 										<img
 											src={product.image[0]}
-											alt={product.name}
+											alt="_img"
 											class="size-9 rounded border object-cover"
 										/>
 									{:else}
@@ -221,12 +236,12 @@
 							<Input type="text" readonly bind:value={item.productName} class="h-9 text-xs" />
 						</div>
 
-						<div class="flex w-28 flex-col gap-1.5">
+						<div class="flex w-30 flex-col gap-1.5">
 							<Label class="text-[11px]">Code</Label>
 							<Input type="text" readonly bind:value={item.code} class="h-9 text-xs" />
 						</div>
 
-						<div class="flex w-24 flex-col gap-1.5">
+						<div class="flex w-18 flex-col gap-1.5">
 							<Label class="text-[11px]">Quantity</Label>
 							<Input
 								type="number"
@@ -250,6 +265,4 @@
 			</div>
 		{/if}
 	</div>
-
-	
 </div>

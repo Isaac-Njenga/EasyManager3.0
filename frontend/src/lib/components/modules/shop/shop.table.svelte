@@ -21,10 +21,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
-	import { shopsData as shops } from '$lib/data/shop.data';
 	import { transferStore } from '$lib/stores/transfer.svelte';
-	// import ShopDetails from '../../../../routes/(app)/shops/ShopDetails.svelte';
 
 	type Props = {
 		filteredShops: Shop[];
@@ -32,28 +29,15 @@
 
 	let { filteredShops }: Props = $props();
 
-	// let isDrawerOpen = $state(false);
 	let isTransferDrawerOpen = $state(false);
 	let isDeleteShopOpen = $state(false);
 	let selectedShop = $state<Shop | null>(null);
 
-	const allLocations = $derived([
-		...warehouses.map((wh) => ({
-			id: wh._id,
-			name: wh.name,
-			type: 'Warehouse' as const
-		})),
-		...shops.map((shop) => ({
-			id: shop._id,
-			name: shop.name,
-			type: 'Shop' as const
-		}))
-	]);
+	
 
 	function viewShop(shop: Shop) {
 		selectedShop = shop;
 		goto(resolve(`/shops/${shop._id}`));
-		// isDrawerOpen = true;
 	}
 
 	function editShop(shop: Shop) {
@@ -72,7 +56,6 @@
 	}
 
 	function executeTransferAction() {
-		transferStore.handleTransfer(allLocations);
 		if (transferStore.items.length === 0) {
 			isTransferDrawerOpen = false;
 		}
@@ -204,7 +187,7 @@
 	description={selectedShop ? selectedShop.shopCode : ''}
 >
 	{#if selectedShop}
-		<TransferForm locations={allLocations} preselectedSourceId={selectedShop._id} />
+		<TransferForm  preselectedSourceId={selectedShop._id} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">

@@ -1,7 +1,8 @@
 <script lang="ts">
-	// import type { Shop } from '$lib/types/shop.types';
+	import type { Shop } from '$lib/types/shop.types';
 	import type { Product } from '$lib/types/product.types';
 	import { formatCurrency } from '$lib/utils';
+	import Modal from '$lib/components/common/Modal.svelte';
 
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 
@@ -18,6 +19,10 @@
 	import Search from '$lib/components/common/Search.svelte';
 	import type { PageProps } from './$types';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { transferStore } from '$lib/stores/transfer.svelte';
+	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -25,6 +30,18 @@
 
 	let searchTerm = $state('');
 	let isSearching = $state(false);
+	let isTransferDrawerOpen = $state(false);
+
+	function transferStock(shop: Shop) {
+		transferStore.sourceId = shop._id;
+		isTransferDrawerOpen = true;
+	}
+
+	function executeTransferAction() {
+		if (transferStore.items.length === 0) {
+			isTransferDrawerOpen = false;
+		}
+	}
 
 	// Filter populated Product objects from string IDs safely
 	const populatedProducts = $derived.by<Product[]>(() => {
@@ -110,14 +127,24 @@
 				</div>
 			{:else}
 				<div class="flex items-center justify-between">
-					<h3
-						class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
-					>
-						<Boxes class="size-4 text-primary" /> Inventory Items
-					</h3>
-					<span class="text-xs font-medium text-muted-foreground">
-						{populatedProducts.length} Products
-					</span>
+					<div>
+						<h3
+							class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
+						>
+							<Boxes class="size-4 text-primary" /> Inventory Items
+						</h3>
+					</div>
+					<div class="flex items-center gap-2">
+						<span class="text-xs font-medium text-muted-foreground">
+							Products:{populatedProducts.length}
+						</span>|
+						<Button
+							size="xs"
+							onclick={() => {
+								transferStock(selectedShop);
+							}}>Transfer</Button
+						>
+					</div>
 				</div>
 				<Separator />
 
@@ -170,3 +197,24 @@
 		No shop selected to display details.
 	</div>
 {/if}
+
+<Modal
+	bind:open={isTransferDrawerOpen}
+	title={selectedShop?.name ?? 'Initiate Stock Transfer'}
+	description={selectedShop ? selectedShop.shopCode : ''}
+>
+	{#if selectedShop}
+		<TransferForm preselectedSourceId={selectedShop._id} />
+	{/if}
+	{#snippet footer()}
+		<div class="flex w-full flex-row items-center justify-end gap-2">
+			<Button
+				size="xs"
+				variant="default"
+				disabled={transferStore.items.length === 0}
+				onclick={executeTransferAction}>Initiate Transfer</Button
+			>
+			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
+		</div>
+	{/snippet}
+</Modal>

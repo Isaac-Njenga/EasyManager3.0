@@ -14,7 +14,7 @@
 </script>
 
 <Dialog.Root bind:open
-	><Dialog.Content class="flex max-h-[95vh] flex-col sm:max-w-200">
+	><Dialog.Content class="flex max-h-[95vh] flex-col sm:max-w-220">
 		{#if title || description}
 			<Dialog.Header>
 				{#if title}<Dialog.Title>{title}</Dialog.Title>{/if}

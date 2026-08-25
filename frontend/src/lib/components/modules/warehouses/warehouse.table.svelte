@@ -16,14 +16,11 @@
 
 	import { warehouseColumns } from '$lib/components/modules/warehouses/warehouse.columns';
 	import type { Warehouse } from '$lib/types/warehouse.types';
-	// import WarehousesDetails from '../../../../routes/(app)/warehouses/WarehouseDetails.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
-	import { shopsData as shops } from '$lib/data/shop.data';
 	import { transferStore } from '$lib/stores/transfer.svelte';
 
 	type Props = {
@@ -36,21 +33,6 @@
 	let isTransferDrawerOpen = $state(false);
 	let isDeleteWarehouseOpen = $state(false);
 	let selectedWarehouse = $state<Warehouse | null>(null);
-
-	//TO DO: move this into a +page.ts
-	// Map warehouses and shops into unified LocationOption format
-	const allLocations = $derived([
-		...warehouses.map((wh) => ({
-			id: wh._id,
-			name: wh.name,
-			type: 'Warehouse' as const
-		})),
-		...shops.map((shop) => ({
-			id: shop._id,
-			name: shop.name,
-			type: 'Shop' as const
-		}))
-	]);
 
 	function viewWarehouse(warehouse: Warehouse) {
 		selectedWarehouse = warehouse;
@@ -74,7 +56,6 @@
 	}
 
 	function executeTransferAction() {
-		transferStore.handleTransfer(allLocations);
 		if (transferStore.items.length === 0) {
 			isTransferDrawerOpen = false;
 		}
@@ -206,7 +187,7 @@
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
 >
 	{#if selectedWarehouse}
-		<TransferForm locations={allLocations} preselectedSourceId={selectedWarehouse._id} />
+		<TransferForm preselectedSourceId={selectedWarehouse._id} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">

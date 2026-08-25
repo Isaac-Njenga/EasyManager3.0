@@ -1,6 +1,8 @@
 <script lang="ts">
 	import { formatCurrency } from '$lib/utils';
 	import type { Product } from '$lib/types/product.types';
+	import type { Warehouse } from '$lib/types/warehouse.types';
+	import Modal from '$lib/components/common/Modal.svelte';
 
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 
@@ -16,6 +18,10 @@
 	import Search from '$lib/components/common/Search.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import Boxes from '@lucide/svelte/icons/boxes';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
+	import { transferStore } from '$lib/stores/transfer.svelte';
+	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -23,6 +29,18 @@
 
 	let searchTerm = $state('');
 	let isSearching = $state(false);
+	let isTransferDrawerOpen = $state(false);
+
+	function transferStock(warehouse: Warehouse) {
+		transferStore.sourceId = warehouse._id;
+		isTransferDrawerOpen = true;
+	}
+
+	function executeTransferAction() {
+		if (transferStore.items.length === 0) {
+			isTransferDrawerOpen = false;
+		}
+	}
 
 	const populatedProducts = $derived.by<Product[]>(() => {
 		if (!selectedWarehouse?.inventoryItems) return [];
@@ -114,14 +132,25 @@
 				</div>
 			{:else}
 				<div class="flex items-center justify-between">
-					<h3
-						class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
-					>
-						<Boxes class="size-4 text-primary" /> Inventory Items
-					</h3>
-					<span class="text-xs font-medium text-muted-foreground">
-						{populatedProducts.length} Products
-					</span>
+					<div>
+						<h3
+							class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
+						>
+							<Boxes class="size-4 text-primary" /> Inventory Items
+						</h3>
+					</div>
+					<div class="flex items-center gap-2">
+						<span class="text-xs font-medium text-muted-foreground">
+							Products:{populatedProducts.length}
+						</span>|
+						<Button
+							size="xs"
+							onclick={() => {
+								console.log('btn');
+								transferStock(selectedWarehouse);
+							}}>Transfer</Button
+						>
+					</div>
 				</div>
 				<Separator />
 
@@ -140,7 +169,7 @@
 				{#if populatedProducts.length > 0}
 					<ProductsTable
 						filteredProducts={filteredInventory}
-						// shopId={selectedShop._id}
+						// shopId={selectedWarehouse._id}
 					/>
 				{:else}
 					<div class="py-8 text-center text-xs text-muted-foreground">
@@ -177,3 +206,24 @@
 		No warehouse selected to display details.
 	</div>
 {/if}
+
+<Modal
+	bind:open={isTransferDrawerOpen}
+	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
+	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
+>
+	{#if selectedWarehouse}
+		<TransferForm preselectedSourceId={selectedWarehouse._id} />
+	{/if}
+	{#snippet footer()}
+		<div class="flex w-full flex-row items-center justify-end gap-2">
+			<Button
+				size="xs"
+				variant="default"
+				disabled={transferStore.items.length === 0}
+				onclick={executeTransferAction}>Initiate Transfer</Button
+			>
+			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
+		</div>
+	{/snippet}
+</Modal>

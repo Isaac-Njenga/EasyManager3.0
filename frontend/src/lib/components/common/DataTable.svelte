@@ -214,7 +214,7 @@
 					<span class="text-sm text-muted-foreground"> Rows per page </span>
 
 					<select
-						class="h-9 rounded-md border bg-background px-2 text-sm"
+						class="h-9 rounded-md border bg-background px-2 text-sm w-16"
 						value={selectedPageSize}
 						onchange={(event) =>
 							changePageSize(Number((event.currentTarget as HTMLSelectElement).value))}
