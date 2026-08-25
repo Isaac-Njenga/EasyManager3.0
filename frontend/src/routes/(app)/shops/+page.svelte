@@ -13,6 +13,7 @@
 	import Package from '@lucide/svelte/icons/package';
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	// 1. Reactive search state
 	let searchTerm = $state('');
@@ -131,40 +132,49 @@
 	</div>
 
 	<!-- Search & Filters -->
-	<div class="space-y-3">
-		<Search
-			value={searchTerm}
-			bind:isLoading={isSearching}
-			onChange={(val) => (searchTerm = val)}
-		/>
+	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
+		<div class="space-y-3">
+			<Search
+				value={searchTerm}
+				bind:isLoading={isSearching}
+				onChange={(val) => (searchTerm = val)}
+			/>
 
-		<div class="flex flex-wrap gap-2">
-			{#each statusTags as tag (tag)}
-				<Badge
-					variant={selectedStatus === tag ? 'default' : 'outline'}
-					onclick={() => (selectedStatus = tag)}
-					class="pointer-fine:cursor-pointer"
-				>
-					{tag}
-				</Badge>
-			{/each}
-		</div>
-	</div>
-
-	<div>
-		{#if isSearching}
-			<div class="flex items-center justify-center gap-4 py-8">
-				<Loader2Icon class="size-5 animate-spin text-primary" />
-				<div class="text-muted-foreground">Loading shops...</div>
-			</div>
-		{:else}
-			{#if searchTerm}
-				<div class="mb-2 text-sm text-muted-foreground">
-					Showing results for <b>"{searchTerm}"</b> ({filteredShops.length} found)
+			<div class="flex items-center justify-between">
+				<div class="flex gap-2">
+					{#each statusTags as tag (tag)}
+						<Badge
+							variant={selectedStatus === tag ? 'default' : 'outline'}
+							onclick={() => (selectedStatus = tag)}
+							class="pointer-fine:cursor-pointer"
+						>
+							{tag}
+						</Badge>
+					{/each}
 				</div>
-			{/if}
 
-			<ShopTable {filteredShops} />
-		{/if}
+				<span class="text-xs font-medium text-muted-foreground">
+					Shops: {filteredShops.length}
+				</span>
+			</div>
+		</div>
+
+		<div>
+			{#if isSearching}
+				<div class="flex items-center justify-center gap-4 py-8">
+					<Loader2Icon class="size-5 animate-spin text-primary" />
+					<div class="text-muted-foreground">Loading shops...</div>
+				</div>
+			{:else}
+				<Separator class="mb-4" />
+				{#if searchTerm}
+					<div class="mb-2 text-sm text-muted-foreground">
+						Showing results for <b>"{searchTerm}"</b> ({filteredShops.length} found)
+					</div>
+				{/if}
+
+				<ShopTable {filteredShops} />
+			{/if}
+		</div>
 	</div>
 </div>

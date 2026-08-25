@@ -1,9 +1,9 @@
 <script lang="ts">
 	import DataTable from '$lib/components/common/DataTable.svelte';
-	import DataDrawer from '$lib/components/common/DataDrawer.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
 
 	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
@@ -28,7 +28,6 @@
 
 	type Props = {
 		filteredWarehouses: Warehouse[];
-		// handleTransfer: () => void;
 	};
 
 	let { filteredWarehouses }: Props = $props();
@@ -198,44 +197,10 @@
 	cells={{ stockCell, locationCell, nameCell, codeCell, statusCell, actionsCell }}
 />
 
-<!-- Drawer View -->
-<!-- <DataDrawer
-	bind:open={isDrawerOpen}
-	title={selectedWarehouse?.name ?? 'Warehouse Details'}
-	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
-	direction="right"
->
-	{#if selectedWarehouse}
-		<WarehousesDetails {selectedWarehouse} />
-	{/if}
-	{#snippet footer()}
-		<div class="flex w-full flex-col gap-2">
-			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/warehouses/${selectedWarehouse?._id}`} size="xs" class="w-full"
-					>Edit Warehouse</Button
-				>
-				<Button
-					onclick={() => openDeleteModal(selectedWarehouse!)}
-					size="xs"
-					variant="destructive"
-					class="w-full"
-				>
-					Delete Warehouse
-				</Button>
-			</div>
-
-			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>
-				Close
-			</Drawer.Close>
-		</div>
-	{/snippet}
-</DataDrawer> -->
-
-<DataDrawer
+<Modal
 	bind:open={isTransferDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
-	direction="right"
 >
 	{#if selectedWarehouse}
 		<TransferForm locations={allLocations} preselectedSourceId={selectedWarehouse._id} />
@@ -248,10 +213,10 @@
 				disabled={transferStore.items.length === 0}
 				onclick={executeTransferAction}>Initiate Transfer</Button
 			>
-			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Drawer.Close>
+			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>
 	{/snippet}
-</DataDrawer>
+</Modal>
 
 <DeleteDialog
 	bind:open={isDeleteWarehouseOpen}

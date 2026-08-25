@@ -12,6 +12,7 @@
 	import Package from '@lucide/svelte/icons/package';
 
 	import { warehouseData } from '$lib/data/warehouses.data';
+	import Separator from '$lib/components/ui/separator/separator.svelte';
 
 	let searchTerm = $state('');
 	let selectedStatus = $state('All');
@@ -70,18 +71,16 @@
 	/>
 
 	<!-- Analytics Cards Grid -->
-	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+	<div class="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
 		<!-- Total Warehouses -->
-		<div class="rounded-xl border bg-card p-5 shadow-sm">
+		<div class="rounded-xl border bg-card p-4 shadow-sm">
 			<div class="flex items-center justify-between">
-				<span class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-					Total Facilities
-				</span>
-				<div class="rounded-lg bg-primary/10 p-2 text-primary">
+				<span class="text-xs font-medium text-muted-foreground uppercase"> Total Facilities </span>
+				<div class="rounded-lg bg-primary/10 text-primary">
 					<WarehouseIcon class="size-4" />
 				</div>
 			</div>
-			<div class="mt-3 flex items-baseline gap-2">
+			<div class="mt-2 flex items-baseline gap-2">
 				<span class="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
 					{analytics.activeWarehouses}
 				</span>/<span class="text-sm font-bold tracking-tight text-foreground">
@@ -91,16 +90,14 @@
 		</div>
 
 		<!-- Combined Portfolio Stock Value -->
-		<div class="rounded-xl border bg-card p-5 shadow-sm">
+		<div class="rounded-xl border bg-card p-4 shadow-sm">
 			<div class="flex items-center justify-between">
-				<span class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-					Total Stock Value
-				</span>
-				<div class="rounded-lg bg-emerald-500/10 p-2 text-emerald-600 dark:text-emerald-400">
+				<span class="text-xs font-medium text-muted-foreground uppercase"> Total Stock Value </span>
+				<div class="rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
 					<DollarSign class="size-4" />
 				</div>
 			</div>
-			<div class="mt-3">
+			<div class="mt-2 flex items-baseline gap-2">
 				<span class="text-2xl font-bold tracking-tight text-green-500">
 					{formatCurrency(analytics.totalStockValue)}
 				</span>
@@ -108,16 +105,16 @@
 		</div>
 
 		<!-- Total Units Held -->
-		<div class="rounded-xl border bg-card p-5 shadow-sm">
+		<div class="rounded-xl border bg-card p-4 shadow-sm">
 			<div class="flex items-center justify-between">
-				<span class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
+				<span class="text-xs font-semibold text-muted-foreground uppercase">
 					Total Units Stored
 				</span>
-				<div class="rounded-lg bg-blue-500/10 p-2 text-blue-600 dark:text-blue-400">
+				<div class="rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
 					<Package class="size-4" />
 				</div>
 			</div>
-			<div class="mt-3">
+			<div class="mt-2 flex items-baseline gap-2">
 				<span class="text-2xl font-bold tracking-tight text-blue-600">
 					{analytics.totalUnitsStored.toLocaleString()}
 				</span>
@@ -126,41 +123,50 @@
 	</div>
 
 	<!-- Search & Filters -->
-	<div class="space-y-3">
-		<Search
-			value={searchTerm}
-			bind:isLoading={isSearching}
-			onChange={(val) => (searchTerm = val)}
-		/>
+	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
+		<div class="space-y-3">
+			<Search
+				value={searchTerm}
+				bind:isLoading={isSearching}
+				onChange={(val) => (searchTerm = val)}
+			/>
 
-		<div class="flex flex-wrap gap-2">
-			{#each statusTags as tag (tag)}
-				<Badge
-					variant={selectedStatus === tag ? 'default' : 'outline'}
-					onclick={() => (selectedStatus = tag)}
-					class="pointer-fine:cursor-pointer"
-				>
-					{tag}
-				</Badge>
-			{/each}
-		</div>
-	</div>
-
-	<!-- Table Container -->
-	<div>
-		{#if isSearching}
-			<div class="flex items-center justify-center gap-4 py-8">
-				<Loader2Icon class="size-5 animate-spin text-primary" />
-				<div class="text-muted-foreground">Loading Warehouses...</div>
-			</div>
-		{:else}
-			{#if searchTerm}
-				<div class="mb-2 text-sm text-muted-foreground">
-					Showing results for <b>"{searchTerm}"</b> ({filteredWarehouses.length} found)
+			<div class="flex items-center justify-between">
+				<div class="flex gap-2">
+					{#each statusTags as tag (tag)}
+						<Badge
+							variant={selectedStatus === tag ? 'default' : 'outline'}
+							onclick={() => (selectedStatus = tag)}
+							class="pointer-fine:cursor-pointer"
+						>
+							{tag}
+						</Badge>
+					{/each}
 				</div>
-			{/if}
 
-			<WarehouseTable {filteredWarehouses} />
-		{/if}
+				<span class="text-xs font-medium text-muted-foreground">
+					Warehouses: {filteredWarehouses.length}
+				</span>
+			</div>
+		</div>
+
+		<!-- Table Container -->
+		<div>
+			{#if isSearching}
+				<div class="flex items-center justify-center gap-4 py-8">
+					<Loader2Icon class="size-5 animate-spin text-primary" />
+					<div class="text-muted-foreground">Loading Warehouses...</div>
+				</div>
+			{:else}
+				<Separator class="mb-4" />
+				{#if searchTerm}
+					<div class="mb-2 text-sm text-muted-foreground">
+						Showing results for <b>"{searchTerm}"</b> ({filteredWarehouses.length} found)
+					</div>
+				{/if}
+
+				<WarehouseTable {filteredWarehouses} />
+			{/if}
+		</div>
 	</div>
 </div>

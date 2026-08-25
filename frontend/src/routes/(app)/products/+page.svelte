@@ -60,7 +60,7 @@
 				</div>
 
 				<span class="text-xs font-medium text-muted-foreground">
-					{filteredProducts.length} Products
+					Products: {filteredProducts.length} 
 				</span>
 			</div>
 		</div>

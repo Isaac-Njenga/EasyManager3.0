@@ -1,12 +1,9 @@
 <script lang="ts">
 	import DataTable from '$lib/components/common/DataTable.svelte';
-	// import DataDrawer from '$lib/components/common/DataDrawer.svelte';
+	import Modal from '$lib/components/common/Modal.svelte';
 
-	import {
-		Button
-		// buttonVariants
-	} from '$lib/components/ui/button';
-	// import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import { Button, buttonVariants } from '$lib/components/ui/button';
+	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
@@ -20,9 +17,13 @@
 	import { shopColumns } from '$lib/components/modules/shop/shop.columns';
 	import type { Shop, ShopStatus, ShopType } from '$lib/types/shop.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
+	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
+	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
+	import { shopsData as shops } from '$lib/data/shop.data';
+	import { transferStore } from '$lib/stores/transfer.svelte';
 	// import ShopDetails from '../../../../routes/(app)/shops/ShopDetails.svelte';
 
 	type Props = {
@@ -32,8 +33,22 @@
 	let { filteredShops }: Props = $props();
 
 	// let isDrawerOpen = $state(false);
+	let isTransferDrawerOpen = $state(false);
 	let isDeleteShopOpen = $state(false);
 	let selectedShop = $state<Shop | null>(null);
+
+	const allLocations = $derived([
+		...warehouses.map((wh) => ({
+			id: wh._id,
+			name: wh.name,
+			type: 'Warehouse' as const
+		})),
+		...shops.map((shop) => ({
+			id: shop._id,
+			name: shop.name,
+			type: 'Shop' as const
+		}))
+	]);
 
 	function viewShop(shop: Shop) {
 		selectedShop = shop;
@@ -48,6 +63,19 @@
 	function openDeleteModal(shop: Shop) {
 		selectedShop = shop;
 		isDeleteShopOpen = true;
+	}
+
+	function transferStock(shop: Shop) {
+		selectedShop = shop;
+		transferStore.sourceId = shop._id;
+		isTransferDrawerOpen = true;
+	}
+
+	function executeTransferAction() {
+		transferStore.handleTransfer(allLocations);
+		if (transferStore.items.length === 0) {
+			isTransferDrawerOpen = false;
+		}
 	}
 
 	function deleteShop(shop: Shop) {
@@ -139,6 +167,8 @@
 			<DropdownMenuItem onclick={() => viewShop(shop)}>View</DropdownMenuItem>
 			<DropdownMenuItem onclick={() => editShop(shop)}>Edit</DropdownMenuItem>
 			<DropdownMenuSeparator />
+			<DropdownMenuItem onclick={() => transferStock(shop)}>Transfer</DropdownMenuItem>
+			<DropdownMenuSeparator />
 			<DropdownMenuItem
 				class="text-destructive focus:text-destructive"
 				onclick={() => openDeleteModal(shop)}
@@ -165,33 +195,25 @@
 	}}
 />
 
-<!-- Reusable shop Drawer -->
-<!-- <DataDrawer
-	bind:open={isDrawerOpen}
-	title={selectedShop?.name ?? 'Shop Details'}
-	description={selectedShop ? `${selectedShop.shopCode}` : ''}
-	direction="right"
+<Modal
+	bind:open={isTransferDrawerOpen}
+	title={selectedShop?.name ?? 'Initiate Stock Transfer'}
+	description={selectedShop ? selectedShop.shopCode : ''}
 >
-	<ShopDetails {selectedShop} />
+	{#if selectedShop}
+		<TransferForm locations={allLocations} preselectedSourceId={selectedShop._id} />
+	{/if}
 	{#snippet footer()}
-		<div class="flex w-full flex-col gap-2">
-			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/shops/${selectedShop?._id}`} size="xs" class="w-full">Edit Shop</Button>
-				<Button
-					onclick={() => openDeleteModal(selectedShop!)}
-					size="xs"
-					variant="destructive"
-					class="w-full"
-				>
-					Delete Shop
-				</Button>
-			</div>
-
-			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>
-				Close
-			</Drawer.Close>
+		<div class="flex w-full flex-row items-center justify-end gap-2">
+			<Button
+				size="xs"
+				variant="default"
+				disabled={transferStore.items.length === 0}
+				onclick={executeTransferAction}>Initiate Transfer</Button
+			>
+			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>
 	{/snippet}
-</DataDrawer> -->
+</Modal>
 
 <DeleteDialog bind:open={isDeleteShopOpen} handleDelete={() => deleteShop(selectedShop!)} />

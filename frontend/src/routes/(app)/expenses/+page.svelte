@@ -140,7 +140,7 @@
 				</div>
 
 				<span class="text-xs font-medium text-muted-foreground">
-					{filteredExpenses.length} Expenses
+					Expenses: {filteredExpenses.length} 
 				</span>
 			</div>
 		</div>
