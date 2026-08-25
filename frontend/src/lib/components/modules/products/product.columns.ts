@@ -6,7 +6,7 @@ export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'image',
 		header: 'Image',
-		class: 'max-w-[60px]',
+		class: 'max-w-[50px]',
 		cell: 'imageCell'
 	},
 

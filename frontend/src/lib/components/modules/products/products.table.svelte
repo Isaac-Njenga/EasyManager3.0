@@ -1,6 +1,5 @@
 <script lang="ts">
 	import DataTable from '$lib/components/common/DataTable.svelte';
-	import ImagePreview from '$lib/components/common/ImagePreview.svelte';
 	import DataDrawer from '$lib/components/common/DataDrawer.svelte';
 
 	import { Button, buttonVariants } from '$lib/components/ui/button';
@@ -60,7 +59,7 @@
 <!-- eslint-disable-next-line -->
 {#snippet imageCell(_value: unknown, product: Product)}
 	{#if product.image && product.image.length > 0}
-		<ImagePreview src={product.image[0]} alt={product.name} class="size-14" />
+		<img src={product.image[0]} alt={product.name} class="size-16 rounded-md" />
 	{:else}
 		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
 			<span class="text-xs text-muted-foreground">No image</span>
@@ -156,6 +155,9 @@
 		qtyCell,
 		statusCell
 	}}
+	pagination
+	pageSize={10}
+	pageSizeOptions={[10, 20, 50]}
 />
 
 <!-- Reusable Product Drawer -->

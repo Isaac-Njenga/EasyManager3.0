@@ -57,6 +57,7 @@
 	}
 </script>
 
+<!-- eslint-disable-next-line -->
 {#snippet categoryCell(_value: unknown, expense: Expense)}
 	<div class="w-full">
 		<div class="truncate font-medium">{expense.title}</div>
@@ -66,18 +67,21 @@
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet dateCell(_value: unknown, expense: Expense)}
 	<div class="w-full">
 		<p class="text-xs">{format(new Date(expense.dateOfExpense), 'EE dd, MMM yyyy')}</p>
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet amountCell(_value: unknown, expense: Expense)}
 	<div class="w-full">
 		<p class="text-md text-red-500">{formatCurrency(expense.amount ?? '')}</p>
 	</div>
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet statusCell(_value: unknown, expense: Expense)}
 	{#if expense.paymentStatus === 'Paid'}
 		<Badge
@@ -103,6 +107,7 @@
 	{/if}
 {/snippet}
 
+<!-- eslint-disable-next-line -->
 {#snippet actionsCell(_value: unknown, expense: Expense)}
 	<DropdownMenu>
 		<DropdownMenuTrigger>
@@ -138,6 +143,9 @@
 		amountCell,
 		actionsCell
 	}}
+	pagination
+	pageSize={10}
+	pageSizeOptions={[10, 20, 50]}
 />
 
 <!-- Reusable Expense Drawer -->

@@ -195,6 +195,9 @@
 	getRowKey={(Warehouse) => Warehouse._id}
 	emptyMessage="No Warehouses recorded."
 	cells={{ stockCell, locationCell, nameCell, codeCell, statusCell, actionsCell }}
+	pagination
+	pageSize={5}
+	pageSizeOptions={[5, 10, 20, 50]}
 />
 
 <Modal
