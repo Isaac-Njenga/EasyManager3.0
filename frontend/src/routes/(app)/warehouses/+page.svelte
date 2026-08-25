@@ -118,7 +118,7 @@
 				</div>
 			</div>
 			<div class="mt-3">
-				<span class="text-2xl font-bold tracking-tight text-orange-300">
+				<span class="text-2xl font-bold tracking-tight text-blue-600">
 					{analytics.totalUnitsStored.toLocaleString()}
 				</span>
 			</div>

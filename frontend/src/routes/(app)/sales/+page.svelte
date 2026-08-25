@@ -107,39 +107,52 @@
 		actionHref="/sales/new"
 	/>
 
-	<div class="mb-3">
-		<div class="mb-3">
-			<Search
-				value={searchTerm}
-				bind:isLoading={isSearching}
-				onChange={(val) => (searchTerm = val)}
-			/>
-		</div>
-		<!-- <div class="flex gap-2">
-			{#each statusTags as tag (tag)}
-				<Badge
-					variant={selectedStatus === tag ? 'default' : 'outline'}
-					onclick={() => (selectedStatus = tag)}
-					class="pointer-fine:cursor-pointer"
+	<!-- 2. Weekly Day Overview Grid (7 Days) -->
+	<div class="mb-3 grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
+		{#each weekDays as day (day)}
+			<button type="button" onclick={() => selectDay(day.dateStr)} class="text-left transition-all">
+				<Card
+					class={`cursor-pointer shadow-sm hover:border-primary hover:shadow-md ${
+						selectedDayDateStr === day.dateStr
+							? 'border-primary bg-accent/40 ring-1 ring-primary'
+							: ''
+					}`}
 				>
-					{tag}
-				</Badge>
-			{/each}
-		</div> -->
+					<CardHeader class="px-2">
+						<CardTitle class="text-xs font-semibold text-muted-foreground">
+							{day.dayName} <span class="text-[11px] font-normal">({day.displayDate})</span>
+						</CardTitle>
+					</CardHeader>
+					<CardContent class="px-3">
+						<p
+							class="text-sm font-bold {day.totalRevenue > 0
+								? 'text-green-500'
+								: 'text-muted-foreground'}"
+						>
+							{formatCurrency(day.totalRevenue)}
+						</p>
+						<p class={`text-[12px] ${day.salesCount !== 0 ? 'text-emerald-300' : 'text-red-600'}`}>
+							{day.salesCount}
+							{day.salesCount === 1 ? 'sale' : 'sales'}
+						</p>
+					</CardContent>
+				</Card>
+			</button>
+		{/each}
 	</div>
 
 	<!-- 1. Week Controller & Summary Header -->
 	<div
-		class="flex flex-col gap-4 rounded-lg border bg-card p-4 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+		class="flex flex-col gap-4 rounded-lg border bg-card p-3 shadow-sm sm:flex-row sm:items-center sm:justify-between"
 	>
 		<div class="flex items-center gap-2">
 			<Calendar class="size-5 text-muted-foreground" />
 			<div>
-				<h2 class="text-sm font-semibold">
+				<h2 class="mb-1 text-sm font-semibold text-blue-400">
 					{weekDays[0].displayDate} - {weekDays[6].displayDate}, {selectedWeekStart.getFullYear()}
 				</h2>
 				<p class="text-xs text-muted-foreground">
-					Total Revenue: <span class="font-bold text-emerald-600"
+					Total Revenue: <span class="font-bold text-green-500"
 						>{formatCurrency(totalWeeklyRevenue)}</span
 					>
 					| Total Sales: <span class="font-bold text-foreground">{totalWeeklySalesCount}</span>
@@ -164,6 +177,16 @@
 		</div>
 	</div>
 
+	<div class="mb-2">
+		<div class="mb-3">
+			<Search
+				value={searchTerm}
+				bind:isLoading={isSearching}
+				onChange={(val) => (searchTerm = val)}
+			/>
+		</div>
+	</div>
+
 	{#if isSearching}
 		<div class="align-center flex flex-row items-center justify-center gap-4">
 			<Loader2Icon class="animate-spin" />
@@ -182,36 +205,6 @@
 		{/if}
 	{/if}
 
-	<!-- 2. Weekly Day Overview Grid (7 Days) -->
-	<div class="grid grid-cols-2 gap-3 sm:grid-cols-4 lg:grid-cols-7">
-		{#each weekDays as day (day)}
-			<button type="button" onclick={() => selectDay(day.dateStr)} class="text-left transition-all">
-				<Card
-					class={`cursor-pointer shadow-sm  hover:border-primary hover:shadow-md ${
-						selectedDayDateStr === day.dateStr
-							? 'border-primary bg-accent/40 ring-1 ring-primary'
-							: ''
-					}`}
-				>
-					<CardHeader class="px-3 py-1 pb-1">
-						<CardTitle class="text-xs font-semibold text-muted-foreground">
-							{day.dayName} <span class="text-[11px] font-normal">({day.displayDate})</span>
-						</CardTitle>
-					</CardHeader>
-					<CardContent class="px-3 py-1 pt-1">
-						<p class="text-sm font-bold text-foreground">
-							{formatCurrency(day.totalRevenue)}
-						</p>
-						<p class="text-[11px] text-muted-foreground">
-							{day.salesCount}
-							{day.salesCount === 1 ? 'sale' : 'sales'}
-						</p>
-					</CardContent>
-				</Card>
-			</button>
-		{/each}
-	</div>
-
 	<!-- 3. Drill-down Table for Selected Day -->
 	{#if activeDayData}
 		<div class="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
@@ -221,9 +214,7 @@
 						Sales for {activeDayData.dayName}, {activeDayData.displayDate}
 					</h3>
 					<p class="text-xs text-muted-foreground">
-						{activeDayData.salesCount} transactions: Total {formatCurrency(
-							activeDayData.totalRevenue
-						)}
+						Sales: {activeDayData.salesCount} | Total: {formatCurrency(activeDayData.totalRevenue)}
 					</p>
 				</div>
 				<Button variant="ghost" size="sm" onclick={() => (selectedDayDateStr = null)}>Close</Button>

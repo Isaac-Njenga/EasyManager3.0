@@ -16,7 +16,7 @@
 
 	import { warehouseColumns } from '$lib/components/modules/warehouses/warehouse.columns';
 	import type { Warehouse } from '$lib/types/warehouse.types';
-	import WarehousesDetails from '../../../../routes/(app)/warehouses/WarehouseDetails.svelte';
+	// import WarehousesDetails from '../../../../routes/(app)/warehouses/WarehouseDetails.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
@@ -31,9 +31,9 @@
 		// handleTransfer: () => void;
 	};
 
-	let { filteredWarehouses  }: Props = $props();
+	let { filteredWarehouses }: Props = $props();
 
-	let isDrawerOpen = $state(false);
+	// let isDrawerOpen = $state(false);
 	let isTransferDrawerOpen = $state(false);
 	let isDeleteWarehouseOpen = $state(false);
 	let selectedWarehouse = $state<Warehouse | null>(null);
@@ -55,11 +55,12 @@
 
 	function viewWarehouse(warehouse: Warehouse) {
 		selectedWarehouse = warehouse;
-		isDrawerOpen = true;
+		goto(resolve(`/warehouses/${warehouse._id}`));
+		// isDrawerOpen = true;
 	}
 
 	function editWarehouse(warehouse: Warehouse) {
-		goto(resolve(`/warehouses/${warehouse._id}`));
+		goto(resolve(`/warehouses/${warehouse._id}/edit`));
 	}
 
 	function openDeleteModal(warehouse: Warehouse) {
@@ -84,7 +85,7 @@
 		console.log('Delete warehouse:', warehouse._id);
 		isDeleteWarehouseOpen = false;
 		selectedWarehouse = null;
-		isDrawerOpen = false;
+		// isDrawerOpen = false;
 	}
 </script>
 
@@ -198,7 +199,7 @@
 />
 
 <!-- Drawer View -->
-<DataDrawer
+<!-- <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Warehouse Details'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
@@ -228,7 +229,7 @@
 			</Drawer.Close>
 		</div>
 	{/snippet}
-</DataDrawer>
+</DataDrawer> -->
 
 <DataDrawer
 	bind:open={isTransferDrawerOpen}

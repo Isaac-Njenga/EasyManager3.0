@@ -1,3 +1,5 @@
+import type { Product } from './product.types';
+
 export type WarehouseStatus = 'Active' | 'Inactive' | 'Under Maintenance' | 'Full Capacity';
 
 export type WarehouseAddress = {
@@ -20,6 +22,7 @@ export type Warehouse = {
 	status: WarehouseStatus;
 	address: WarehouseAddress;
 	inventorySummary?: WarehouseInventorySummary;
+	inventoryItems: Product[];
 	notes?: string;
 	createdAt: string;
 	updatedAt: string;

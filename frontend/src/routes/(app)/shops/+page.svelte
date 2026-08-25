@@ -108,7 +108,7 @@
 				<Package class="size-4 text-blue-500" />
 			</div>
 			<div class="mt-2">
-				<span class="text-2xl font-bold tracking-tight text-orange-300">
+				<span class="text-2xl font-bold tracking-tight text-blue-500">
 					{analytics.totalUnits.toLocaleString()}
 				</span>
 			</div>

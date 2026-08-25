@@ -1,9 +1,12 @@
 <script lang="ts">
 	import DataTable from '$lib/components/common/DataTable.svelte';
-	import DataDrawer from '$lib/components/common/DataDrawer.svelte';
+	// import DataDrawer from '$lib/components/common/DataDrawer.svelte';
 
-	import { Button, buttonVariants } from '$lib/components/ui/button';
-	import * as Drawer from '$lib/components/ui/drawer/index.js';
+	import {
+		Button
+		// buttonVariants
+	} from '$lib/components/ui/button';
+	// import * as Drawer from '$lib/components/ui/drawer/index.js';
 	import {
 		DropdownMenu,
 		DropdownMenuContent,
@@ -20,7 +23,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	import ShopDetails from '../../../../routes/(app)/shops/ShopDetails.svelte';
+	// import ShopDetails from '../../../../routes/(app)/shops/ShopDetails.svelte';
 
 	type Props = {
 		filteredShops: Shop[];
@@ -28,7 +31,7 @@
 
 	let { filteredShops }: Props = $props();
 
-	let isDrawerOpen = $state(false);
+	// let isDrawerOpen = $state(false);
 	let isDeleteShopOpen = $state(false);
 	let selectedShop = $state<Shop | null>(null);
 
@@ -51,7 +54,7 @@
 		console.log('Delete shop:', shop._id);
 		isDeleteShopOpen = false;
 		selectedShop = null;
-		isDrawerOpen = false;
+		// isDrawerOpen = false;
 	}
 </script>
 
@@ -163,7 +166,7 @@
 />
 
 <!-- Reusable shop Drawer -->
-<DataDrawer
+<!-- <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedShop?.name ?? 'Shop Details'}
 	description={selectedShop ? `${selectedShop.shopCode}` : ''}
@@ -189,6 +192,6 @@
 			</Drawer.Close>
 		</div>
 	{/snippet}
-</DataDrawer>
+</DataDrawer> -->
 
 <DeleteDialog bind:open={isDeleteShopOpen} handleDelete={() => deleteShop(selectedShop!)} />
