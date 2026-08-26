@@ -33,11 +33,12 @@
 	let isTransferDrawerOpen = $state(false);
 
 	function transferStock(shop: Shop) {
-		transferStore.sourceId = shop._id;
+		transferStore.start(shop._id);
 		isTransferDrawerOpen = true;
 	}
 
 	function executeTransferAction() {
+		transferStore.handleTransfer();
 		if (transferStore.items.length === 0) {
 			isTransferDrawerOpen = false;
 		}

@@ -19,7 +19,7 @@ export type Product = {
 	sellingPrice: number;
 	totalQuantity: number;
 	status: ProductStatus;
-	inventory: LocationStock[];
-	createdAt: string;
-	updatedAt: string;
+	inventory?: LocationStock[];
+	createdAt?: string;
+	updatedAt?: string;
 };

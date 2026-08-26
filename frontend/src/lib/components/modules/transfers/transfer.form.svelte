@@ -1,8 +1,7 @@
 <script lang="ts">
-	import type { LocationType } from '$lib/types/transfer.types';
 	import type { Product } from '$lib/types/product.types';
 	import { productsData } from '$lib/data/products.data';
-	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { transferLocations as locations, transferStore } from '$lib/stores/transfer.svelte';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -17,33 +16,14 @@
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import Package from '@lucide/svelte/icons/package';
 	import PackageSearch from '@lucide/svelte/icons/package-search';
-	import { warehouseData as warehouses } from '$lib/data/warehouses.data';
-	import { shopsData as shops } from '$lib/data/shop.data';
-
 	import { formatCurrency } from '$lib/utils';
-
-	type LocationOption = { id: string; name: string; type: LocationType };
-
-	const locations: LocationOption[] = $derived([
-		...warehouses.map((wh) => ({
-			id: wh._id,
-			name: wh.name,
-			type: 'Warehouse' as const
-		})),
-		...shops.map((shop) => ({
-			id: shop._id,
-			name: shop.name,
-			type: 'Shop' as const
-		}))
-	]);
-
 
 	type Props = {
 		products?: Product[];
 		preselectedSourceId?: string;
 	};
 
-	let { products = productsData,  preselectedSourceId }: Props = $props();
+	let { products = productsData, preselectedSourceId }: Props = $props();
 
 	let searchQuery = $state('');
 	let isProductSearchOpen = $state(false);
@@ -229,11 +209,11 @@
 			</div>
 		{:else}
 			<div class="space-y-2 pt-2">
-				{#each transferStore.items as item, index (item.productId)}
+				{#each transferStore.items as item, index (item._id)}
 					<div class="flex items-end gap-2">
 						<div class="flex flex-1 flex-col gap-1.5">
 							<Label class="text-[11px]">Item</Label>
-							<Input type="text" readonly bind:value={item.productName} class="h-9 text-xs" />
+							<Input type="text" readonly bind:value={item.name} class="h-9 text-xs" />
 						</div>
 
 						<div class="flex w-30 flex-col gap-1.5">
@@ -247,7 +227,7 @@
 								type="number"
 								min="1"
 								placeholder="Qty"
-								bind:value={item.quantity}
+								bind:value={item.totalQuantity}
 								class="h-9 text-xs"
 							/>
 						</div>

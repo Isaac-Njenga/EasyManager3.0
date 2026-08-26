@@ -33,8 +33,6 @@
 	let isDeleteShopOpen = $state(false);
 	let selectedShop = $state<Shop | null>(null);
 
-	
-
 	function viewShop(shop: Shop) {
 		selectedShop = shop;
 		goto(resolve(`/shops/${shop._id}`));
@@ -51,11 +49,12 @@
 
 	function transferStock(shop: Shop) {
 		selectedShop = shop;
-		transferStore.sourceId = shop._id;
+		transferStore.start(shop._id);
 		isTransferDrawerOpen = true;
 	}
 
 	function executeTransferAction() {
+		transferStore.handleTransfer();
 		if (transferStore.items.length === 0) {
 			isTransferDrawerOpen = false;
 		}
@@ -178,7 +177,7 @@
 	}}
 	pagination
 	pageSize={5}
-	pageSizeOptions={[5,10, 20, 50]}
+	pageSizeOptions={[5, 10, 20, 50]}
 />
 
 <Modal
@@ -187,7 +186,7 @@
 	description={selectedShop ? selectedShop.shopCode : ''}
 >
 	{#if selectedShop}
-		<TransferForm  preselectedSourceId={selectedShop._id} />
+		<TransferForm preselectedSourceId={selectedShop._id} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">

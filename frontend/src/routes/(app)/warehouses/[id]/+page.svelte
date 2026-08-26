@@ -32,11 +32,12 @@
 	let isTransferDrawerOpen = $state(false);
 
 	function transferStock(warehouse: Warehouse) {
-		transferStore.sourceId = warehouse._id;
+		transferStore.start(warehouse._id);
 		isTransferDrawerOpen = true;
 	}
 
 	function executeTransferAction() {
+		transferStore.handleTransfer();
 		if (transferStore.items.length === 0) {
 			isTransferDrawerOpen = false;
 		}
@@ -128,7 +129,7 @@
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-4 py-8">
 					<Loader2Icon class="size-5 animate-spin text-primary" />
-					<div class="text-muted-foreground">Loading shops...</div>
+					<div class="text-muted-foreground">Loading items...</div>
 				</div>
 			{:else}
 				<div class="flex items-center justify-between">
@@ -173,7 +174,7 @@
 					/>
 				{:else}
 					<div class="py-8 text-center text-xs text-muted-foreground">
-						No detailed product records loaded for this warehouse.
+						No product records loaded for this warehouse.
 					</div>
 				{/if}
 			{/if}

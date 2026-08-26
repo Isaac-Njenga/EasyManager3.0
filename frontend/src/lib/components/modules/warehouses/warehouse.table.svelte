@@ -51,11 +51,12 @@
 
 	function transferStock(warehouse: Warehouse) {
 		selectedWarehouse = warehouse;
-		transferStore.sourceId = warehouse._id;
+		transferStore.start(warehouse._id);
 		isTransferDrawerOpen = true;
 	}
 
 	function executeTransferAction() {
+		transferStore.handleTransfer();
 		if (transferStore.items.length === 0) {
 			isTransferDrawerOpen = false;
 		}
