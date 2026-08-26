@@ -34,6 +34,7 @@
 	import { toggleMode } from 'mode-watcher';
 	import User from '@lucide/svelte/icons/user';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
+	import favicon from '$lib/assets/favicon.ico';
 
 	const { toggle } = useSidebar();
 </script>
@@ -45,7 +46,7 @@
 			<div
 				class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
 			>
-				<span class="text-xs font-bold">EM</span>
+				<span class="text-xs font-bold"><img src={favicon} alt='_icon' class='rounded-md'/></span>
 			</div>
 
 			<span class="truncate font-semibold group-data-[collapsible=icon]:hidden">

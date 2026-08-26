@@ -10,7 +10,7 @@
 <div class="space-y-6">
 	<PageHeader title="Reports" description="View all your reports and data." />
 
-	<Tabs.Root value="reports" class="w-full">
+	<Tabs.Root value="product" class="w-full">
 		<Tabs.List>
 			<Tabs.Trigger value="product">Product Reports</Tabs.Trigger>
 			<Tabs.Trigger value="sales">Sale Reports</Tabs.Trigger>

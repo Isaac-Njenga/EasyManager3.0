@@ -90,7 +90,7 @@
 
 <div class="space-y-6">
 	<!-- Summary Metrics -->
-	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+	<div class="grid grid-cols-1 gap-2 sm:grid-cols-2 lg:grid-cols-3">
 		<Card.Root>
 			<Card.Header class="flex flex-row items-center justify-between pb-2">
 				<Card.Title class="text-sm font-medium">Product Revenue</Card.Title>
