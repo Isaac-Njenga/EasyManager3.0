@@ -4,7 +4,7 @@
 </script>
 
 <div class="space-y-6">
-	<PageHeader title="Dashboard" description="Here's what's happening with your business today." />
+	<PageHeader title="Dashboard" description="Here's what's happening." />
 
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<Card>

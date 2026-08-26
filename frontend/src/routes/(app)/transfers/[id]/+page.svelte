@@ -7,6 +7,7 @@
 	import ProductsTable from '$lib/components/modules/products/products.table.svelte';
 	// import Search from '$lib/components/common/Search.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import FileText from '@lucide/svelte/icons/file-text';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import Boxes from '@lucide/svelte/icons/boxes';
 

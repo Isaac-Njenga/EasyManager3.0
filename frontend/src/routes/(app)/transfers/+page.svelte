@@ -42,14 +42,9 @@
 	let totalUnitsTransferred = $derived(
 		filteredTransfers.reduce((acc, t) => acc + (t.totalItemsCount ?? 0), 0)
 	);
-
-
-
-
 </script>
 
 <div class="space-y-6">
-	<!-- Page Header -->
 	<PageHeader
 		title="Transfer Logs"
 		description="View all previous stock transfers."

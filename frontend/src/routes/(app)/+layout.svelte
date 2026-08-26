@@ -13,7 +13,7 @@
 		<!-- <Header /> -->
 
 		<main class="flex-1">
-			<div class="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8">
+			<div class="mx-auto w-full max-w-[1600px] px-2 py-4 sm:px-3 lg:px-4">
 				{@render children()}
 			</div>
 		</main>
