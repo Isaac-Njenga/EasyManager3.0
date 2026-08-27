@@ -23,6 +23,7 @@
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { format } from 'date-fns';
 	import { formatCurrency } from '$lib/utils';
+	import { salespersonsData } from '$lib/data/saleperson.data';
 
 	type Props = {
 		filteredSales: Sale[];
@@ -33,6 +34,15 @@
 	let isDrawerOpen = $state(false);
 	let isDeleteSaleOpen = $state(false);
 	let selectedSale = $state<Sale | null>(null);
+
+	function salespersonName(saleperson: Sale['saleperson']) {
+		return typeof saleperson === 'string'
+			? (() => {
+					const person = salespersonsData.find((candidate) => candidate._id === saleperson);
+					return person ? `${person.firstName} ${person.lastName}` : saleperson;
+				})()
+			: `${saleperson.firstName} ${saleperson.lastName}`;
+	}
 
 	function viewSale(sale: Sale) {
 		selectedSale = sale;
@@ -57,11 +67,11 @@
 </script>
 
 <!-- Receipt Number & Salesperson -->
-    <!-- eslint-disable-next-line -->
+<!-- eslint-disable-next-line -->
 {#snippet receiptCell(value: unknown, sale: Sale)}
 	<div class="w-full">
 		<span class="font-semibold text-foreground">{sale.receiptNumber}</span>
-		<p class="text-xs text-muted-foreground">{sale.saleperson}</p>
+		<p class="text-xs text-muted-foreground">{salespersonName(sale.saleperson)}</p>
 	</div>
 {/snippet}
 
@@ -113,6 +123,15 @@
 	<div class="w-full">
 		<p class="font-normal text-green-400">
 			{formatCurrency(sale.grandTotal)}
+		</p>
+	</div>
+{/snippet}
+
+<!-- eslint-disable-next-line -->
+{#snippet commissionCell(value: unknown, sale: Sale)}
+	<div class="w-full">
+		<p class="font-normal text-rose-400">
+			{formatCurrency(sale.commission)}
 		</p>
 	</div>
 {/snippet}
@@ -193,7 +212,8 @@
 		statusCell,
 		actionsCell,
 		totalCell,
-		dateCell
+		dateCell,
+		commissionCell
 	}}
 />
 
@@ -201,7 +221,7 @@
 <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedSale?.receiptNumber ?? 'Sale Details'}
-	description={selectedSale ? `Sale by ${selectedSale.saleperson}` : ''}
+	description={selectedSale ? `Sale by ${salespersonName(selectedSale.saleperson)}` : ''}
 	direction="right"
 >
 	{#if selectedSale}

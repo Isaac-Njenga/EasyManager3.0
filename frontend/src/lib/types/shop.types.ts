@@ -24,7 +24,7 @@ export type Shop = {
 	status: ShopStatus;
 	address: ShopAddress;
 	inventorySummary?: ShopInventorySummary;
-	inventoryItems: Product[];
+	inventoryItems?: Product[];
 	notes?: string;
 	createdAt: string;
 	updatedAt: string;

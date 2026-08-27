@@ -17,8 +17,9 @@ export const productsData: Product[] = [
 		totalQuantity: 18,
 		inventory: [
 			{ locationId: 'wh_industrial_area_001', locationType: 'Warehouse', quantity: 10 },
-			{ locationId: 'shop_cbd_002', locationType: 'Shop', quantity: 5 },
-			{ locationId: 'shop_westlands_003', locationType: 'Shop', quantity: 3 }
+			{ locationId: 'shp-001', locationType: 'Shop', quantity: 5 },
+			{ locationId: 'shp-002', locationType: 'Shop', quantity: 3 },
+			{ locationId: 'shp-003', locationType: 'Shop', quantity: 3 }
 		],
 		createdAt: '2026-01-10T08:30:00.000Z',
 		updatedAt: '2026-02-12T10:15:00.000Z'

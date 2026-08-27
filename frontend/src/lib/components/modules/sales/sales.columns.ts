@@ -24,8 +24,13 @@ export const saleColumns: TableColumn<Sale>[] = [
 	{
 		key: 'grandTotal',
 		header: 'Total',
-		class: 'text-left ',
+		class: 'text-left',
 		cell: 'totalCell'
+	},{
+		key: 'commission',
+		header: 'Commission',
+		class: 'text-left',
+		cell: 'commissionCell'
 	},
 	{
 		key: 'status',

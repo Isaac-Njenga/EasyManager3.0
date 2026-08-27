@@ -1,3 +1,6 @@
+import type { Salesperson } from './saleperson.types';
+import type { Shop } from './shop.types';
+
 export type PaymentMethod = 'Cash' | 'M-Pesa' | 'Credit Card' | 'Bank Transfer';
 export type PaymentStatus = 'Paid' | 'Pending' | 'Partially Paid';
 export type SaleStatus = 'Completed' | 'Processing' | 'Cancelled' | 'Returned';
@@ -14,7 +17,9 @@ export type SaleItem = {
 	sellingPrice: number; // Price at time of sale
 	costPrice: number; // Cost price at time of sale (for profit metrics)
 	quantity: number;
-	shop: string;
+	shop: Shop;
+	netProfit?: number; // (sellingPrice - costPrice)
+	netLoss?: number; // (costPrice - sellingPrice)
 	discount: number; // Discount per item (in KES)
 	totalPrice: number; // (unitPrice * quantity) - discount
 };
@@ -39,7 +44,8 @@ export type Sale = {
 	paymentStatus: PaymentStatus;
 	status: SaleStatus;
 	// mpesaReference?: string;  // Payment transaction codes
-	saleperson: string;
+	saleperson: string | Salesperson;
+	commission: number;
 	notes?: string;
 	createdAt: string; // ISO Date String
 	updatedAt: string; // ISO Date String

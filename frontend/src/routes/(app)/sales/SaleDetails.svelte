@@ -2,12 +2,12 @@
 	import type { Sale } from '$lib/types/sale.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	
 
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import Package from '@lucide/svelte/icons/package';
 	import { formatCurrency } from '$lib/utils';
+	import { salespersonsData } from '$lib/data/saleperson.data';
 	import { format } from 'date-fns';
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
@@ -16,6 +16,12 @@
 	};
 
 	let { selectedSale }: Props = $props();
+
+	function salespersonName(saleperson: Sale['saleperson']) {
+		if (typeof saleperson !== 'string') return `${saleperson.firstName} ${saleperson.lastName}`;
+		const person = salespersonsData.find((candidate) => candidate._id === saleperson);
+		return person ? `${person.firstName} ${person.lastName}` : saleperson;
+	}
 </script>
 
 {#if !selectedSale}
@@ -44,7 +50,9 @@
 					{format(new Date(selectedSale.dateOfSale), 'PPPP')}
 				</p>
 				<p class="text-xs text-muted-foreground">
-					Salesperson: <span class="font-medium text-foreground">{selectedSale.saleperson}</span>
+					Salesperson: <span class="font-medium text-foreground"
+						>{salespersonName(selectedSale.saleperson)}</span
+					>
 				</p>
 			</div>
 
@@ -161,9 +169,6 @@
 		{/if}
 
 		<!-- Additional Actions -->
-		<LogFooter
-			createTimestamp={selectedSale.createdAt}
-			updateTimestamp={selectedSale.updatedAt}
-		/>
+		<LogFooter createTimestamp={selectedSale.createdAt} updateTimestamp={selectedSale.updatedAt} />
 	</div>
 {/if}

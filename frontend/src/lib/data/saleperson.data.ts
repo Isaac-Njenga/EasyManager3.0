@@ -5,7 +5,7 @@ export const salespersonsData: Salesperson[] = [
 		_id: '66c01a9f1b2c3d001a100101',
 		firstName: 'Kelvin',
 		lastName: 'Kiprono',
-		status: 'Active',
+		status: 'Inactive',
 		assignedShop: {
 			_id: '66a12b8f3c4d5e001f200101',
 			shopCode: 'SHP-NRB-001',
@@ -29,7 +29,7 @@ export const salespersonsData: Salesperson[] = [
 		_id: '66c01a9f1b2c3d001a100102',
 		firstName: 'Mercy',
 		lastName: 'Wanjiku',
-		status: 'Active',
+		status: 'Inactive',
 		assignedShop: {
 			_id: '66a12b8f3c4d5e001f200101',
 			shopCode: 'SHP-NRB-001',
