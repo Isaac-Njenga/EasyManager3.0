@@ -20,6 +20,7 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
+	// import { format } from 'date-fns';
 
 	type Props = {
 		filteredSalespersons: Salesperson[];
@@ -95,15 +96,11 @@
 
 <!-- Hire Date Snippet -->
 <!-- eslint-disable-next-line -->
-{#snippet hireDateCell(_value: unknown, salesperson: Salesperson)}
+<!-- {#snippet hireDateCell(_value: unknown, salesperson: Salesperson)}
 	<span class="text-xs">
-		{new Date(salesperson.hireDate).toLocaleDateString('en-KE', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		})}
+    {format(new Date(salesperson.hireDate),'dd/MM/yyyy')}
 	</span>
-{/snippet}
+{/snippet} -->
 
 <!-- Status Snippet -->
 <!-- eslint-disable-next-line -->
@@ -170,7 +167,7 @@
 	cells={{
 		nameCell,
 		shopCell,
-		hireDateCell,
+		// hireDateCell,
 		statusCell,
 		actionsCell
 	}}

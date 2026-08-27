@@ -111,7 +111,7 @@
 		products.filter((p) => {
 			const isActive = p.status === 'Active';
 			if (!isActive) return false;
-			const hasShopStock = p.inventory.some(
+			const hasShopStock = (p.inventory??[]).some(
 				(stock) => stock.locationType === 'Shop' && stock.quantity > 0
 			);
 			if (!hasShopStock) return false;
@@ -142,7 +142,9 @@
 	}
 
 	function getShopStock(product: Product) {
-		return product.inventory.filter((stock) => stock.locationType === 'Shop' && stock.quantity > 0);
+		return (product.inventory ?? []).filter(
+			(stock) => stock.locationType === 'Shop' && stock.quantity > 0
+		);
 	}
 
 	function getItemShopStock(item: SaleItem) {

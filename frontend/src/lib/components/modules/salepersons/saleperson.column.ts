@@ -6,13 +6,13 @@ export const salespersonColumns: TableColumn<Salesperson>[] = [
 	{
 		key: 'firstName',
 		header: 'Salesperson',
-		class: 'min-w-[180px]',
+		class: 'max-w-[150px]',
 		cell: 'nameCell'
 	},
 	{
 		key: 'assignedShop',
-		header: 'Assigned Shop',
-		class: 'min-w-[160px]',
+		header: 'Shop',
+		class: 'max-w-[100px]',
 		cell: 'shopCell'
 	},
 	{
@@ -21,12 +21,12 @@ export const salespersonColumns: TableColumn<Salesperson>[] = [
 		class: 'text-right',
 		render: (value) => formatCurrency(Number(value ?? 0))
 	},
-	{
-		key: 'hireDate',
-		header: 'Hire Date',
-		class: 'text-center min-w-[110px]',
-		cell: 'hireDateCell'
-	},
+	// {
+	// 	key: 'hireDate',
+	// 	header: 'Hire Date',
+	// 	class: 'text-center min-w-[110px]',
+	// 	cell: 'hireDateCell'
+	// },
 	{
 		key: 'status',
 		header: 'Status',
@@ -36,7 +36,7 @@ export const salespersonColumns: TableColumn<Salesperson>[] = [
 	{
 		key: 'actions',
 		header: '',
-		class: 'w-[50px] text-right',
+		class: 'w-auto text-center',
 		cell: 'actionsCell'
 	}
 ];
