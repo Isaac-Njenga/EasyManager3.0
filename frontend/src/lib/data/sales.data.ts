@@ -18,7 +18,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 35000,
                 costPrice: 22000,
                 quantity: 2,
-                location: 'Main Warehouse - A1',
+                shop: 'Main Warehouse - A1',
                 discount: 0,
                 totalPrice: 70000
             }
@@ -51,7 +51,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 15000,
                 costPrice: 9000,
                 quantity: 1,
-                location: 'Showroom - Bay 3',
+                shop: 'Showroom - Bay 3',
                 discount: 1000,
                 totalPrice: 14000
             }
@@ -84,7 +84,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 22000,
                 costPrice: 14000,
                 quantity: 1,
-                location: 'Main Warehouse - B2',
+                shop: 'Main Warehouse - B2',
                 discount: 0,
                 totalPrice: 22000
             }
@@ -117,7 +117,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 22000,
                 costPrice: 14000,
                 quantity: 5,
-                location: 'Main Warehouse - B2',
+                shop: 'Main Warehouse - B2',
                 discount: 5000,
                 totalPrice: 105000
             }
@@ -151,7 +151,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 5500,
                 costPrice: 2800,
                 quantity: 2,
-                location: 'Showroom - Bay 1',
+                shop: 'Showroom - Bay 1',
                 discount: 0,
                 totalPrice: 11000
             }
@@ -184,7 +184,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 32000,
                 costPrice: 19000,
                 quantity: 1,
-                location: 'Main Warehouse - C1',
+                shop: 'Main Warehouse - C1',
                 discount: 0,
                 totalPrice: 32000
             }
@@ -217,7 +217,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 35000,
                 costPrice: 22000,
                 quantity: 1,
-                location: 'Main Warehouse - A1',
+                shop: 'Main Warehouse - A1',
                 discount: 0,
                 totalPrice: 35000
             }
@@ -251,7 +251,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 3000,
                 costPrice: 1200,
                 quantity: 4,
-                location: 'Showroom - Bay 2',
+                shop: 'Showroom - Bay 2',
                 discount: 1000,
                 totalPrice: 11000
             }
@@ -284,7 +284,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 95000,
                 costPrice: 60000,
                 quantity: 1,
-                location: 'Main Warehouse - A2',
+                shop: 'Main Warehouse - A2',
                 discount: 5000,
                 totalPrice: 90000
             }
@@ -317,7 +317,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 5500,
                 costPrice: 2800,
                 quantity: 1,
-                location: 'Showroom - Bay 1',
+                shop: 'Showroom - Bay 1',
                 discount: 0,
                 totalPrice: 5500
             }
@@ -350,7 +350,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 70000,
                 costPrice: 42000,
                 quantity: 1,
-                location: 'Main Warehouse - A3',
+                shop: 'Main Warehouse - A3',
                 discount: 0,
                 totalPrice: 70000
             },
@@ -366,7 +366,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 35000,
                 costPrice: 20000,
                 quantity: 1,
-                location: 'Main Warehouse - A3',
+                shop: 'Main Warehouse - A3',
                 discount: 2000,
                 totalPrice: 33000
             }
@@ -399,7 +399,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 3000,
                 costPrice: 1200,
                 quantity: 2,
-                location: 'Showroom - Bay 2',
+                shop: 'Showroom - Bay 2',
                 discount: 0,
                 totalPrice: 6000
             }
@@ -433,7 +433,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 32000,
                 costPrice: 19000,
                 quantity: 2,
-                location: 'Main Warehouse - C1',
+                shop: 'Main Warehouse - C1',
                 discount: 4000,
                 totalPrice: 60000
             }
@@ -466,7 +466,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 15000,
                 costPrice: 9000,
                 quantity: 1,
-                location: 'Showroom - Bay 3',
+                shop: 'Showroom - Bay 3',
                 discount: 0,
                 totalPrice: 15000
             }
@@ -499,7 +499,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 35000,
                 costPrice: 22000,
                 quantity: 1,
-                location: 'Main Warehouse - A1',
+                shop: 'Main Warehouse - A1',
                 discount: 2000,
                 totalPrice: 33000
             },
@@ -515,7 +515,7 @@ export const salesData: Sale[] = [
                 sellingPrice: 5500,
                 costPrice: 2800,
                 quantity: 1,
-                location: 'Showroom - Bay 1',
+                shop: 'Showroom - Bay 1',
                 discount: 0,
                 totalPrice: 5500
             }

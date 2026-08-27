@@ -235,8 +235,12 @@
 
 		<!-- 6. Metadata Footer -->
 		<LogFooter
-			createTimestamp={selectedProduct.createdAt}
-			updateTimestamp={selectedProduct.updatedAt}
+			createTimestamp={selectedProduct.createdAt
+				? selectedProduct.createdAt
+				: new Date().toISOString()}
+			updateTimestamp={selectedProduct.updatedAt
+				? selectedProduct.updatedAt
+				: new Date().toISOString()}
 		/>
 	</div>
 {/if}

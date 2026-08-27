@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Salesperson } from '$lib/types/salesperson.types';
+	import type { Salesperson } from '$lib/types/saleperson.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import { formatCurrency } from '$lib/utils';

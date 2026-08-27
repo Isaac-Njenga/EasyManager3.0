@@ -38,7 +38,7 @@
 	}
 
 	function editSalesperson(salesperson: Salesperson) {
-		goto(resolve(`/salespersons/${salesperson._id}`));
+		goto(resolve(`/salepersons/${salesperson._id}/edit`));
 	}
 
 	function openDeleteModal(salesperson: Salesperson) {

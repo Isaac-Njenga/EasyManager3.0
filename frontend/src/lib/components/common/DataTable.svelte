@@ -73,7 +73,7 @@
 
 	let currentPage = $state(1);
 
-	let selectedPageSize = $state(pageSize);
+	let selectedPageSize = $derived(pageSize);
 
 	const totalItems = $derived(data.length);
 
@@ -214,7 +214,7 @@
 					<span class="text-sm text-muted-foreground"> Rows per page </span>
 
 					<select
-						class="h-9 rounded-md border bg-background px-2 text-sm w-16"
+						class="h-9 w-16 rounded-md border bg-background px-2 text-sm"
 						value={selectedPageSize}
 						onchange={(event) =>
 							changePageSize(Number((event.currentTarget as HTMLSelectElement).value))}

@@ -18,15 +18,15 @@ export const salespersonColumns: TableColumn<Salesperson>[] = [
 	{
 		key: 'totalCommission',
 		header: 'Total Commission',
-		class: 'text-right',
+		class: 'text-center',
 		render: (value) => formatCurrency(Number(value ?? 0))
 	},
-	// {
-	// 	key: 'hireDate',
-	// 	header: 'Hire Date',
-	// 	class: 'text-center min-w-[110px]',
-	// 	cell: 'hireDateCell'
-	// },
+	{
+		key: 'totalRevenue',
+		header: 'Total Revenue',
+		class: 'text-center min-w-[110px]',
+		render: (value) => formatCurrency(Number(value ?? 0))
+	},
 	{
 		key: 'status',
 		header: 'Status',
