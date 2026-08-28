@@ -35,8 +35,22 @@
 	import User from '@lucide/svelte/icons/user';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import favicon from '$lib/assets/favicon.ico';
+	import Cookies from 'universal-cookie';
+	import { goto } from '$app/navigation';
+	import { authCookies } from '$lib/config/auth';
 
 	const { toggle } = useSidebar();
+
+	const cookies = new Cookies();
+
+	const user = cookies.get(authCookies.user);
+
+	function handleSignOut() {
+		cookies.remove(authCookies.accessToken, { path: '/' });
+		cookies.remove(authCookies.refreshToken, { path: '/' });
+		cookies.remove(authCookies.user, { path: '/' });
+		goto(resolve('/login'));
+	}
 </script>
 
 <Sidebar collapsible="icon">
@@ -46,7 +60,7 @@
 			<div
 				class="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground"
 			>
-				<span class="text-xs font-bold"><img src={favicon} alt='_icon' class='rounded-md'/></span>
+				<span class="text-xs font-bold"><img src={favicon} alt="_icon" class="rounded-md" /></span>
 			</div>
 
 			<span class="truncate font-semibold group-data-[collapsible=icon]:hidden">
@@ -103,10 +117,19 @@
 								<div
 									class="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary"
 								>
-									<User class="size-4" />
+									{#if user}
+										<img src={user.avatar} alt="img" class="size-6" />
+									{:else}
+										<User class="size-4" />
+									{/if}
 								</div>
 								<div class="grid flex-1 text-left text-xs leading-tight">
-									<span class="truncate font-semibold">User Account</span>
+									{#if user}<span class="truncate font-semibold"
+											>{user.firstname} {user.lastname}</span
+										>
+									{:else}<span class="truncate font-semibold">User Account</span>
+									{/if}
+									<span class="truncate font-semibold"></span>
 									<span class="truncate text-[10px] text-muted-foreground"
 										>Preferences & Actions</span
 									>
@@ -146,7 +169,7 @@
 						<!-- Sign Out -->
 						<DropdownMenuItem
 							class="cursor-pointer gap-2 text-destructive focus:text-destructive"
-							// onclick={handleSignOut}
+							onclick={handleSignOut}
 						>
 							<LogOut class="size-4" />
 							<span>Sign Out</span>

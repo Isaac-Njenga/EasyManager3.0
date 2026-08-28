@@ -1,29 +1,55 @@
 <script lang="ts">
+	import { enhance } from '$app/forms';
+	import { goto } from '$app/navigation';
+	import type { SubmitFunction } from '@sveltejs/kit';
 	import { resolve } from '$app/paths';
+	import Cookies from 'universal-cookie';
 	import { Button } from '$lib/components/ui/button';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import { Input } from '$lib/components/ui/input';
 	import { Label } from '$lib/components/ui/label';
+	import { authCookies, type LoginResult } from '$lib/config/auth';
+	import { toast } from 'svelte-sonner';
 
 	let userId = $state('');
 	let password = $state('');
 	let isLoading = $state(false);
+	let errorMessage = $state('');
 
-	async function handleSubmit(event: SubmitEvent) {
-		event.preventDefault();
+	const cookieOptions = {
+		path: '/',
+		sameSite: 'lax' as const,
+		maxAge: 60 * 60 * 24 * 30,
+		secure: false
+	};
 
+	const handleSubmit: SubmitFunction = () => {
 		isLoading = true;
+		errorMessage = '';
 
-		// Authentication will be connected later.
-		console.log({
-			userId,
-			password
-		});
+		return async ({ result }) => {
+			isLoading = false;
 
-		await new Promise((resolve) => setTimeout(resolve, 1000));
+			if (result.type === 'success') {
+				toast.success('Successfully signed in.');
+				const loginResult = result.data as LoginResult;
+				const cookies = new Cookies();
+				cookies.set(authCookies.accessToken, loginResult.token, cookieOptions);
+				cookies.set(authCookies.refreshToken, loginResult.refreshToken, cookieOptions);
+				cookies.set(authCookies.user, JSON.stringify(loginResult.user), cookieOptions);
+				await goto(resolve('/dashboard'));
+				return;
+			}
 
-		isLoading = false;
-	}
+			if (result.type === 'failure') {
+				errorMessage = (result.data as { error?: string })?.error ?? 'Unable to sign in.';
+				toast.error(errorMessage);
+			} else if (result.type === 'error') {
+				toast.error('Unable to sign in. Please try again.');
+				errorMessage = 'Unable to sign in. Please try again.';
+			}
+		};
+	};
 </script>
 
 <Card class="w-full max-w-md border-0 shadow-lg">
@@ -34,11 +60,18 @@
 	</CardHeader>
 
 	<CardContent>
-		<form onsubmit={handleSubmit} class="space-y-5">
+		<form method="POST" use:enhance={handleSubmit} class="space-y-5">
 			<div class="space-y-2">
-				<Label for="email">User ID</Label>
+				<Label for="userId">User ID</Label>
 
-				<Input id="text" type="text" placeholder="Your User ID" bind:value={userId} required />
+				<Input
+					id="userId"
+					name="userId"
+					type="text"
+					placeholder="Your User ID"
+					bind:value={userId}
+					required
+				/>
 			</div>
 
 			<div class="space-y-2">
@@ -55,6 +88,7 @@
 
 				<Input
 					id="password"
+					name="password"
 					type="password"
 					placeholder="Your password"
 					bind:value={password}
@@ -62,6 +96,10 @@
 					required
 				/>
 			</div>
+
+			{#if errorMessage}
+				<p class="text-sm text-destructive" role="alert">{errorMessage}</p>
+			{/if}
 
 			<Button type="submit" class="w-full" disabled={isLoading}>
 				{isLoading ? 'Signing in...' : 'Sign in'}

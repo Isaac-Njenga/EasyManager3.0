@@ -15,9 +15,9 @@ exports.userRegisterController = (0, catchAsync_1.catchAsync)(async (req, res) =
         refId: result._id.toString(),
         action: "created",
         title: "New user created",
-        description: `User ${result.firstname} ${result.lastname} was created`,
+        description: `User ${result.userId} was created`,
         refModel: "user",
-        actor: "",
+        actor: result._id.toString(),
     });
     res.status(201).json({
         success: true,
@@ -26,7 +26,7 @@ exports.userRegisterController = (0, catchAsync_1.catchAsync)(async (req, res) =
 });
 exports.userLoginController = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const loginResult = await (0, auth_service_1.login)(req.body);
-    const user = await user_model_1.UserModel.findOne({ email: req.body.email });
+    const user = await user_model_1.UserModel.findOne({ userId: req.body.userId });
     if (!user) {
         throw new BadRequestError_1.BadRequestError("User not found");
     }
@@ -50,6 +50,8 @@ exports.userLoginController = (0, catchAsync_1.catchAsync)(async (req, res) => {
             id: user._id,
             userId: user.userId,
             avatar: user.avatar,
+            firstname: user.firstname,
+            lastname: user.lastname,
             role: user.role,
         },
     });

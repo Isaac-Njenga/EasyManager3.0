@@ -27,9 +27,9 @@ export const userRegisterController = catchAsync(
       refId: result._id.toString(),
       action: "created",
       title: "New user created",
-      description: `User ${result.firstname} ${result.lastname} was created`,
+      description: `User ${result.userId} was created`,
       refModel: "user",
-      actor: "",
+      actor: result._id.toString(),
     });
 
     res.status(201).json({
@@ -43,7 +43,7 @@ export const userLoginController = catchAsync(
   async (req: Request, res: Response) => {
     const loginResult = await login(req.body);
 
-    const user = await UserModel.findOne({ email: req.body.email });
+    const user = await UserModel.findOne({ userId: req.body.userId });
     if (!user) {
       throw new BadRequestError("User not found");
     }
@@ -69,6 +69,8 @@ export const userLoginController = catchAsync(
         id: user._id,
         userId: user.userId,
         avatar: user.avatar,
+        firstname:user.firstname,
+        lastname:user.lastname,
         role: user.role,
       },
     });

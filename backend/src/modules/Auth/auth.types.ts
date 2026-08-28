@@ -1,8 +1,8 @@
 export interface SignupDTO {
   userId: string;
   password: string;
-  username:string;
-  avatar: string;
+  // username:string;
+  avatar?: string;
 }
 
 export interface SigninDTO {
