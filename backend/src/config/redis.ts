@@ -1,10 +1,12 @@
 import Redis from "ioredis";
 import { env } from "./env";
 
-const redis = new Redis({
-  host: env.REDIS_HOST,
-  port: parseInt(env.REDIS_PORT),
-});
+// const redis = new Redis({
+//   host: env.REDIS_HOST,
+//   port: parseInt(env.REDIS_PORT),
+// });
+
+const redis = new Redis(env.REDIS_URL);
 
 redis.on("connect", () => {
   console.log("Redis connected!");
