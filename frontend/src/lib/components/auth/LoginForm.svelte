@@ -97,9 +97,9 @@
 				/>
 			</div>
 
-			{#if errorMessage}
+			<!-- {#if errorMessage}
 				<p class="text-sm text-destructive" role="alert">{errorMessage}</p>
-			{/if}
+			{/if} -->
 
 			<Button type="submit" class="w-full" disabled={isLoading}>
 				{isLoading ? 'Signing in...' : 'Sign in'}
