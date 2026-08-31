@@ -4,9 +4,9 @@ import {
   activateAccountService,
   changePassword,
   login,
-  //   requestPasswordResetOtp,
-  //   resetPassword,
-  //   verifyPasswordResetOtp,
+  requestPasswordResetOtp,
+  resetPassword,
+  verifyPasswordResetOtp,
   createAccount,
   //   checkEmail,
   //   checkUsername,
@@ -69,8 +69,8 @@ export const userLoginController = catchAsync(
         id: user._id,
         userId: user.userId,
         avatar: user.avatar,
-        firstname:user.firstname,
-        lastname:user.lastname,
+        firstname: user.firstname,
+        lastname: user.lastname,
         role: user.role,
       },
     });
@@ -125,77 +125,77 @@ export const changePasswordController = catchAsync(
   },
 );
 
-// export const requestPasswordResetOtpController = catchAsync(
-//   async (req: Request, res: Response) => {
-//     await requestPasswordResetOtp(req.body);
+export const requestPasswordResetOtpController = catchAsync(
+  async (req: Request, res: Response) => {
+    await requestPasswordResetOtp(req.body);
 
-//     const targetUser = await UserModel.findOne({ email: req.body.email });
-//     if (targetUser) {
-//       await createLog({
-//         type: "user",
-//         refId: targetUser._id.toString(),
-//         action: "sent",
-//         title: "Password reset OTP requested",
-//         description: `Password reset OTP requested for ${req.body.email}`,
-//         refModel: "user",
-//         actor: targetUser._id.toString(),
-//       });
-//     }
+    const targetUser = await UserModel.findOne({ userId: req.body.userId });
+    if (targetUser) {
+      await createLog({
+        type: "user",
+        refId: targetUser._id.toString(),
+        action: "sent",
+        title: "Password reset OTP requested",
+        description: `Password reset OTP requested for ${req.body.userId}`,
+        refModel: "user",
+        actor: targetUser._id.toString(),
+      });
+    }
 
-//     res.status(200).json({
-//       success: true,
-//       message: "OTP sent! OTP will expire in 2 minutes",
-//     });
-//   },
-// );
+    res.status(200).json({
+      success: true,
+      message: "OTP sent! OTP will expire in 2 minutes",
+    });
+  },
+);
 
-// export const verifyPasswordResetOtpController = catchAsync(
-//   async (req: Request, res: Response) => {
-//     await verifyPasswordResetOtp(req.body);
+export const verifyPasswordResetOtpController = catchAsync(
+  async (req: Request, res: Response) => {
+    await verifyPasswordResetOtp(req.body);
 
-//     const targetUser = await UserModel.findOne({ email: req.body.email });
-//     if (targetUser) {
-//       await createLog({
-//         type: "user",
-//         refId: targetUser._id.toString(),
-//         action: "received",
-//         title: "Password reset OTP verified",
-//         description: `Password reset OTP verified for ${req.body.email}`,
-//         refModel: "user",
-//         actor: targetUser._id.toString(),
-//       });
-//     }
+    const targetUser = await UserModel.findOne({ userId: req.body.userId });
+    if (targetUser) {
+      await createLog({
+        type: "user",
+        refId: targetUser._id.toString(),
+        action: "received",
+        title: "Password reset OTP verified",
+        description: `Password reset OTP verified for ${req.body.userId}`,
+        refModel: "user",
+        actor: targetUser._id.toString(),
+      });
+    }
 
-//     res.status(200).json({
-//       success: true,
-//       message: "OTP verified successfully",
-//     });
-//   },
-// );
+    res.status(200).json({
+      success: true,
+      message: "OTP verified successfully",
+    });
+  },
+);
 
-// export const resetPasswordController = catchAsync(
-//   async (req: Request, res: Response) => {
-//     await resetPassword(req.body);
+export const resetPasswordController = catchAsync(
+  async (req: Request, res: Response) => {
+    await resetPassword(req.body);
 
-//     const targetUser = await UserModel.findOne({ email: req.body.email });
-//     if (targetUser) {
-//       await createLog({
-//         type: "user",
-//         refId: targetUser._id.toString(),
-//         action: "updated",
-//         title: "Password reset",
-//         description: `Password was reset for ${req.body.email}`,
-//         refModel: "user",
-//         actor: targetUser._id.toString(),
-//       });
-//     }
+    const targetUser = await UserModel.findOne({ userId: req.body.userId });
+    if (targetUser) {
+      await createLog({
+        type: "user",
+        refId: targetUser._id.toString(),
+        action: "updated",
+        title: "Password reset",
+        description: `Password was reset for ${req.body.userId}`,
+        refModel: "user",
+        actor: targetUser._id.toString(),
+      });
+    }
 
-//     res.status(200).json({
-//       success: true,
-//       message: "Password reset successfully",
-//     });
-//   },
-// );
+    res.status(200).json({
+      success: true,
+      message: "Password reset successfully",
+    });
+  },
+);
 
 // export const checkEmailExists = catchAsync(
 //   async (req: Request, res: Response) => {

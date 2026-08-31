@@ -3,13 +3,13 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.changePassword = exports.login = exports.activateAccountService = exports.createAccount = void 0;
+exports.resetPassword = exports.verifyPasswordResetOtp = exports.requestPasswordResetOtp = exports.changePassword = exports.login = exports.activateAccountService = exports.createAccount = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const activateAccount_1 = require("../../utils/activateAccount");
 const generateToken_1 = require("../../utils/generateToken");
-// import { otpRequest } from "../../utils/requestOTP";
-// import { verifyOtpCode } from "../../utils/VerifyOTP";
-// import { OtpModel } from "../OTP/otp.model";
+const requestOTP_1 = require("../../utils/requestOTP");
+const verifyOTP_1 = require("../../utils/verifyOTP");
+const otp_model_1 = require("../OTP/otp.model");
 const user_model_1 = require("../Users/user.model");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const createAccount = async (input) => {
@@ -100,26 +100,25 @@ const changePassword = async (input) => {
     return true;
 };
 exports.changePassword = changePassword;
-// export const requestPasswordResetOtp = async (
-//   input: RequestPasswordResetDTO,
-// ): Promise<boolean> => {
-//   if (!input.email) {
-//     throw new BadRequestError("Email is required");
-//   }
-//     if (!input.userId) {
-//     throw new BadRequestError("User ID is required");
-//   }
-//   const email = input.email.toLowerCase().trim();
-//   const user = await UserModel.findOne({ userId:input.userId });
-//   if (!user) {
-//     throw new BadRequestError("User not found");
-//   }
-//   const isOtpSent = await otpRequest(email);
-//   if (!isOtpSent) {
-//     throw new BadRequestError("Failed to send OTP");
-//   }
-//   return true;
-// };
+const requestPasswordResetOtp = async (input) => {
+    if (!input.email) {
+        throw new BadRequestError_1.BadRequestError("Email is required");
+    }
+    if (!input.userId) {
+        throw new BadRequestError_1.BadRequestError("User ID is required");
+    }
+    const email = input.email.toLowerCase().trim();
+    const user = await user_model_1.UserModel.findOne({ userId: input.userId });
+    if (!user) {
+        throw new BadRequestError_1.BadRequestError("User not found");
+    }
+    const isOtpSent = await (0, requestOTP_1.otpRequest)(email);
+    if (!isOtpSent) {
+        throw new BadRequestError_1.BadRequestError("Failed to send OTP");
+    }
+    return true;
+};
+exports.requestPasswordResetOtp = requestPasswordResetOtp;
 // export const requestEmail = async (
 //   input: RequestEmailDTO,
 // ): Promise<{ email: string }> => {
@@ -136,40 +135,35 @@ exports.changePassword = changePassword;
 //   }
 //   return { email };
 // };
-// export const verifyPasswordResetOtp = async (
-//   input: Pick<VerifyOtpDTO, "email" | "otp">,
-// ): Promise<boolean> => {
-//   await requestEmail(input);
-//   await verifyOtpCode(input.email, input.otp);
-//   return true;
-// };
-// export const resetPassword = async (
-//   input: ResetPasswordDTO,
-// ): Promise<boolean> => {
-//   if (!input.newPassword) {
-//     throw new BadRequestError("New password is required");
-//   }
-//   if (input.newPassword.length < 8) {
-//     throw new BadRequestError(
-//       "New password must be at least 8 characters long",
-//     );
-//   }
-//   if (!input.email) {
-//     throw new BadRequestError("Email is required");
-//   }
-//   const { email } = await requestEmail(input);
-//   const isOTPVerified = await OtpModel.findOne({ email: input.email });
-//   if (!isOTPVerified) {
-//     throw new BadRequestError("Invalid or expired OTP");
-//   }
-//   const user = await UserModel.findOne({ email });
-//   if (!user) {
-//     throw new BadRequestError("User not found");
-//   }
-//   const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
-//   user.password = newPasswordHash;
-//   await user.save();
-//   await OtpModel.deleteOne({ email });
-//   return true;
-// };
+const verifyPasswordResetOtp = async (input) => {
+    // await requestEmail(input);
+    await (0, verifyOTP_1.verifyOtpCode)(input.email, input.otp);
+    return true;
+};
+exports.verifyPasswordResetOtp = verifyPasswordResetOtp;
+const resetPassword = async (input) => {
+    if (!input.newPassword) {
+        throw new BadRequestError_1.BadRequestError("New password is required");
+    }
+    if (input.newPassword.length < 8) {
+        throw new BadRequestError_1.BadRequestError("New password must be at least 8 characters long");
+    }
+    if (!input.userId) {
+        throw new BadRequestError_1.BadRequestError("User ID is required");
+    }
+    const isOTPVerified = await otp_model_1.OtpModel.findOne({ email: input.email });
+    if (!isOTPVerified) {
+        throw new BadRequestError_1.BadRequestError("Invalid or expired OTP");
+    }
+    const user = await user_model_1.UserModel.findOne({ userId: input.userId });
+    if (!user) {
+        throw new BadRequestError_1.BadRequestError("User not found");
+    }
+    const newPasswordHash = await bcryptjs_1.default.hash(input.newPassword, 10);
+    user.password = newPasswordHash;
+    await user.save();
+    await otp_model_1.OtpModel.deleteOne({ email: input.email });
+    return true;
+};
+exports.resetPassword = resetPassword;
 //# sourceMappingURL=auth.service.js.map

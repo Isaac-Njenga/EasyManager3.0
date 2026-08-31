@@ -1,18 +1,18 @@
 import { BadRequestError } from "../../common/errors/BadRequestError";
-import { activateAccount } from '../../utils/activateAccount';
+import { activateAccount } from "../../utils/activateAccount";
 import { generateTokens } from "../../utils/generateToken";
-// import { otpRequest } from "../../utils/requestOTP";
-// import { verifyOtpCode } from "../../utils/VerifyOTP";
-// import { OtpModel } from "../OTP/otp.model";
+import { otpRequest } from "../../utils/requestOTP";
+import { verifyOtpCode } from "../../utils/verifyOTP";
+import { OtpModel } from "../OTP/otp.model";
 import { UserModel } from "../Users/user.model";
 import {
   SignupDTO,
   SigninDTO,
   ChangePasswordDTO,
-//   ResetPasswordDTO,
-//   RequestPasswordResetDTO,
-//   RequestEmailDTO,
-//   VerifyOtpDTO,
+  ResetPasswordDTO,
+  RequestPasswordResetDTO,
+  // RequestEmailDTO,
+  VerifyOtpDTO,
 } from "./auth.types";
 import bcrypt from "bcryptjs";
 
@@ -26,12 +26,11 @@ export const createAccount = async (input: SignupDTO): Promise<SignupDTO> => {
   if (input.password.length < 8) {
     throw new BadRequestError("Password must be at least 8 characters long");
   }
-  
 
   const existingUserId = await UserModel.findOne({
     userId: input.userId,
   });
-  
+
   if (existingUserId) {
     throw new BadRequestError("User with this user ID already exists");
   }
@@ -136,30 +135,30 @@ export const changePassword = async (
   return true;
 };
 
-// export const requestPasswordResetOtp = async (
-//   input: RequestPasswordResetDTO,
-// ): Promise<boolean> => {
-//   if (!input.email) {
-//     throw new BadRequestError("Email is required");
-//   }
+export const requestPasswordResetOtp = async (
+  input: RequestPasswordResetDTO,
+): Promise<boolean> => {
+  if (!input.email) {
+    throw new BadRequestError("Email is required");
+  }
 
-//     if (!input.userId) {
-//     throw new BadRequestError("User ID is required");
-//   }
+  if (!input.userId) {
+    throw new BadRequestError("User ID is required");
+  }
 
-//   const email = input.email.toLowerCase().trim();
-//   const user = await UserModel.findOne({ userId:input.userId });
-//   if (!user) {
-//     throw new BadRequestError("User not found");
-//   }
+  const email = input.email.toLowerCase().trim();
+  const user = await UserModel.findOne({ userId: input.userId });
+  if (!user) {
+    throw new BadRequestError("User not found");
+  }
 
-//   const isOtpSent = await otpRequest(email);
-//   if (!isOtpSent) {
-//     throw new BadRequestError("Failed to send OTP");
-//   }
+  const isOtpSent = await otpRequest(email);
+  if (!isOtpSent) {
+    throw new BadRequestError("Failed to send OTP");
+  }
 
-//   return true;
-// };
+  return true;
+};
 
 // export const requestEmail = async (
 //   input: RequestEmailDTO,
@@ -181,46 +180,45 @@ export const changePassword = async (
 //   return { email };
 // };
 
-// export const verifyPasswordResetOtp = async (
-//   input: Pick<VerifyOtpDTO, "email" | "otp">,
-// ): Promise<boolean> => {
-//   await requestEmail(input);
-//   await verifyOtpCode(input.email, input.otp);
+export const verifyPasswordResetOtp = async (
+  input: Pick<VerifyOtpDTO, "email" | "otp">,
+): Promise<boolean> => {
+  // await requestEmail(input);
+  await verifyOtpCode(input.email, input.otp);
 
-//   return true;
-// };
+  return true;
+};
 
-// export const resetPassword = async (
-//   input: ResetPasswordDTO,
-// ): Promise<boolean> => {
-//   if (!input.newPassword) {
-//     throw new BadRequestError("New password is required");
-//   }
-//   if (input.newPassword.length < 8) {
-//     throw new BadRequestError(
-//       "New password must be at least 8 characters long",
-//     );
-//   }
-//   if (!input.email) {
-//     throw new BadRequestError("Email is required");
-//   }
-//   const { email } = await requestEmail(input);
+export const resetPassword = async (
+  input: ResetPasswordDTO,
+): Promise<boolean> => {
+  if (!input.newPassword) {
+    throw new BadRequestError("New password is required");
+  }
+  if (input.newPassword.length < 8) {
+    throw new BadRequestError(
+      "New password must be at least 8 characters long",
+    );
+  }
+  if (!input.userId) {
+    throw new BadRequestError("User ID is required");
+  }
 
-//   const isOTPVerified = await OtpModel.findOne({ email: input.email });
-//   if (!isOTPVerified) {
-//     throw new BadRequestError("Invalid or expired OTP");
-//   }
+  const isOTPVerified = await OtpModel.findOne({ email: input.email });
+  if (!isOTPVerified) {
+    throw new BadRequestError("Invalid or expired OTP");
+  }
 
-//   const user = await UserModel.findOne({ email });
-//   if (!user) {
-//     throw new BadRequestError("User not found");
-//   }
+  const user = await UserModel.findOne({ userId: input.userId });
+  if (!user) {
+    throw new BadRequestError("User not found");
+  }
 
-//   const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
-//   user.password = newPasswordHash;
-//   await user.save();
+  const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
+  user.password = newPasswordHash;
+  await user.save();
 
-//   await OtpModel.deleteOne({ email });
+  await OtpModel.deleteOne({ email: input.email });
 
-//   return true;
-// };
+  return true;
+};

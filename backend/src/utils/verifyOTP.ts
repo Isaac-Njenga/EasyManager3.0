@@ -1,65 +1,56 @@
-import { BadRequestError } from "../common/errors/BadRequestError";
-import otpGenerator from "otp-generator";
-import { transporter } from "./mailer";
 import bcrypt from "bcryptjs";
+import { type Request, type Response } from "express";
 import { OtpModel } from "../modules/OTP/otp.model";
+import { catchAsync } from "../common/utils/catchAsync";
+import { BadRequestError } from "../common/errors/BadRequestError";
 
-export interface OtpRequestDTO {
-  to: string;
-}
-
-export const otpRequest = async (to: string): Promise<boolean> => {
-  if (!to) {
-    throw new BadRequestError("Recipient email is required");
+export const verifyOtpCode = async (
+  email: string,
+  otp: string,
+): Promise<boolean> => {
+  if (!email) {
+    throw new BadRequestError("Email is required");
+  }
+  if (!otp) {
+    throw new BadRequestError("OTP is required");
   }
 
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  if (!emailRegex.test(to)) {
-    throw new BadRequestError("Invalid email format");
+  const normalizedEmail = email.toLowerCase().trim();
+  const cleanOtp = String(otp).trim();
+
+  const record = await OtpModel.findOne({ email: normalizedEmail });
+  if (!record) {
+    throw new BadRequestError("OTP not found for this email");
+  }
+  if (record.attempts >= 5) {
+    throw new BadRequestError("Too many attempts");
   }
 
-  const email = to.toLowerCase().trim();
-  const otp = otpGenerator.generate(6, {
-    digits: true,
-    upperCaseAlphabets: false,
-    specialChars: false,
-  });
-  const hashedOtp = await bcrypt.hash(otp, 10);
+  const isMatch = await bcrypt.compare(cleanOtp, record.otp);
+  if (!isMatch) {
+    record.attempts += 1;
+    await record.save();
+    throw new BadRequestError(
+      "Invalid OTP, attempts: " +
+        record.attempts +
+        ", max attempts: 5" +
+        ", OTP will expire in 2 minutes",
+    );
+  }
 
-  await OtpModel.deleteOne({ email });
-  await OtpModel.create({
-    email,
-    otp: hashedOtp,
-  });
-
-  await transporter.sendMail({
-    from: "Support Team",
-    to: email,
-    subject: "Your One-Time Password",
-    html: `
-      <div style="font-family: Arial, sans-serif; padding: 20px; color: #333;">
-        <h2 style="color: #4CAF50;">One-Time Password</h2>
-        <p>Hello,</p>
-        <p>You requested a one-time password (OTP). Use the code below to proceed:</p>
-        <div style="
-          font-size: 24px;
-          font-weight: bold;
-          letter-spacing: 4px;
-          margin: 20px 0;
-          padding: 10px;
-          background: #f4f4f4;
-          display: inline-block;
-          border-radius: 5px;
-        ">
-          ${otp}
-        </div>
-        <p>This code will expire in <strong>2 minutes</strong>.</p>
-        <p>If you did not request this, please ignore this email.</p>
-        <br/>
-        <p>- Your Support Team</p>
-      </div>
-    `,
-  });
+  record.verified = true;
+  await record.save();
 
   return true;
 };
+
+export const verifyOTP = catchAsync(async (req: Request, res: Response) => {
+  const { email, otp } = req.body;
+
+  await verifyOtpCode(email, otp);
+
+  res.status(200).json({
+    success: true,
+    message: "OTP verified successfully",
+  });
+});

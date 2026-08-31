@@ -9,9 +9,9 @@ function AuthRouter() {
     router.post("/activate-account", auth_controller_1.activateAccountController);
     router.post("/sign-in", auth_controller_1.userLoginController);
     router.post("/change-password", auth_controller_1.changePasswordController);
-    //   router.post("/password-reset/request-otp", requestPasswordResetOtpController);
-    //   router.post("/password-reset/verify-otp", verifyPasswordResetOtpController);
-    //   router.post("/password-reset/reset", resetPasswordController);
+    router.post("/password-reset/request-otp", auth_controller_1.requestPasswordResetOtpController);
+    router.post("/password-reset/verify-otp", auth_controller_1.verifyPasswordResetOtpController);
+    router.post("/password-reset/reset", auth_controller_1.resetPasswordController);
     //   router.get("/check-username", checkUsernameExists);
     //   router.get("/check-email", checkEmailExists);
     return router;

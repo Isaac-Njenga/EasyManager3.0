@@ -34,6 +34,7 @@ export interface VerifyOtpDTO {
 export interface ResetPasswordDTO {
   email: string;
   newPassword: string;
+  userId: string;
 }
 
 export interface RequestEmailDTO {
@@ -42,4 +43,5 @@ export interface RequestEmailDTO {
 
 export interface RequestPasswordResetDTO {
   email: string;
+  userId: string;
 }
