@@ -3,17 +3,19 @@
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
-  "scripts": { "build": "tsc",
+  "scripts": {
+    "build": "tsc",
     "start": "npm run build && node dist/index.js",
     "dev": "nodemon --watch src --ext ts --exec \"npm run build && node dist/index.js\""
- 
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs", "dependencies": {
+  "type": "commonjs",
+  "dependencies": {
     "bcryptjs": "^3.0.3",
     "cors": "^2.8.6",
+    "crypto": "^1.0.1",
     "dotenv": "^17.4.2",
     "express": "^5.2.1",
     "ioredis": "^5.11.1",
