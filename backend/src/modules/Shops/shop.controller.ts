@@ -31,7 +31,7 @@ export const createShop = catchAsync(
       refId: shop._id.toString(),
       action: "created",
       title: "Shop created",
-      description: `New shop '${shop.name}' was created`,
+      description: `New shop: '${shop.name}' was created`,
       refModel: "shop",
       actor: req.user?._id,
     });
