@@ -1,13 +1,12 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ShopForm from '$lib/components/modules/shop/shop.form.svelte';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
 	import type { CreateShopInput } from '$lib/types/shop.types';
 	import { resolve } from '$app/paths';
-	import Cookies from 'universal-cookie';
-	import { authCookies } from '$lib/config/auth';
+	import { shopService } from '$lib/services/shop/shop.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let isSubmitting = $state(false);
 
@@ -16,20 +15,7 @@
 		isSubmitting = true;
 
 		try {
-			const accessToken = new Cookies().get<string>(authCookies.accessToken);
-			const response = await fetch(`${env.PUBLIC_SERVER_URL}/shop/create-shop`, {
-				method: 'POST',
-				headers: {
-					'content-type': 'application/json',
-					Authorization: `Bearer ${accessToken}`
-				},
-				body: JSON.stringify(payload)
-			});
-			const result = await response.json();
-
-			if (!response.ok) {
-				throw new Error(result.message || 'Failed to create shop');
-			}
+			await shopService.create(getBrowserServiceContext(), payload);
 
 			toast.success('Shop Created Successfully!');
 			goto(resolve('/shops'));

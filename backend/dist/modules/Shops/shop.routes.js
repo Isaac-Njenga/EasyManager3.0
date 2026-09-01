@@ -9,9 +9,9 @@ function ShopRouter() {
     const router = (0, express_1.Router)();
     router.post("/create-shop", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.createShop);
     router.get("/get-shops", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.fetchShops);
-    router.get("/get-shop/:id", auth_middleware_1.protectRoute, shop_controller_1.fetchShopById);
-    router.put("/update-shop/:id", auth_middleware_1.protectRoute, shop_controller_1.updateShop);
-    router.delete("/delete-shop/:id", auth_middleware_1.protectRoute, shop_controller_1.deleteShop);
+    router.get("/get-shop/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.fetchShopById);
+    router.put("/update-shop/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.updateShop);
+    router.delete("/delete-shop/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.deleteShop);
     return router;
 }
 //# sourceMappingURL=shop.routes.js.map

@@ -22,6 +22,10 @@
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { shopService } from '$lib/services/shop/shop.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		filteredShops: Shop[];
@@ -60,11 +64,17 @@
 		}
 	}
 
-	function deleteShop(shop: Shop) {
-		console.log('Delete shop:', shop._id);
-		isDeleteShopOpen = false;
-		selectedShop = null;
-		// isDrawerOpen = false;
+	async function deleteShop(shop: Shop) {
+		try {
+			await shopService.delete(getBrowserServiceContext(), shop._id);
+			toast.success('Shop deleted successfully.');
+			isDeleteShopOpen = false;
+			selectedShop = null;
+			await invalidateAll();
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete shop.';
+			toast.error('Shop deletion failed', { description });
+		}
 	}
 </script>
 

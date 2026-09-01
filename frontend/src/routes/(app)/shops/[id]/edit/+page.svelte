@@ -1,35 +1,33 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public';
 	import { goto } from '$app/navigation';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ShopForm from '$lib/components/modules/shop/shop.form.svelte';
 	import type { CreateShopInput } from '$lib/types/shop.types';
-	import type { PageProps } from '../$types';
+	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 	import { resolve } from '$app/paths';
+	import { shopService } from '$lib/services/shop/shop.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let { data }: PageProps = $props();
 
-	const shop = $derived(data.shop);
+	const selectedShop = $derived(data.shop);
+	const error = $derived(data.error);
 
 	let isSubmitting = $state(false);
 
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load shop', { description: error });
+		}
+	});
+
 	async function handleUpdate(payload: CreateShopInput) {
-		if (!shop?._id) return;
+		if (!selectedShop?._id) return;
 		isSubmitting = true;
 
 		try {
-			const response = await fetch(`${env.PUBLIC_SERVER_URL}/shop/update-shop/${shop._id}`, {
-				method: 'PUT',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(payload)
-			});
-
-			const result = await response.json();
-
-			if (!response.ok) {
-				throw new Error(result.message || 'Failed to update shop');
-			}
+			await shopService.update(getBrowserServiceContext(), selectedShop._id, payload);
 
 			toast.success('Shop Updated Successfully!');
 			goto(resolve('/shops'));
@@ -51,5 +49,15 @@
 		actionHref="/shops"
 	/>
 
-	<ShopForm {shop} onSubmit={handleUpdate} {isSubmitting} />
+	{#if error}
+		<div class="flex items-center justify-center py-10">
+			<p class="text-destructive">Failed to load shop details: {error}</p>
+		</div>
+		<!-- {:else if !shop}
+		<div class="flex items-center justify-center py-10">
+			<p class="text-destructive">Shop not found.</p>
+		</div> -->
+	{:else}
+		<ShopForm shop={selectedShop} onSubmit={handleUpdate} {isSubmitting} />
+	{/if}
 </div>

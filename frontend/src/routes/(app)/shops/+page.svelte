@@ -15,7 +15,6 @@
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
-	import { navigating } from '$app/stores';
 	import { toast } from 'svelte-sonner';
 
 	let { data }: PageProps = $props();
@@ -23,9 +22,6 @@
 	// Reactive derivations from server load
 	const shops = $derived(data.shops ?? []);
 	const error = $derived(data.error);
-
-	// Track SvelteKit global navigation state for backend loading feedback
-	const isLoading = $derived(!!$navigating);
 
 	// Toast error alert if server load failed
 	$effect(() => {
@@ -101,14 +97,10 @@
 				<Store class="size-4 text-primary" />
 			</div>
 			<div class="mt-2 flex items-baseline gap-2">
-				{#if isLoading}
-					<div class="h-7 w-16 animate-pulse rounded bg-muted"></div>
-				{:else}
-					<span class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
-						{analytics.activeShops}
-					</span>
-					<span class="text-xs text-muted-foreground">/ {analytics.totalShops} total</span>
-				{/if}
+				<span class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+					{analytics.activeShops}
+				</span>
+				<span class="text-xs text-muted-foreground">/ {analytics.totalShops} total</span>
 			</div>
 		</div>
 
@@ -119,13 +111,9 @@
 				<DollarSign class="size-4 text-emerald-500" />
 			</div>
 			<div class="mt-2">
-				{#if isLoading}
-					<div class="h-7 w-24 animate-pulse rounded bg-muted"></div>
-				{:else}
-					<span class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
-						{formatCurrency(analytics.totalStockValue)}
-					</span>
-				{/if}
+				<span class="text-2xl font-bold tracking-tight text-emerald-600 dark:text-emerald-400">
+					{formatCurrency(analytics.totalStockValue)}
+				</span>
 			</div>
 		</div>
 
@@ -136,13 +124,9 @@
 				<Package class="size-4 text-blue-500" />
 			</div>
 			<div class="mt-2">
-				{#if isLoading}
-					<div class="h-7 w-20 animate-pulse rounded bg-muted"></div>
-				{:else}
-					<span class="text-2xl font-bold tracking-tight text-blue-600 dark:text-blue-400">
-						{analytics.totalUnits.toLocaleString()}
-					</span>
-				{/if}
+				<span class="text-2xl font-bold tracking-tight text-blue-600 dark:text-blue-400">
+					{analytics.totalUnits.toLocaleString()}
+				</span>
 			</div>
 		</div>
 
@@ -153,15 +137,11 @@
 				<AlertTriangle class="size-4 text-amber-500" />
 			</div>
 			<div class="mt-2">
-				{#if isLoading}
-					<div class="h-7 w-20 animate-pulse rounded bg-muted"></div>
-				{:else}
-					<span
-						class={`text-2xl font-bold tracking-tight ${analytics.totalLowStockSKUs > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}`}
-					>
-						{analytics.totalLowStockSKUs} items
-					</span>
-				{/if}
+				<span
+					class={`text-2xl font-bold tracking-tight ${analytics.totalLowStockSKUs > 0 ? 'text-amber-600 dark:text-amber-400' : 'text-foreground'}`}
+				>
+					{analytics.totalLowStockSKUs} items
+				</span>
 			</div>
 		</div>
 	</div>
@@ -195,24 +175,9 @@
 		</div>
 
 		<div>
-			{#if isLoading}
-				<div class="flex flex-col items-center justify-center gap-3 py-12">
-					<Loader2 class="size-6 animate-spin text-primary" />
-					<p class="text-sm text-muted-foreground">Fetching shops from server...</p>
-				</div>
-			{:else}
-				<Separator class="mb-4" />
-				{#if searchTerm}
-					<div class="mb-2 text-sm text-muted-foreground">
-						Showing results for <b>"{searchTerm}"</b> ({filteredShops.length} found)
-					</div>
-				{/if}
-
-				<ShopTable {filteredShops} />
-			{/if}
-			<!-- {#if isSearching}
+			{#if isSearching}
 				<div class="flex items-center justify-center gap-4 py-8">
-					<Loader2Icon class="size-5 animate-spin text-primary" />
+					<Loader2 class="size-5 animate-spin text-primary" />
 					<div class="text-muted-foreground">Loading shops...</div>
 				</div>
 			{:else}
@@ -224,7 +189,7 @@
 				{/if}
 
 				<ShopTable {filteredShops} />
-			{/if} -->
+			{/if}
 		</div>
 	</div>
 </div>

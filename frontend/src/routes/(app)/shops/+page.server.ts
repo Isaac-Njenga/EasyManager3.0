@@ -1,65 +1,34 @@
-import { env } from '$env/dynamic/public';
-import type { ShopListResponse } from '$lib/types/shop.types';
 import type { PageServerLoad } from './$types';
-import { authCookies } from '$lib/config/auth';
 
-export const load: PageServerLoad = async ({ fetch, url, cookies }) => {
-    const page = url.searchParams.get('page') || '1';
-    const limit = url.searchParams.get('limit') || '10';
-    const search = url.searchParams.get('search') || '';
-    const status = url.searchParams.get('status') || '';
-    const type = url.searchParams.get('type') || '';
+import { ApiError } from '$lib/services/api/errors';
+import { shopService } from '$lib/services/shop/shop.service';
 
-    const queryParams = new URLSearchParams({
-        page,
-        limit,
-        ...(search && { search }),
-        ...(status && { status }),
-        ...(type && { type })
-    });
+export const load: PageServerLoad = async ({ cookies, locals }) => {
+	try {
+		const shops = await shopService.fetch({
+			cookies,
+			locals
+		});
 
-    try {
-        const accessToken = cookies.get(authCookies.accessToken);
+		return {
+			shops,
+			error: null
+		};
+	} catch (err) {
+		if (err instanceof ApiError) {
+			return {
+				shops: [],
+				error: err.message
+			};
+		}
 
-        const response = await fetch(
-            `${env.PUBLIC_SERVER_URL}/shop/get-shops?${queryParams.toString()}`,
-            {
-                method: 'GET',
-                headers: {
-                    Authorization: `Bearer ${accessToken}`
-                }
-            }
-        );
+		console.error('Failed to fetch shops:', err);
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            return {
-                shops: [],
-                totalShops: 0,
-                currentPage: 1,
-                totalPages: 1,
-                error: errorData.message || 'Failed to load shops list.'
-            };
-        }
-
-        const json = await response.json();
-        const data: ShopListResponse = json.data;
-
-        return {
-            shops: data.shops ?? [],
-            totalShops: data.totalShops ?? 0,
-            currentPage: data.currentPage ?? 1,
-            totalPages: data.totalPages ?? 1,
-            error: null
-        };
-    } catch (error) {
-        console.error('Error loading shops:', error);
-        return {
-            shops: [],
-            totalShops: 0,
-            currentPage: 1,
-            totalPages: 1,
-            error: 'Server is currently unreachable.'
-        };
-    }
+		return {
+			shops: [],
+			error: 'Failed to load shops.'
+		};
+	}
 };
+
+

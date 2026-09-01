@@ -13,6 +13,7 @@
 	import FileText from '@lucide/svelte/icons/file-text';
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
+	import { toast } from 'svelte-sonner';
 
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
 	import ProductsTable from '$lib/components/modules/products/products.table.svelte';
@@ -27,6 +28,13 @@
 	let { data }: PageProps = $props();
 
 	const selectedShop = $derived(data.shop);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load shops', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let isSearching = $state(false);
