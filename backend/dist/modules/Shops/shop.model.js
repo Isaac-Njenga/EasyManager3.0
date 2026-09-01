@@ -5,7 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ShopModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
-const crypto_1 = __importDefault(require("crypto"));
+const node_crypto_1 = __importDefault(require("node:crypto"));
 const InventorySummarySchema = new mongoose_1.default.Schema({
     totalProducts: { type: Number, required: false, default: 0 },
     totalItemsInStock: { type: Number, required: false, default: 0 },
@@ -41,7 +41,7 @@ const shopSchema = new mongoose_1.default.Schema({
 // Code Generator Function
 function generateShopCode(name = "") {
     const namePrefix = name ? name.substring(0, 3).toUpperCase() : "GEN";
-    const randomSuffix = crypto_1.default.randomBytes(2).toString("hex").toUpperCase();
+    const randomSuffix = node_crypto_1.default.randomBytes(2).toString("hex").toUpperCase();
     return `SHP-${namePrefix}-${randomSuffix}`;
     // Option B: Pure sequential counter/hash if preferred
     // return `SHP-${Math.floor(100000 + Math.random() * 900000)}`;

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Shop, ShopType, ShopStatus } from '$lib/types/shop.types';
+	import type { Shop, ShopType, ShopStatus, CreateShopInput } from '$lib/types/shop.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -11,13 +11,14 @@
 	import Store from '@lucide/svelte/icons/store';
 	import MapPin from '@lucide/svelte/icons/map-pin';
 	import FileText from '@lucide/svelte/icons/file-text';
-	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		shop?: Shop;
+		onSubmit: (payload: CreateShopInput) => Promise<void> | void;
+		isSubmitting?: boolean;
 	};
 
-	let { shop }: Props = $props();
+	let { shop, onSubmit, isSubmitting = false }: Props = $props();
 
 	// --- Select Options ---
 	const typeOptions: { value: ShopType; label: string }[] = [
@@ -32,7 +33,6 @@
 	];
 
 	// --- Form State ---
-	let shopCode = $state('');
 	let name = $state('');
 	let type = $state<ShopType>('Retail Store');
 	let status = $state<ShopStatus>('Active');
@@ -40,10 +40,9 @@
 	let town = $state('');
 	let notes = $state('');
 
-	let isSubmitting = $state(false);
+	let errors = $state<Record<string, string>>({});
 
 	$effect(() => {
-		shopCode = shop?.shopCode ?? '';
 		name = shop?.name ?? '';
 		type = shop?.type ?? 'Retail Store';
 		status = shop?.status ?? 'Active';
@@ -61,48 +60,38 @@
 		statusOptions.find((s) => s.value === status)?.label ?? 'Select status'
 	);
 
-	// --- Form Submission ---
-	function handleSubmit(e: SubmitEvent) {
-		e.preventDefault();
+	function validate(): boolean {
+		const newErrors: Record<string, string> = {};
 
-		const requiredFields = [
-			{ name: 'Shop Name', value: name },
-			{ name: 'Town/City', value: town }
-		];
+		if (!name.trim()) newErrors.name = 'Shop name is required';
+		if (!building.trim()) newErrors.building = 'Building address is required';
+		if (!town.trim()) newErrors.town = 'Town/City is required';
 
-		const missing = requiredFields.filter((f) => !f.value?.toString().trim());
+		errors = newErrors;
+		return Object.keys(newErrors).length === 0;
+	}
 
-		if (missing.length > 0) {
-			toast.warning('Please fill in required fields', {
-				description: `Missing: ${missing.map((m) => m.name).join(', ')}`
-			});
-			return;
-		}
+	async function handleFormSubmit(event: SubmitEvent) {
+		event.preventDefault();
+		if (!validate()) return;
 
-		isSubmitting = true;
-
-		const payload: Partial<Shop> = {
-			...shop,
-			shopCode: shop?.shopCode ? shop?.shopCode : `SHP-NRB-${Math.floor(100 + Math.random() * 900)}`,
+		const payload: CreateShopInput = {
 			name: name.trim(),
 			type,
 			status,
 			address: {
-				building: building.trim() || undefined,
+				building: building.trim(),
 				town: town.trim()
 			},
-			notes: notes.trim() || undefined
+			...(notes.trim() ? { notes: notes.trim() } : {})
 		};
 
-		console.log('Shop Saved:', payload);
-
-		toast.success(shop ? 'Shop Saved!' : 'Shop Created!');
-		isSubmitting = false;
+		await onSubmit(payload);
 	}
 </script>
 
 <div class="mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
-	<form onsubmit={handleSubmit} novalidate class="space-y-6">
+	<form onsubmit={handleFormSubmit} novalidate class="space-y-6">
 		<!-- Section 1: Basic Information -->
 		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
 			<h3
@@ -118,7 +107,10 @@
 					<Label for="name">
 						Shop Name <span class="text-destructive">*</span>
 					</Label>
-					<Input id="name" bind:value={name} required />
+					<Input id="name" bind:value={name} required aria-invalid={!!errors.name} />
+					{#if errors.name}
+						<p class="text-xs text-destructive">{errors.name}</p>
+					{/if}
 				</div>
 
 				<!-- Shop Type -->
@@ -182,7 +174,14 @@
 				<!-- Building / Street -->
 				<div class="space-y-1 sm:col-span-2">
 					<Label for="building">Building</Label>
-					<Input id="building" bind:value={building} />
+					<Input
+						id="building"
+						type="text"
+						bind:value={building}
+						aria-invalid={!!errors.building}
+					/>{#if errors.building}
+						<p class="text-xs text-destructive">{errors.building}</p>
+					{/if}
 				</div>
 
 				<!-- Town -->
@@ -190,7 +189,14 @@
 					<Label for="town">
 						Town / City <span class="text-destructive">*</span>
 					</Label>
-					<Input id="town" bind:value={town} required />
+					<Input
+						id="town"
+						bind:value={town}
+						required
+						aria-invalid={!!errors.town}
+					/>{#if errors.town}
+						<p class="text-xs text-destructive">{errors.town}</p>
+					{/if}
 				</div>
 			</div>
 		</div>

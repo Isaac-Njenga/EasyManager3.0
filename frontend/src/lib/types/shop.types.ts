@@ -29,3 +29,18 @@ export type Shop = {
 	createdAt: string;
 	updatedAt: string;
 };
+
+export type CreateShopInput = {
+    name: string;
+    type: ShopType;
+    status: ShopStatus;
+    address: ShopAddress;
+    notes?: string;
+};
+
+export type ShopListResponse={
+	shops: Shop[];
+	totalShops:number;
+	currentPage:number;
+	totalPages:number;
+}

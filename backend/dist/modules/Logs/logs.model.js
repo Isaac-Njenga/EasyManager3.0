@@ -35,7 +35,17 @@ const LogSchema = new mongoose_1.default.Schema({
     refModel: {
         type: String,
         required: true,
-        enum: ["user", "otp", "shop"],
+        enum: [
+            "user",
+            "otp",
+            "shop",
+            "warehouse",
+            "product",
+            "sale",
+            "expense",
+            "customer",
+            "transfer",
+        ],
     },
     actor: {
         type: mongoose_1.default.Schema.Types.ObjectId,

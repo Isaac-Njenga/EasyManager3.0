@@ -13,7 +13,7 @@ async function startServer() {
     app_1.default.get("/", (req, res) => {
         res.send({ message: "EasyManager backend is running!" });
     });
-    app_1.default.listen(PORT, () => {
+    app_1.default.listen(PORT, "0.0.0.0", () => {
         console.log(`Server is running at PORT: ${PORT}`);
     });
 }
