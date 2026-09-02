@@ -4,14 +4,14 @@
 
 {#if $navigating}
 	<div
-		class="fixed top-0 right-0 left-0 z-[100] h-1 w-full overflow-hidden bg-primary/10 backdrop-blur-xs"
+		class="fixed top-0 right-0 left-0 z-100 h-1 w-full overflow-hidden bg-primary/10 backdrop-blur-xs"
 	>
 		<div
-			class="animate-indeterminate h-full w-full origin-left bg-gradient-to-r from-blue-600 via-indigo-500 to-cyan-400"
+			class="animate-indeterminate h-full w-full origin-left bg-linear-to-r from-blue-600 via-indigo-500 to-cyan-400"
 		></div>
 
 		<div
-			class="absolute top-0 right-0 h-full w-24 bg-gradient-to-r from-transparent via-cyan-300 to-white opacity-80 blur-[2px]"
+			class="absolute top-0 right-0 h-full w-24 bg-linear-to-r from-transparent via-cyan-300 to-white opacity-80 blur-[2px]"
 		></div>
 	</div>
 {/if}

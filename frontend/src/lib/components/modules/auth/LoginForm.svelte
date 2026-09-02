@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import Cookies from 'universal-cookie';
@@ -9,6 +8,7 @@
 	import { Label } from '$lib/components/ui/label';
 	import { authCookies, type LoginResult } from '$lib/config/auth';
 	import { toast } from 'svelte-sonner';
+	import { authService } from '$lib/services/auth/auth.service';
 
 	let userId = $state('');
 	let password = $state('');
@@ -46,26 +46,10 @@
 		errorMessage = '';
 
 		try {
-			const response = await fetch(`${env.PUBLIC_SERVER_URL}/auth/sign-in`, {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ userId, password })
+			const data = await authService.fetchSignIn({
+				userId: userId.trim(),
+				password: password.trim()
 			});
-
-			const data = (await response.json().catch(() => ({}))) as {
-				message?: string;
-				error?: string;
-				token?: string;
-				refreshToken?: string;
-				user?: LoginResult['user'];
-			};
-
-
-			if (!response.ok) {
-				const backendMessage = data.message ?? data.error ?? 'Unable to sign in.';
-				errorMessage = backendMessage;
-				throw new Error(backendMessage);
-			}
 
 			const loginResult: LoginResult = {
 				token: data.token ?? '',
@@ -85,7 +69,7 @@
 			cookies.set(authCookies.refreshToken, loginResult.refreshToken, cookieOptions);
 			cookies.set(authCookies.user, JSON.stringify(loginResult.user), cookieOptions);
 
-			toast.success('Successfully signed in.');
+			toast.success('Signed in');
 			await goto(resolve('/dashboard'));
 		} catch (error) {
 			const description =
@@ -96,39 +80,6 @@
 			errorMessage = '';
 		}
 	}
-
-	// const handleSubmit: SubmitFunction = () => {
-	// 	isLoading = true;
-	// 	errorMessage = '';
-
-	// 	return async ({ result }) => {
-	// 		isLoading = false;
-
-	// 		const backendMessage =
-	// 			(result?.data as { error?: string; message?: string } | undefined)?.error ??
-	// 			(result?.data as { error?: string; message?: string } | undefined)?.message ??
-	// 			'Unable to sign in.';
-
-	// 		if (result.type === 'success') {
-	// 			toast.success('Successfully signed in.');
-	// 			const loginResult = result.data as LoginResult;
-	// 			const cookies = new Cookies();
-	// 			cookies.set(authCookies.accessToken, loginResult.token, cookieOptions);
-	// 			cookies.set(authCookies.refreshToken, loginResult.refreshToken, cookieOptions);
-	// 			cookies.set(authCookies.user, JSON.stringify(loginResult.user), cookieOptions);
-	// 			await goto(resolve('/dashboard'));
-	// 			return;
-	// 		}
-
-	// 		errorMessage = backendMessage;
-
-	// 		if (result.type === 'failure') {
-	// 			toast.error('Sign in failed', { description: backendMessage });
-	// 		} else if (result.type === 'error') {
-	// 			toast.error('Sign in failed', { description: backendMessage });
-	// 		}
-	// 	};
-	// };
 </script>
 
 <Card class="w-full max-w-md border-0 shadow-lg">
@@ -139,7 +90,6 @@
 	</CardHeader>
 
 	<CardContent>
-		<!-- <form method="POST" use:enhance={handleSubmit} class="space-y-5"> -->
 		<form onsubmit={handleSubmission} novalidate class="space-y-5">
 			<div class="space-y-2">
 				<Label for="userId">User ID</Label>

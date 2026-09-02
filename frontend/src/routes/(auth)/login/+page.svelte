@@ -1,5 +1,5 @@
 <script lang="ts">
-	import LoginForm from "$lib/components/auth/LoginForm.svelte";
+	import LoginForm from '$lib/components/modules/auth/LoginForm.svelte';
 </script>
 
 <div class="flex min-h-screen items-center justify-center px-4 py-12">
@@ -10,7 +10,6 @@
 			>
 				<span class="text-xl font-bold">EasyManager</span>
 			</div>
-
 		</div>
 
 		<LoginForm />

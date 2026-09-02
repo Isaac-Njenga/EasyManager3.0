@@ -1,6 +1,5 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { env } from '$env/dynamic/public';
 	import { Button } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import { Input } from '$lib/components/ui/input';
@@ -14,6 +13,7 @@
 	} from '$lib/components/ui/card';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { resolve } from '$app/paths';
+	import { authService } from '$lib/services/auth/auth.service';
 
 	type Props = { email: string; userId: string };
 
@@ -54,20 +54,11 @@
 			}
 
 			isSubmitting = true;
-			const response = await fetch(`${env.PUBLIC_SERVER_URL}/auth/password-reset/reset`, {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({
-					email,
-					userId,
-					newPassword: password
-				})
+			const data = await authService.fetchPasswordReset({
+				email,
+				userId,
+				newPassword: password
 			});
-
-			const data = (await response.json().catch(() => ({}))) as { message?: string };
-			if (!response.ok) {
-				throw new Error(data.message ?? 'Unable to reset your password. Please try again.');
-			}
 
 			toast.success(data.message ?? 'Password reset successfully.', {
 				description: 'You can now sign in with your new password.'
@@ -116,7 +107,7 @@
 			<Separator />
 			<div class="flex flex-col gap-2">
 				<Button type="submit" disabled={isSubmitting} variant="default" class="w-full"
-					>Reset password</Button
+					>{isSubmitting ? 'Resetting password...' : 'Reset password'}</Button
 				>
 				<Button href="/login" disabled={isSubmitting} variant="outline" class="w-full"
 					>Back to sign in</Button

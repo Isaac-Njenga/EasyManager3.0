@@ -1,5 +1,4 @@
 <script lang="ts">
-	import { env } from '$env/dynamic/public';
 	import { Button } from '$lib/components/ui/button';
 	import { toast } from 'svelte-sonner';
 	import {
@@ -12,6 +11,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import ResetPassword from './ResetPassword.svelte';
+	import { authService } from '$lib/services/auth/auth.service';
 
 	type Props = { email: string; userId: string };
 
@@ -22,16 +22,7 @@
 	let otpVerified = $state(false);
 
 	async function requestOtp() {
-		const response = await fetch(`${env.PUBLIC_SERVER_URL}/auth/password-reset/request-otp`, {
-			method: 'POST',
-			headers: { 'content-type': 'application/json' },
-			body: JSON.stringify({ email, userId })
-		});
-
-		const data = (await response.json().catch(() => ({}))) as { message?: string };
-		if (!response.ok) {
-			throw new Error(data.message ?? 'Unable to send OTP. Please try again.');
-		}
+		const data = await authService.fetchRequestOtp({ email, userId });
 
 		return data;
 	}
@@ -47,19 +38,11 @@
 			}
 
 			isSubmitting = true;
-			const response = await fetch(`${env.PUBLIC_SERVER_URL}/auth/password-reset/verify-otp`, {
-				method: 'POST',
-				headers: { 'content-type': 'application/json' },
-				body: JSON.stringify({ email, otp: otp.trim() })
-			});
 
-			const data = (await response.json().catch(() => ({}))) as { message?: string };
-			if (!response.ok) {
-				throw new Error(data.message ?? 'Invalid OTP. Please try again.');
-			}
+			const data = await authService.fetchVerifyOtp({ email, otp: otp.trim() });
 
 			otpVerified = true;
-			toast.success(data.message ?? 'OTP Verified.', {
+			toast.success(data?.message ?? 'OTP Verified.', {
 				description: 'Proceed to resetting your password.'
 			});
 		} catch (error) {
@@ -116,16 +99,17 @@
 					</div>
 					<Separator />
 					<div class="flex flex-col gap-2">
-						<Button type="submit" disabled={isSubmitting} variant="default" class="w-full"
-							>Submit</Button
+						<Button type="submit" disabled={isSubmitting} variant="default" class="w-full">
+							{isSubmitting ? 'Submitted...' : 'Submit'}</Button
 						>
 						<Button
 							type="button"
 							onclick={resendOtp}
-							disabled={isSubmitting}
+							disabled={isSubmitting || otpVerified}
 							variant="outline"
-							class="w-full">Resend OTP</Button
-						>
+							class="w-full"
+							>{isSubmitting ? 'Resending...' : 'Resend OTP'}
+						</Button>
 					</div>
 				</form>
 			</CardContent>

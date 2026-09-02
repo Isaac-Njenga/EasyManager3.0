@@ -12,7 +12,7 @@
 		CardTitle
 	} from '$lib/components/ui/card';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import OTPForm from '$lib/components/auth/OTPForm.svelte';
+	import OTPForm from '$lib/components/modules/auth/OTPForm.svelte';
 
 	let email = $state('');
 	let userId = $state('');
