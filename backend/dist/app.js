@@ -1,25 +1,39 @@
 "use strict";
+// import express from "express";
+// import cors from "cors";
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+// import { appRouter } from "./routes/routes";
+// import { env } from "./config/env";
+// const app = express();
+// const normalizeOrigin = (origin: string) => origin.trim().replace(/\/$/, "");
+// const allowedOrigins = ["http://localhost:5173", ...env.FRONTEND_URL.split(",")]
+//   .map(normalizeOrigin)
+//   .filter(Boolean);
+// app.use(
+//   cors({
+//     origin: (origin, callback) => {
+//       if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
+//         callback(null, true);
+//         return;
+//       }
+//       callback(null, false);
+//     },
+//     credentials: true,
+//   }),
+// );
+// app.use(express.json());
+// app.use("/api", appRouter);
+// export default app;
 const express_1 = __importDefault(require("express"));
 const cors_1 = __importDefault(require("cors"));
 const routes_1 = require("./routes/routes");
-const env_1 = require("./config/env");
 const app = (0, express_1.default)();
-const normalizeOrigin = (origin) => origin.trim().replace(/\/$/, "");
-const allowedOrigins = ["http://localhost:5173", ...env_1.env.FRONTEND_URL.split(",")]
-    .map(normalizeOrigin)
-    .filter(Boolean);
 app.use((0, cors_1.default)({
-    origin: (origin, callback) => {
-        if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
-            callback(null, true);
-            return;
-        }
-        callback(null, false);
-    },
+    // origin: "http://localhost:5173",
+    origin: "*",
     credentials: true,
 }));
 app.use(express_1.default.json());
