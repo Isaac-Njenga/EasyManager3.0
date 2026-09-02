@@ -5,9 +5,10 @@ import { env } from "./config/env";
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173", env.FRONTEND_URL].filter(
-  Boolean,
-);
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://easymanager3-0.ayzzoh20.workers.dev",
+].filter(Boolean);
 
 app.use(
   cors({
