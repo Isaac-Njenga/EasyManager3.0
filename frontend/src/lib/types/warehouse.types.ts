@@ -27,3 +27,17 @@ export type Warehouse = {
 	createdAt: string;
 	updatedAt: string;
 };
+
+export interface WarehouseListResponse {
+	warehouses: Warehouse[];
+	totalWarehouses: number;
+	currentPage: number;
+	totalPages: number;
+}
+
+export interface CreateWarehouseInput {
+	name: string;
+	status: WarehouseStatus;
+	address: WarehouseAddress;
+	notes?: string;
+}
