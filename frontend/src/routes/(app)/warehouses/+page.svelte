@@ -11,8 +11,22 @@
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import Package from '@lucide/svelte/icons/package';
 
-	import { warehouseData } from '$lib/data/warehouses.data';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+
+	let { data }: PageProps = $props();
+
+	// Reactive derivations from server load
+	const warehouses = $derived(data.warehouses ?? []);
+	const error = $derived(data.error);
+
+	// Toast error alert if server load failed
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load shops', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let selectedStatus = $state('All');
@@ -22,14 +36,14 @@
 
 	// --- Derived Analytics ---
 	const analytics = $derived.by(() => {
-		const totalWarehouses = warehouseData.length;
-		const activeWarehouses = warehouseData.filter((w) => w.status === 'Active').length;
+		const totalWarehouses = warehouses.length;
+		const activeWarehouses = warehouses.filter((w) => w.status === 'Active').length;
 
 		let totalStockValue = 0;
 		let totalUnitsStored = 0;
 		let totalLowStockAlerts = 0;
 
-		for (const warehouse of warehouseData) {
+		for (const warehouse of warehouses) {
 			if (warehouse.inventorySummary) {
 				totalStockValue += warehouse.inventorySummary.totalStockValue ?? 0;
 				totalUnitsStored += warehouse.inventorySummary.totalItemsInStock ?? 0;
@@ -48,7 +62,7 @@
 
 	// --- Automatically derive filtered list based on search & status filter ---
 	let filteredWarehouses = $derived(
-		warehouseData.filter((item) => {
+		warehouses.filter((item) => {
 			const normalizedSearch = searchTerm.trim().toLowerCase();
 
 			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;

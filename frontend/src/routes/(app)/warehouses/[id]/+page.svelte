@@ -22,10 +22,18 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { transferStore } from '$lib/stores/transfer.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
+	import { toast } from 'svelte-sonner';
 
 	let { data }: PageProps = $props();
 
 	const selectedWarehouse = $derived(data.warehouse);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load warehouse', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let isSearching = $state(false);

@@ -5,23 +5,13 @@ import { env } from "./config/env";
 
 const app = express();
 
-const allowedOrigins = [
-  "http://localhost:5173",
-  "https://easymanager3-0.ayzzoh20.workers.dev",
-].filter(Boolean);
+const allowedOrigins = ["http://localhost:5173", env.FRONTEND_URL].filter(
+  Boolean,
+);
 
 app.use(
   cors({
-    origin: (origin, callback) => {
-      console.log("Incoming CORS origin:", origin);
-
-      if (!origin || allowedOrigins.includes(origin)) {
-        callback(null, true);
-      } else {
-        console.error("CORS rejected origin:", origin);
-        callback(new Error("Not allowed by CORS"));
-      }
-    },
+    origin: allowedOrigins,
     credentials: true,
   }),
 );

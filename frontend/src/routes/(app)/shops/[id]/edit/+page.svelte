@@ -53,10 +53,6 @@
 		<div class="flex items-center justify-center py-10">
 			<p class="text-destructive">Failed to load shop details: {error}</p>
 		</div>
-		<!-- {:else if !shop}
-		<div class="flex items-center justify-center py-10">
-			<p class="text-destructive">Shop not found.</p>
-		</div> -->
 	{:else}
 		<ShopForm shop={selectedShop} onSubmit={handleUpdate} {isSubmitting} />
 	{/if}

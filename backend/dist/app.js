@@ -10,16 +10,7 @@ const env_1 = require("./config/env");
 const app = (0, express_1.default)();
 const allowedOrigins = ["http://localhost:5173", env_1.env.FRONTEND_URL].filter(Boolean);
 app.use((0, cors_1.default)({
-    origin: (origin, callback) => {
-        console.log("Incoming CORS origin:", origin);
-        if (!origin || allowedOrigins.includes(origin)) {
-            callback(null, true);
-        }
-        else {
-            console.error("CORS rejected origin:", origin);
-            callback(new Error("Not allowed by CORS"));
-        }
-    },
+    origin: allowedOrigins,
     credentials: true,
 }));
 app.use(express_1.default.json());

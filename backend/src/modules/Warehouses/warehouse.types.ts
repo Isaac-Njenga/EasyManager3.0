@@ -22,7 +22,7 @@ export interface InventoryItem {
 
 export interface WarehouseAddress {
   building: string;
-  town: string;
+  city: string;
 }
 
 export type WarehouseListResponse = {

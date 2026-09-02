@@ -32,7 +32,7 @@
 
 	$effect(() => {
 		if (error) {
-			toast.error('Failed to load shops', { description: error });
+			toast.error('Failed to load shop', { description: error });
 		}
 	});
 

@@ -32,7 +32,7 @@ const warehouseSchema = new mongoose_1.default.Schema({
     warehouseCode: { type: String, unique: true },
     address: {
         building: { type: String, required: true },
-        town: { type: String, required: true },
+        city: { type: String, required: true },
     },
     inventorySummary: InventorySummarySchema,
     inventoryItems: [InventoryItemSchema],

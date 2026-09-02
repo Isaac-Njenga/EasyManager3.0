@@ -1,5 +1,9 @@
 <script lang="ts">
-	import type { Warehouse, WarehouseStatus } from '$lib/types/warehouse.types';
+	import type {
+		Warehouse,
+		WarehouseStatus,
+		CreateWarehouseInput
+	} from '$lib/types/warehouse.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -11,13 +15,14 @@
 	import WarehouseIcon from '@lucide/svelte/icons/warehouse';
 	import MapPin from '@lucide/svelte/icons/map-pin';
 	import FileText from '@lucide/svelte/icons/file-text';
-	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		warehouse?: Warehouse;
+		onSubmit: (payload: CreateWarehouseInput) => Promise<void> | void;
+		isSubmitting?: boolean;
 	};
 
-	let { warehouse }: Props = $props();
+	let { warehouse, onSubmit, isSubmitting = false }: Props = $props();
 
 	// --- Status Select Options ---
 	const statusOptions: { value: WarehouseStatus; label: string }[] = [
@@ -28,18 +33,15 @@
 	];
 
 	// --- Form State ---
-    //eslint-disable-next-line
-	let warehouseCode = $state('');
 	let name = $state('');
 	let status = $state<WarehouseStatus>('Active');
 	let building = $state('');
 	let city = $state('');
 	let notes = $state('');
 
-	let isSubmitting = $state(false);
+	let errors = $state<Record<string, string>>({});
 
 	$effect(() => {
-		warehouseCode = warehouse?.warehouseCode ?? '';
 		name = warehouse?.name ?? '';
 		status = warehouse?.status ?? 'Active';
 		building = warehouse?.address?.building ?? '';
@@ -52,59 +54,45 @@
 		statusOptions.find((s) => s.value === status)?.label ?? 'Select status'
 	);
 
-	// --- Form Submission ---
-	function handleSubmit(e: SubmitEvent) {
-		e.preventDefault();
+	function validate(): boolean {
+		const newErrors: Record<string, string> = {};
 
-		const requiredFields = [
-			{ name: 'Warehouse Name', value: name },
-			{ name: 'City', value: city }
-		];
+		if (!name.trim()) newErrors.name = 'Warehouse name is required';
+		if (!building.trim()) newErrors.building = 'Building address is required';
+		if (!city.trim()) newErrors.city = 'City is required';
 
-		const missing = requiredFields.filter((f) => !f.value?.toString().trim());
+		errors = newErrors;
+		return Object.keys(newErrors).length === 0;
+	}
 
-		if (missing.length > 0) {
-			toast.warning('Please fill in required fields', {
-				description: `Missing: ${missing.map((m) => m.name).join(', ')}`
-			});
-			return;
-		}
+	async function handleFormSubmit(event: SubmitEvent) {
+		event.preventDefault();
 
-		isSubmitting = true;
+		if (!validate()) return;
 
-		const payload: Partial<Warehouse> = {
-			...warehouse,
-			warehouseCode: warehouse?.warehouseCode
-				? warehouse?.warehouseCode
-				: `WH-NRB-${Math.floor(100 + Math.random() * 900)}`,
+		const payload: CreateWarehouseInput = {
 			name: name.trim(),
 			status,
-			address: {
-				building: building.trim() || undefined,
-				city: city.trim()
-			},
-			notes: notes.trim() || undefined
+			address: { building: building.trim(), city: city.trim() },
+			...(notes.trim() ? { notes: notes.trim() } : {})
 		};
 
-		console.log('Warehouse Saved:', payload);
-
-		toast.success(warehouse ? 'Warehouse details updated!' : 'Warehouse details saved!');
-		isSubmitting = false;
+		await onSubmit(payload);
 	}
 </script>
 
 <div class="mx-auto max-w-3xl space-y-6 p-4 sm:p-6">
-	<form onsubmit={handleSubmit} class="space-y-6">
+	<form onsubmit={handleFormSubmit} class="space-y-6">
 		<!-- Section 1: Basic Information -->
 		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
 			<h3
 				class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
 			>
-				<WarehouseIcon class="size-4 text-primary" /> General 
+				<WarehouseIcon class="size-4 text-primary" /> General
 			</h3>
 			<Separator />
 
-			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2" >
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 				<!-- Warehouse Name -->
 				<div class="space-y-1 sm:col-span-2">
 					<Label for="name">
@@ -114,10 +102,13 @@
 						id="name"
 						bind:value={name}
 						required
-					/>
+						aria-invalid={!!errors.name}
+					/>{#if errors.name}
+						<p class="text-xs text-destructive">{errors.name}</p>
+					{/if}
 				</div>
 
-							<!-- Status -->
+				<!-- Status -->
 				<div class="space-y-1">
 					<Label>
 						Status <span class="text-destructive">*</span>
@@ -157,8 +148,12 @@
 					<Label for="building">Building/Godown</Label>
 					<Input
 						id="building"
+						type="text"
 						bind:value={building}
-					/>
+						aria-invalid={!!errors.building}
+					/>{#if errors.building}
+						<p class="text-xs text-destructive">{errors.building}</p>
+					{/if}
 				</div>
 
 				<!-- City -->
@@ -166,7 +161,14 @@
 					<Label for="city">
 						City/Town <span class="text-destructive">*</span>
 					</Label>
-					<Input id="city" bind:value={city} required />
+					<Input
+						id="city"
+						bind:value={city}
+						required
+						aria-invalid={!!errors.city}
+					/>{#if errors.city}
+						<p class="text-xs text-destructive">{errors.city}</p>
+					{/if}
 				</div>
 			</div>
 		</div>

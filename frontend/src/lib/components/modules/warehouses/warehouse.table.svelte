@@ -22,6 +22,10 @@
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		filteredWarehouses: Warehouse[];
@@ -62,10 +66,17 @@
 		}
 	}
 
-	function deleteWarehouse(warehouse: Warehouse) {
-		console.log('Delete warehouse:', warehouse._id);
-		isDeleteWarehouseOpen = false;
-		selectedWarehouse = null;
+	async function deleteWarehouse(warehouse: Warehouse) {
+		try {
+			await warehouseService.delete(getBrowserServiceContext(), warehouse._id);
+			toast.success('Warehouse deleted successfully.');
+			isDeleteWarehouseOpen = false;
+			selectedWarehouse = null;
+			await invalidateAll();
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete warehouse.';
+			toast.error('Warehouse deletion failed', { description });
+		}
 		// isDrawerOpen = false;
 	}
 </script>

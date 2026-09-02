@@ -119,7 +119,7 @@ export class WarehouseService {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
         { shopCode: { $regex: search, $options: "i" } },
-        { "address.town": { $regex: search, $options: "i" } },
+        { "address.city": { $regex: search, $options: "i" } },
       ];
     }
 
