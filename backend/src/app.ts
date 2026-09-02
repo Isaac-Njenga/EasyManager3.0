@@ -1,12 +1,15 @@
 import express from "express";
 import cors from "cors";
 import { appRouter } from './routes/routes';
+import { env } from "./config/env";
 
 const app = express();
 
+const allowedOrigins =[env.FRONTEND_URL].filter(Boolean);
+
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: allowedOrigins,
     credentials: true,
   })
 );
