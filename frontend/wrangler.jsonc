@@ -5,5 +5,8 @@
 	"assets": {
 		"binding": "ASSETS",
 		"directory": ".svelte-kit/cloudflare"
+	},
+	"vars": {
+		"PUBLIC_SERVER_URL": "https://easymanager3-0-2.onrender.com/api"
 	}
 }

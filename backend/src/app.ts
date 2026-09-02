@@ -6,13 +6,21 @@ import { env } from "./config/env";
 
 const app = express();
 
-const allowedOrigins = ["http://localhost:5173", env.FRONTEND_URL].filter(
-  Boolean,
-);
+const normalizeOrigin = (origin: string) => origin.trim().replace(/\/$/, "");
+const allowedOrigins = ["http://localhost:5173", ...env.FRONTEND_URL.split(",")]
+  .map(normalizeOrigin)
+  .filter(Boolean);
 
 app.use(
   cors({
-    origin: allowedOrigins,
+    origin: (origin, callback) => {
+      if (!origin || allowedOrigins.includes(normalizeOrigin(origin))) {
+        callback(null, true);
+        return;
+      }
+
+      callback(null, false);
+    },
     credentials: true,
   }),
 );
