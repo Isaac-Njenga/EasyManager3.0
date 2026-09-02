@@ -3,7 +3,7 @@ import type {
 	CreateWarehouseInput,
 	Warehouse,
 	WarehouseListResponse
-} from '$lib/types/warehouse.types';
+} from '$lib/services/warehouse/warehouse.types';
 import type { ServiceContext } from '../api/types';
 
 export const warehouseService = {

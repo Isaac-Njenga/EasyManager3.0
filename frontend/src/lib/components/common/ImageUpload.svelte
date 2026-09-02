@@ -57,10 +57,9 @@
 
 			// Append newly uploaded image URLs to the bound array
 			selectedImages = [...selectedImages, ...uploadedUrls];
-			toast.success('Uploaded successfully!');
+			toast.success('Upload successful!');
 		} catch (error) {
 			console.error('Upload error:', error);
-			// alert(error instanceof Error ? error.message : 'Upload failed');
 
 			toast.error(
 				error instanceof Error

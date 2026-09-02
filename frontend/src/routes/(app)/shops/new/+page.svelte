@@ -3,7 +3,7 @@
 	import ShopForm from '$lib/components/modules/shop/shop.form.svelte';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import type { CreateShopInput } from '$lib/types/shop.types';
+	import type { CreateShopInput } from '$lib/services/shop/shop.types';
 	import { resolve } from '$app/paths';
 	import { shopService } from '$lib/services/shop/shop.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
@@ -17,7 +17,7 @@
 		try {
 			await shopService.create(getBrowserServiceContext(), payload);
 
-			toast.success('Shop Created Successfully!');
+			toast.success('Shop created!');
 			goto(resolve('/shops'));
 		} catch (error) {
 			const description =

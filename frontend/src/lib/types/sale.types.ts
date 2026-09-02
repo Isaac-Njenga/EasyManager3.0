@@ -1,5 +1,5 @@
 import type { Salesperson } from './saleperson.types';
-import type { Shop } from './shop.types';
+import type { Shop } from '../services/shop/shop.types';
 
 export type PaymentMethod = 'Cash' | 'M-Pesa' | 'Credit Card' | 'Bank Transfer';
 export type PaymentStatus = 'Paid' | 'Pending' | 'Partially Paid';

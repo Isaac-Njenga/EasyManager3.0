@@ -23,3 +23,23 @@ export type Product = {
 	createdAt?: string;
 	updatedAt?: string;
 };
+
+export type ProductListResponse = {
+	products: Product[];
+	totalProducts: number;
+	currentPage: number;
+	totalPages: number;
+};
+
+export type CreateProductInput = {
+	name: string;
+	sku?: string;
+	code: string;
+	colour?: string;
+	image?: string[];
+	description?: string;
+	category: string;
+	costPrice: number;
+	sellingPrice: number;
+	status: ProductStatus;
+};

@@ -38,7 +38,6 @@ exports.fetchWarehouses = (0, catchAsync_1.catchAsync)(async (req, res) => {
         limit: req.query.limit ? Number(req.query.limit) : undefined,
         search: req.query.search,
         status: req.query.status,
-        type: req.query.type,
     });
     res.status(200).json({
         success: true,

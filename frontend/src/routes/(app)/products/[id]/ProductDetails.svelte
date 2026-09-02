@@ -1,8 +1,9 @@
-<script lang="ts">
-	import type { Product } from '$lib/types/product.types';
+<!-- <script lang="ts">
+	// import type { Product } from '$lib/services/product/product.types';
 	import { Badge } from '$lib/components/ui/badge';
 	import { Separator } from '$lib/components/ui/separator';
 	import { Card } from '$lib/components/ui/card';
+	import { toast } from 'svelte-sonner';
 	import { formatCurrency } from '$lib/utils';
 
 	// Lucide Icons
@@ -16,12 +17,19 @@
 	import Warehouse from '@lucide/svelte/icons/warehouse';
 	import Store from '@lucide/svelte/icons/store';
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
+	import type { PageProps } from './$types';
 
-	type Props = {
-		selectedProduct: Product | null;
-	};
+	let { data }: PageProps = $props();
 
-	let { selectedProduct }: Props = $props();
+	const selectedProduct = $derived(data.product);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		console.log(data);
+		if (error) {
+			toast.error('Failed to load shop', { description: error });
+		}
+	});
 
 	// Active image index for carousel state
 	let activeImageIndex = $state(0);
@@ -51,17 +59,16 @@
 
 {#if selectedProduct}
 	<div class="space-y-6 py-2">
-		<!-- 1. Image Carousel / Gallery -->
 		<div class="space-y-2">
 			<div class="relative aspect-video w-full overflow-hidden rounded-xl border bg-muted">
 				{#if images.length > 0}
 					<img
 						src={images[activeImageIndex]}
-						alt={selectedProduct.name}
+						alt={selectedProduct?.name}
 						class="h-full w-full object-cover transition-all duration-300"
 					/>
 
-					<!-- Status Badge Overlay -->
+				
 					<div class="absolute inset-x-3 top-3 flex items-center justify-between gap-2">
 						<Badge
 							variant={selectedProduct.status === 'Active' ? 'default' : 'secondary'}
@@ -83,7 +90,7 @@
 						{/if}
 					</div>
 
-					<!-- Carousel Controls -->
+					
 					{#if images.length > 1}
 						<button
 							onclick={prevImage}
@@ -117,7 +124,6 @@
 				{/if}
 			</div>
 
-			<!-- Thumbnail Strip -->
 			{#if images.length > 1}
 				<div class="flex items-center gap-2 overflow-x-auto pb-1">
 					{#each images as img, i (i)}
@@ -135,7 +141,6 @@
 			{/if}
 		</div>
 
-		<!-- 2. Price & Total Stock Stat Cards -->
 		<div class="grid grid-cols-3 gap-3">
 			<Card class="bg-muted/40 p-2 shadow-none">
 				<p class="text-xs font-medium text-muted-foreground">Selling Price</p>
@@ -164,7 +169,6 @@
 			</Card>
 		</div>
 
-		<!-- 3. Multi-Location Inventory Breakdown -->
 		<div class="space-y-2 rounded-xl border bg-muted/20 p-3">
 			<div class="flex items-center justify-between">
 				<p class="text-xs font-semibold text-foreground">Stock Breakdown by Location</p>
@@ -193,7 +197,6 @@
 			</div>
 		</div>
 
-		<!-- 4. Specifications Grid -->
 		<div class="grid grid-cols-3 items-center gap-x-2 gap-y-4 text-sm">
 			<div class="flex items-start gap-2.5">
 				<Barcode class="mt-0.5 size-4 shrink-0 text-muted-foreground" />
@@ -222,7 +225,6 @@
 			{/if}
 		</div>
 
-		<!-- 5. Description -->
 		{#if selectedProduct.description}
 			<Separator />
 			<div>
@@ -233,7 +235,6 @@
 			</div>
 		{/if}
 
-		<!-- 6. Metadata Footer -->
 		<LogFooter
 			createTimestamp={selectedProduct.createdAt
 				? selectedProduct.createdAt
@@ -243,4 +244,4 @@
 				: new Date().toISOString()}
 		/>
 	</div>
-{/if}
+{/if} -->

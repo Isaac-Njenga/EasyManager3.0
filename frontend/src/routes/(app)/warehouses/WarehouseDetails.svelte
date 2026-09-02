@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Warehouse } from '$lib/types/warehouse.types';
+	import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
 	import { formatCurrency } from '$lib/utils';
 
 	import { Badge } from '$lib/components/ui/badge';

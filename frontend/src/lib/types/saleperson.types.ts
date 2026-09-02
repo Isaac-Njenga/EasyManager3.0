@@ -1,4 +1,4 @@
-import type { Shop } from './shop.types';
+import type { Shop } from '../services/shop/shop.types';
 
 export type SalespersonStatus = 'Active' | 'Inactive' | 'Terminated';
 

@@ -3,7 +3,7 @@
 	import WarehouseForm from '$lib/components/modules/warehouses/warehouse.form.svelte';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import type { CreateWarehouseInput } from '$lib/types/warehouse.types';
+	import type { CreateWarehouseInput } from '$lib/services/warehouse/warehouse.types';
 	import { resolve } from '$app/paths';
 	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';

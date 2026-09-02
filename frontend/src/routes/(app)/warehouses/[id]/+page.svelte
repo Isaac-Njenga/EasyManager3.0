@@ -1,7 +1,7 @@
 <script lang="ts">
 	import { formatCurrency } from '$lib/utils';
-	import type { Product } from '$lib/types/product.types';
-	import type { Warehouse } from '$lib/types/warehouse.types';
+	import type { Product } from '$lib/services/product/product.types';
+	import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
 	import Modal from '$lib/components/common/Modal.svelte';
 
 	import Separator from '$lib/components/ui/separator/separator.svelte';

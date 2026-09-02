@@ -1,5 +1,5 @@
 // src/lib/data/warehouse.data.ts
-import type { Warehouse } from '$lib/types/warehouse.types';
+import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
 
 export const warehouseData: Warehouse[] = [
 	{
@@ -17,7 +17,8 @@ export const warehouseData: Warehouse[] = [
 			totalStockValue: 18450000,
 			lowStockItemsCount: 12,
 			outOfStockItemsCount: 3
-		},inventoryItems: [
+		},
+		inventoryItems: [
 			{
 				_id: '66b3f1e2a1d4c8001a2b3c01',
 				name: 'Mara Hand-Carved Teak Coffee Table',
@@ -146,7 +147,8 @@ export const warehouseData: Warehouse[] = [
 			totalStockValue: 12800000,
 			lowStockItemsCount: 5,
 			outOfStockItemsCount: 0
-		},inventoryItems: [
+		},
+		inventoryItems: [
 			{
 				_id: '66b3f1e2a1d4c8001a2b3c02',
 				name: 'Kilifi Woven Rattan Accent Chair',
@@ -257,7 +259,8 @@ export const warehouseData: Warehouse[] = [
 			totalStockValue: 6200000,
 			lowStockItemsCount: 8,
 			outOfStockItemsCount: 2
-		},inventoryItems: [
+		},
+		inventoryItems: [
 			{
 				_id: '66b3f1e2a1d4c8001a2b3c02',
 				name: 'Kilifi Woven Rattan Accent Chair',
@@ -349,7 +352,8 @@ export const warehouseData: Warehouse[] = [
 			totalStockValue: 14100000,
 			lowStockItemsCount: 18,
 			outOfStockItemsCount: 5
-		},inventoryItems: [
+		},
+		inventoryItems: [
 			{
 				_id: '66b3f1e2a1d4c8001a2b3c08',
 				name: 'Aberdare Cypress Bookshelf',
@@ -424,7 +428,8 @@ export const warehouseData: Warehouse[] = [
 			totalStockValue: 1950000,
 			lowStockItemsCount: 14,
 			outOfStockItemsCount: 8
-		},inventoryItems: [
+		},
+		inventoryItems: [
 			{
 				_id: '66b3f1e2a1d4c8001a2b3c08',
 				name: 'Aberdare Cypress Bookshelf',
@@ -499,7 +504,8 @@ export const warehouseData: Warehouse[] = [
 			totalStockValue: 0,
 			lowStockItemsCount: 0,
 			outOfStockItemsCount: 0
-		},inventoryItems: [
+		},
+		inventoryItems: [
 			{
 				_id: '66b3f1e2a1d4c8001a2b3c08',
 				name: 'Aberdare Cypress Bookshelf',

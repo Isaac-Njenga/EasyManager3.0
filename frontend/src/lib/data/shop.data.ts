@@ -1,4 +1,4 @@
-import type { Shop } from '$lib/types/shop.types';
+import type { Shop } from '$lib/services/shop/shop.types';
 
 export const shopsData: Shop[] = [
 	{

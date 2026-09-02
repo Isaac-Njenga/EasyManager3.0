@@ -66,8 +66,8 @@ class WarehouseService {
         const page = Math.max(1, queryParams.page || 1);
         const limit = Math.max(1, Math.min(100, queryParams.limit || 10));
         const skip = (page - 1) * limit;
-        const { search, status, type } = queryParams;
-        const cacheKey = `warehouses_p${page}_l${limit}_s${search || ""}_st${status || ""}_t${type || ""}`;
+        const { search, status } = queryParams;
+        const cacheKey = `warehouses_p${page}_l${limit}_s${search || ""}_st${status || ""}`;
         const cachedData = warehouseCache.get(cacheKey);
         if (cachedData) {
             return cachedData;
@@ -76,8 +76,6 @@ class WarehouseService {
         const filter = {};
         if (status)
             filter.status = status;
-        if (type)
-            filter.type = type;
         if (search) {
             filter.$or = [
                 { name: { $regex: search, $options: "i" } },

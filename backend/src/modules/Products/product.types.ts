@@ -1,4 +1,11 @@
 export type ProductStatus = "Active" | "Inactive";
+export type LocationType = "Shop" | "Warehouse";
+
+export interface LocationStock {
+  locationType: LocationType;
+  locationId: string;
+  quantity: number;
+}
 
 export type ProductListResponse = {
   products: Product[];
@@ -20,7 +27,7 @@ export interface Product {
   sellingPrice: number;
   totalQuantity: number;
   status: ProductStatus;
-  // inventory?: LocationStock[];
+  inventoryDistribution?: LocationStock[];
   createdAt: string;
   updatedAt: string;
 }
@@ -36,6 +43,7 @@ export interface CreateProductDTO {
   costPrice: number;
   sellingPrice: number;
   status: ProductStatus;
+  inventoryDistribution?: LocationStock[];
 }
 
 export interface UpdateProductDTO {
@@ -49,4 +57,5 @@ export interface UpdateProductDTO {
   costPrice?: number;
   sellingPrice?: number;
   status?: ProductStatus;
+  inventoryDistribution?: LocationStock[];
 }

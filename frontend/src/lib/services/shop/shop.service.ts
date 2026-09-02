@@ -1,5 +1,5 @@
 import { apiClient } from '$lib/services/api/client';
-import type { CreateShopInput, Shop, ShopListResponse } from '$lib/types/shop.types';
+import type { CreateShopInput, Shop, ShopListResponse } from '$lib/services/shop/shop.types';
 import type { ServiceContext } from '../api/types';
 
 export const shopService = {

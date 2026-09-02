@@ -1,5 +1,5 @@
 import type { TableColumn } from '$lib/types/table.types';
-import type { Shop } from '$lib/types/shop.types';
+import type { Shop } from '$lib/services/shop/shop.types';
 
 export const shopColumns: TableColumn<Shop>[] = [
 	{

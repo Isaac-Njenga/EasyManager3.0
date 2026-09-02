@@ -1,6 +1,6 @@
 <script lang="ts">
 	import type { Salesperson, SalespersonStatus } from '$lib/types/saleperson.types';
-	import type { Shop } from '$lib/types/shop.types';
+	import type { Shop } from '$lib/services/shop/shop.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Product } from '$lib/types/product.types';
+	import type { Product } from '$lib/services/product/product.types';
 	import type {
 		Sale,
 		SaleItem,
@@ -7,7 +7,7 @@
 		PaymentStatus,
 		SaleStatus
 	} from '$lib/types/sale.types';
-	import type { Shop } from '$lib/types/shop.types';
+	import type { Shop } from '$lib/services/shop/shop.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';

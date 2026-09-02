@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Product } from '$lib/types/product.types';
+	import type { Product } from '$lib/services/product/product.types';
 	import { productsData } from '$lib/data/products.data';
 	import { transferLocations as locations, transferStore } from '$lib/stores/transfer.svelte';
 

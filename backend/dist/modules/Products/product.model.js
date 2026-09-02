@@ -76,6 +76,7 @@ const productSchema = new mongoose_1.default.Schema({
     },
     inventoryDistribution: {
         type: [LocationStockSchema],
+        required: false,
         default: [],
     },
 }, {

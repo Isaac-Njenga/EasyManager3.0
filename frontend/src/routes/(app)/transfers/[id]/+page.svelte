@@ -1,5 +1,5 @@
 <script lang='ts'>
-	import type { Product } from '$lib/types/product.types';
+	import type { Product } from '$lib/services/product/product.types';
     import type { PageProps } from './$types';
     import LogFooter from '$lib/components/common/LogFooter.svelte';
 	

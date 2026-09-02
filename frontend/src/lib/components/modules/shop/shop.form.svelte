@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Shop, ShopType, ShopStatus, CreateShopInput } from '$lib/types/shop.types';
+	import type { Shop, ShopType, ShopStatus, CreateShopInput } from '$lib/services/shop/shop.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -73,6 +73,7 @@
 
 	async function handleFormSubmit(event: SubmitEvent) {
 		event.preventDefault();
+		
 		if (!validate()) return;
 
 		const payload: CreateShopInput = {

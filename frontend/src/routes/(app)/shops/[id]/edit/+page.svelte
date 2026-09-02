@@ -2,7 +2,7 @@
 	import { goto } from '$app/navigation';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ShopForm from '$lib/components/modules/shop/shop.form.svelte';
-	import type { CreateShopInput } from '$lib/types/shop.types';
+	import type { CreateShopInput } from '$lib/services/shop/shop.types';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 	import { resolve } from '$app/paths';

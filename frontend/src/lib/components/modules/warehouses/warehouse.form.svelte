@@ -3,7 +3,7 @@
 		Warehouse,
 		WarehouseStatus,
 		CreateWarehouseInput
-	} from '$lib/types/warehouse.types';
+	} from '$lib/services/warehouse/warehouse.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';

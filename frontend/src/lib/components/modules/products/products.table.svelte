@@ -15,8 +15,8 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { productColumns } from '$lib/components/modules/products/product.columns';
-	import type { Product } from '$lib/types/product.types';
-	import ProductsDetails from '../../../../routes/(app)/products/ProductDetails.svelte';
+	import type { Product } from '$lib/services/product/product.types';
+	import ProductsDetails from '../../../../routes/(app)/products/[id]/+page.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -40,7 +40,7 @@
 
 	function editProduct(product: Product) {
 		// console.log('Edit product:', product._id);
-		goto(resolve(`/products/${product._id}`));
+		goto(resolve(`/products/${product._id}/edit`));
 	}
 
 	function openDeleteModal(product: Product) {
@@ -59,7 +59,7 @@
 <!-- eslint-disable-next-line -->
 {#snippet imageCell(_value: unknown, product: Product)}
 	{#if product.image && product.image.length > 0}
-		<img src={product.image[0]} alt={product.name} class="size-16 rounded-md" />
+		<img src={product.image[0]} alt={product.name} class="size-16 rounded-md object-contain" />
 	{:else}
 		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
 			<span class="text-xs text-muted-foreground">No image</span>

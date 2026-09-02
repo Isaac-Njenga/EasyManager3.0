@@ -15,7 +15,7 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { shopColumns } from '$lib/components/modules/shop/shop.columns';
-	import type { Shop, ShopStatus, ShopType } from '$lib/types/shop.types';
+	import type { Shop, ShopStatus, ShopType } from '$lib/services/shop/shop.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import { goto } from '$app/navigation';

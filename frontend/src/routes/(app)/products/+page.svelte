@@ -4,9 +4,22 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 
-	import { productsData as products } from '$lib/data/products.data';
 	import Search from '$lib/components/common/Search.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+
+	let { data }: PageProps = $props();
+
+	const products = $derived(data.products ?? []);
+	const error = $derived(data.error);
+
+	// Toast error alert if server load failed
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load products', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let selectedStatus = $state('All');
@@ -60,7 +73,7 @@
 				</div>
 
 				<span class="text-xs font-medium text-muted-foreground">
-					Products: {filteredProducts.length} 
+					Products: {filteredProducts.length}
 				</span>
 			</div>
 		</div>

@@ -1,6 +1,6 @@
 <script lang="ts">
-	import type { Shop } from '$lib/types/shop.types';
-	import type { Product } from '$lib/types/product.types';
+	import type { Shop } from '$lib/services/shop/shop.types';
+	import type { Product } from '$lib/services/product/product.types';
 	import { formatCurrency } from '$lib/utils';
 	import Modal from '$lib/components/common/Modal.svelte';
 

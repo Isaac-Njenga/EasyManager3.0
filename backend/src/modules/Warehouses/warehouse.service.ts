@@ -75,7 +75,6 @@ export interface FetchWarehousesQuery {
   limit?: number;
   search?: string;
   status?: string;
-  type?: string;
 }
 
 export class WarehouseService {
@@ -88,7 +87,9 @@ export class WarehouseService {
 
     await warehouseDoc.save();
 
-    const savedWarehouse = await WarehouseModel.findById(warehouseDoc._id).lean();
+    const savedWarehouse = await WarehouseModel.findById(
+      warehouseDoc._id,
+    ).lean();
     invalidateWarehouseCache();
 
     return toWarehouse(savedWarehouse ?? warehouseDoc.toObject());
@@ -102,8 +103,8 @@ export class WarehouseService {
     const limit = Math.max(1, Math.min(100, queryParams.limit || 10));
     const skip = (page - 1) * limit;
 
-    const { search, status, type } = queryParams;
-    const cacheKey = `warehouses_p${page}_l${limit}_s${search || ""}_st${status || ""}_t${type || ""}`;
+    const { search, status } = queryParams;
+    const cacheKey = `warehouses_p${page}_l${limit}_s${search || ""}_st${status || ""}`;
 
     const cachedData = warehouseCache.get<WarehouseListResponse>(cacheKey);
     if (cachedData) {
@@ -114,7 +115,6 @@ export class WarehouseService {
     const filter: Record<string, any> = {};
 
     if (status) filter.status = status;
-    if (type) filter.type = type;
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
@@ -195,7 +195,8 @@ export class WarehouseService {
   ): Promise<Warehouse> {
     assertWarehouseId(warehouseId);
 
-    const warehouse = await WarehouseModel.findByIdAndDelete(warehouseId).lean();
+    const warehouse =
+      await WarehouseModel.findByIdAndDelete(warehouseId).lean();
     if (!warehouse) {
       throw new NotFoundError("Warehouse not found!");
     }

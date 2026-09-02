@@ -6,11 +6,13 @@ const express_1 = require("express");
 const auth_routes_1 = require("../modules/Auth/auth.routes");
 const shop_routes_1 = require("../modules/Shops/shop.routes");
 const warehouse_routes_1 = require("../modules/Warehouses/warehouse.routes");
+const product_routes_1 = require("../modules/Products/product.routes");
 function createRoutes() {
     const router = (0, express_1.Router)();
     router.use("/auth", (0, auth_routes_1.AuthRouter)());
     router.use("/shop", (0, shop_routes_1.ShopRouter)());
     router.use("/warehouse", (0, warehouse_routes_1.WarehouseRouter)());
+    router.use("/product", (0, product_routes_1.ProductRouter)());
     return router;
 }
 exports.appRouter = createRoutes();

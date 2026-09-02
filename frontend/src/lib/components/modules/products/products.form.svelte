@@ -1,5 +1,9 @@
 <script lang="ts">
-	import type { Product, ProductStatus } from '$lib/types/product.types';
+	import type {
+		Product,
+		ProductStatus,
+		CreateProductInput
+	} from '$lib/services/product/product.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -9,13 +13,14 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import ImageUpload from '$lib/components/common/ImageUpload.svelte';
-	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		product?: Product;
+		onSubmit: (payload: CreateProductInput) => Promise<void> | void;
+		isSubmitting?: boolean;
 	};
 
-	let { product }: Props = $props();
+	let { product, onSubmit, isSubmitting = false }: Props = $props();
 
 	let name = $state('');
 	let sku = $state('');
@@ -28,15 +33,7 @@
 	let sellingPrice = $state('');
 	let status = $state<ProductStatus>('Active');
 
-	// 1. Map required field keys to user-friendly labels
-	const requiredFieldsConfig = [
-		{ label: 'Product Name', getValue: () => name },
-		{ label: 'SKU', getValue: () => sku },
-		{ label: 'Code', getValue: () => code },
-		{ label: 'Category', getValue: () => category },
-		{ label: 'Cost Price', getValue: () => costPrice },
-		{ label: 'Selling Price', getValue: () => sellingPrice },
-	];
+	let errors = $state<Record<string, string>>({});
 
 	$effect(() => {
 		name = product?.name ?? '';
@@ -51,61 +48,49 @@
 		status = product?.status ?? 'Active';
 	});
 
-	let isSubmitting = $state(false);
+	function validate(): boolean {
+		const newErrors: Record<string, string> = {};
 
-	async function handleSubmit(event: SubmitEvent) {
+		if (!name.trim()) newErrors.name = 'Product name is required';
+		if (!code.trim()) newErrors.code = 'Product code is required';
+		if (!category.trim()) newErrors.category = 'Category is required';
+		if (!costPrice) newErrors.costPrice = 'Cost price is required';
+		if (!sellingPrice) newErrors.sellingPrice = 'Selling price is required';
+
+		errors = newErrors;
+		return Object.keys(newErrors).length === 0;
+	}
+
+	async function handleFormSubmit(event: SubmitEvent) {
 		event.preventDefault();
 
-		const missingFields = requiredFieldsConfig
-			.filter((field) => !field.getValue()?.toString().trim())
-			.map((field) => field.label);
+		if (!validate()) return;
 
-		if (missingFields.length > 0) {
-			toast.error('Please fill in required fields', {
-				description: `Missing: ${missingFields.join(', ')}`
-			});
-			return;
-		}
-
-		isSubmitting = true;
-
-		const formData = {
-			name,
-			sku,
-			code,
-			colour,
-			image,
-			description,
-			category,
+		const payload: CreateProductInput = {
+			name: name.trim(),
+			sku: sku.trim() || undefined,
+			code: code.trim(),
+			colour: colour.trim() || undefined,
+			image: [...image],
+			description: description.trim() || undefined,
+			category: category.trim(),
 			costPrice: Number(costPrice),
 			sellingPrice: Number(sellingPrice),
-			location,
-			status
+			status: status
 		};
 
-		console.log('Product form:', formData);
-
-		toast.success('Product Saved!', {
-			// description: 'Sunday, December 03, 2023 at 9:00 AM',
-			// action: {
-			// 	label: 'Undo',
-			// 	onClick: () => console.info('Undo')
-			// }
-		});
-
-		await new Promise((resolve) => setTimeout(resolve, 1000));
-
-		isSubmitting = false;
+		// console.log(payload);
+		await onSubmit(payload);
 	}
 </script>
 
-<form onsubmit={handleSubmit} novalidate class="space-y-6">
+<form onsubmit={handleFormSubmit} novalidate class="space-y-6">
 	<div class="flex flex-row justify-center gap-2">
 		<div class="w-full space-y-6">
 			<Card
 				><CardHeader>
 					<CardTitle>Product Images Upload</CardTitle>
-				</CardHeader><ImageUpload selectedImages={image} /></Card
+				</CardHeader><ImageUpload bind:selectedImages={image} /></Card
 			>
 		</div>
 
@@ -119,18 +104,32 @@
 
 				<CardContent class="grid gap-6 sm:grid-cols-2">
 					<div class="space-y-2">
-						<Label for="name">Product Name *</Label>
-						<Input id="name" bind:value={name} placeholder="ARM CHAIR" />
+						<Label for="name">Product Name <span class="text-destructive">*</span></Label>
+						<Input
+							id="name"
+							bind:value={name}
+							required
+							aria-invalid={!!errors.name}
+						/>{#if errors.name}
+							<p class="text-xs text-destructive">{errors.name}</p>
+						{/if}
 					</div>
 
 					<div class="space-y-2">
-						<Label for="sku">SKU *</Label>
-						<Input id="sku" bind:value={sku} placeholder="CF-001" />
+						<Label for="sku">SKU/Batch Number</Label>
+						<Input id="sku" bind:value={sku} />
 					</div>
 
 					<div class="space-y-2">
-						<Label for="code">Code *</Label>
-						<Input id="code" bind:value={code} placeholder="ARM-001" />
+						<Label for="code">Code <span class="text-destructive">*</span></Label>
+						<Input
+							id="code"
+							bind:value={code}
+							required
+							aria-invalid={!!errors.code}
+						/>{#if errors.code}
+							<p class="text-xs text-destructive">{errors.code}</p>
+						{/if}
 					</div>
 
 					<div class="space-y-2">
@@ -149,8 +148,17 @@
 					</div>
 
 					<div class="space-y-2 sm:col-span-2">
-						<Label for="category">Category *</Label>
-						<Input id="category" bind:value={category} placeholder="Office Chair" />
+						<Label for="category">Category <span class="text-destructive">*</span></Label>
+						<Input
+							id="category"
+							bind:value={category}
+							placeholder="Office Chair"
+							required
+							aria-invalid={!!errors.category}
+						/>
+						{#if errors.category}
+							<p class="text-xs text-destructive">{errors.category}</p>
+						{/if}
 					</div>
 				</CardContent>
 			</Card>
@@ -162,15 +170,36 @@
 
 				<CardContent class="grid gap-6 sm:grid-cols-2">
 					<div class="space-y-2">
-						<Label for="costPrice">Cost Price *</Label>
-						<Input id="costPrice" type="number" min="0" step="0.01" bind:value={costPrice} />
+						<Label for="costPrice">Cost Price <span class="text-destructive">*</span></Label>
+						<Input
+							id="costPrice"
+							type="number"
+							min="0"
+							step="0.01"
+							bind:value={costPrice}
+							required
+							aria-invalid={!!errors.costPrice}
+						/>
+						{#if errors.costPrice}
+							<p class="text-xs text-destructive">{errors.costPrice}</p>
+						{/if}
 					</div>
 
 					<div class="space-y-2">
-						<Label for="sellingPrice">Selling Price *</Label>
-						<Input id="sellingPrice" type="number" min="0" step="0.01" bind:value={sellingPrice} />
+						<Label for="sellingPrice">Selling Price <span class="text-destructive">*</span></Label>
+						<Input
+							id="sellingPrice"
+							type="number"
+							min="0"
+							step="0.01"
+							bind:value={sellingPrice}
+							required
+							aria-invalid={!!errors.sellingPrice}
+						/>
+						{#if errors.sellingPrice}
+							<p class="text-xs text-destructive">{errors.sellingPrice}</p>
+						{/if}
 					</div>
-
 				</CardContent>
 			</Card>
 

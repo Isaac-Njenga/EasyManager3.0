@@ -51,7 +51,6 @@ export const fetchWarehouses = catchAsync(
       limit: req.query.limit ? Number(req.query.limit) : undefined,
       search: req.query.search as string,
       status: req.query.status as string,
-      type: req.query.type as string,
     });
 
     res.status(200).json({
