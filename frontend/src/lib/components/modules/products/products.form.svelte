@@ -79,7 +79,6 @@
 			status: status
 		};
 
-		// console.log(payload);
 		await onSubmit(payload);
 	}
 </script>

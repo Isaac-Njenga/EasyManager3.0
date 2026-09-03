@@ -4,14 +4,26 @@
 	import SalepersonsTable from '$lib/components/modules/salepersons/saleperson.table.svelte';
 	import Search from '$lib/components/common/Search.svelte';
 
-	import { salespersonsData } from '$lib/data/saleperson.data';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+
+	let { data }: PageProps = $props();
+
+	const salespersons = $derived(data.salespersons ?? []);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load salespersons', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let isSearching = $state(false);
 
 	let filteredSalespersons = $derived(
-		salespersonsData.filter((item) => {
+		salespersons.filter((item) => {
 			const normalizedSearch = searchTerm.trim().toLowerCase();
 
 			const matchesSearch =
@@ -41,17 +53,7 @@
 			/>
 
 			<div class="flex items-center justify-between">
-				<div class="flex gap-2">
-					<!-- {#each typeTags as tag (tag.value)}
-						<Badge
-							variant={selectedType === tag.value ? 'default' : 'outline'}
-							onclick={() => (selectedType = tag.value)}
-							class="pointer-fine:cursor-pointer"
-						>
-							{tag.label}
-						</Badge>
-					{/each} -->
-				</div>
+				<div class="flex gap-2"></div>
 
 				<span class="text-xs font-medium text-muted-foreground">
 					Salepersons: {filteredSalespersons.length}

@@ -41,6 +41,7 @@ const LogSchema = new mongoose.Schema(
         "expense",
         "customer",
         "transfer",
+        "salesperson",
       ],
     },
     actor: {

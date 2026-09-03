@@ -1,6 +1,5 @@
 import type { TableColumn } from '$lib/types/table.types';
-import type { Salesperson } from '$lib/types/saleperson.types';
-import { formatCurrency } from '$lib/utils';
+import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
 
 export const salespersonColumns: TableColumn<Salesperson>[] = [
 	{
@@ -19,13 +18,13 @@ export const salespersonColumns: TableColumn<Salesperson>[] = [
 		key: 'totalCommission',
 		header: 'Total Commission',
 		class: 'text-center',
-		render: (value) => formatCurrency(Number(value ?? 0))
+		cell: 'commissionCell'
 	},
 	{
 		key: 'totalRevenue',
 		header: 'Total Revenue',
-		class: 'text-center min-w-[110px]',
-		render: (value) => formatCurrency(Number(value ?? 0))
+		class: 'text-center min-w-[110px] ',
+		cell: 'revenueCell'
 	},
 	{
 		key: 'status',

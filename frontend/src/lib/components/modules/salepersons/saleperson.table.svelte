@@ -15,12 +15,16 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { salespersonColumns } from '$lib/components/modules/salepersons/saleperson.column';
-	import type { Salesperson } from '$lib/types/saleperson.types';
-	import SalespersonDetails from '../../../../routes/(app)/salepersons/SalepersonDetails.svelte';
+	import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
+	import SalespersonDetails from '../../../../routes/(app)/salepersons/[id]/+page.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	// import { format } from 'date-fns';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
+	import { salespersonService } from '$lib/services/salesperson/salesperson.service';
+	import { formatCurrency } from '$lib/utils';
 
 	type Props = {
 		filteredSalespersons: Salesperson[];
@@ -46,11 +50,19 @@
 		isDeleteSalespersonOpen = true;
 	}
 
-	function deleteSalesperson(salesperson: Salesperson) {
-		console.log('Delete Salesperson:', salesperson._id);
-		isDeleteSalespersonOpen = false;
-		selectedSalesperson = null;
-		isDrawerOpen = false;
+	async function deleteSalesperson(salesperson: Salesperson) {
+		try {
+			await salespersonService.delete(getBrowserServiceContext(), salesperson._id);
+			toast.success('Salesperson deleted successfully');
+
+			isDeleteSalespersonOpen = false;
+			selectedSalesperson = null;
+			await invalidateAll();
+			isDrawerOpen = false;
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete salesperson.';
+			toast.error('Sales member deletion failed', { description });
+		}
 	}
 
 	function getInitials(firstName: string, lastName: string): string {
@@ -94,13 +106,21 @@
 	{/if}
 {/snippet}
 
-<!-- Hire Date Snippet -->
+<!-- Commission Snippet -->
 <!-- eslint-disable-next-line -->
-<!-- {#snippet hireDateCell(_value: unknown, salesperson: Salesperson)}
-	<span class="text-xs">
-    {format(new Date(salesperson.hireDate),'dd/MM/yyyy')}
+{#snippet commissionCell(_value: unknown, salesperson: Salesperson)}
+	<span class="text-destructive">
+    {formatCurrency(Number(salesperson.performanceSummary?.totalCommissionEarned ?? 0))}
 	</span>
-{/snippet} -->
+{/snippet}
+
+<!-- Revenue Snippet -->
+<!-- eslint-disable-next-line -->
+{#snippet revenueCell(_value: unknown, salesperson: Salesperson)}
+	<span class="text-emerald-500">
+    {formatCurrency(Number(salesperson.performanceSummary?.totalRevenueGenerated ?? 0))}
+	</span>
+{/snippet}
 
 <!-- Status Snippet -->
 <!-- eslint-disable-next-line -->
@@ -167,7 +187,7 @@
 	cells={{
 		nameCell,
 		shopCell,
-		// hireDateCell,
+		commissionCell,revenueCell,
 		statusCell,
 		actionsCell
 	}}
@@ -182,9 +202,7 @@
 	title={selectedSalesperson
 		? `${selectedSalesperson.firstName} ${selectedSalesperson.lastName}`
 		: 'Salesperson Details'}
-	description={selectedSalesperson?.assignedShop
-		? `${selectedSalesperson.assignedShop.name}`
-		: ''}
+	description={selectedSalesperson?.assignedShop ? `${selectedSalesperson.assignedShop.name}` : ''}
 	direction="right"
 >
 	{#if selectedSalesperson}

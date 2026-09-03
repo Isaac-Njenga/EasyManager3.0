@@ -19,7 +19,7 @@ const invalidateSalespersonCache = (): void => {
 
 const SHOP_PROFILE_POPULATE = [
   {
-    path: "shop",
+    path: "assignedShop",
     select:
       "name status shopCode type address inventorySummary inventoryItems notes createdAt updatedAt",
   },

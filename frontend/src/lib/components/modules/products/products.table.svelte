@@ -20,7 +20,11 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
+	import { productService } from '$lib/services/product/product.service';
 
 	type Props = {
 		filteredProducts: Product[];
@@ -48,11 +52,18 @@
 		isDeleteProductOpen = true;
 	}
 
-	function deleteProduct(product: Product) {
-		console.log('Delete product:', product._id);
-		isDeleteProductOpen = false;
-		selectedProduct = null;
-		isDrawerOpen = false;
+	async function deleteProduct(product: Product) {
+		try {
+			await productService.delete(getBrowserServiceContext(), product._id);
+			toast.success('Product deleted successfully');
+			isDeleteProductOpen = false;
+			selectedProduct = null;
+			isDrawerOpen = false;
+			await invalidateAll();
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete product.';
+			toast.error('Product deletion failed', { description });
+		}
 	}
 </script>
 

@@ -14,6 +14,11 @@ const productCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateProductCache = () => {
     productCache.flushAll();
 };
+const LOCATION_PROFILE_POPULATE = [
+    {
+        path: "inventoryDistribution.locationId",
+    },
+];
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set([
     "code",
@@ -93,6 +98,7 @@ class ProductService {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
+                .populate(LOCATION_PROFILE_POPULATE)
                 .lean(),
             product_model_1.ProductModel.countDocuments(filter),
         ]);
@@ -112,7 +118,9 @@ class ProductService {
         const cachedProduct = productCache.get(cacheKey);
         if (cachedProduct)
             return cachedProduct;
-        const product = await product_model_1.ProductModel.findById(productId).lean();
+        const product = await product_model_1.ProductModel.findById(productId)
+            .populate(LOCATION_PROFILE_POPULATE)
+            .lean();
         if (!product) {
             throw new NotFoundError_1.NotFoundError("Product not found!");
         }
@@ -123,7 +131,9 @@ class ProductService {
     static async updateProduct(productId, data, requesterId, requesterRole) {
         assertProductId(productId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);
-        const product = await product_model_1.ProductModel.findByIdAndUpdate(productId, { $set: flattenedUpdateData }, { new: true, runValidators: true }).lean();
+        const product = await product_model_1.ProductModel.findByIdAndUpdate(productId, { $set: flattenedUpdateData }, { new: true, runValidators: true })
+            .populate(LOCATION_PROFILE_POPULATE)
+            .lean();
         if (!product) {
             throw new NotFoundError_1.NotFoundError("Product not found!");
         }

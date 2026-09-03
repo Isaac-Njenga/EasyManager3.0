@@ -1,16 +1,16 @@
 import { error } from '@sveltejs/kit';
 import type { PageServerLoad } from './$types';
 import { ApiError } from '$lib/services/api/errors';
-import { productService } from '$lib/services/product/product.service';
+import { salespersonService } from '$lib/services/salesperson/salesperson.service';
 
 export const load: PageServerLoad = async ({ params, cookies, locals }) => {
 	const { id } = params;
 
 	try {
-		const product = await productService.get({ cookies, locals }, id);
+		const salesperson = await salespersonService.get({ cookies, locals }, id);
 
 		return {
-			product,
+			salesperson,
 			error: null
 		};
 	} catch (err) {
@@ -18,7 +18,7 @@ export const load: PageServerLoad = async ({ params, cookies, locals }) => {
 			error(err.status, err.message);
 		}
 
-		console.error(`Error loading product: ${id}:`, err);
+		console.error(`Error loading salesperson: ${id}:`, err);
 		error(500, 'Server is currently unreachable');
 	}
 };

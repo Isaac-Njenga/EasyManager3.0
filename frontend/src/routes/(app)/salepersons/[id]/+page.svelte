@@ -1,33 +1,23 @@
 <script lang="ts">
-	import type { Salesperson } from '$lib/types/saleperson.types';
+	import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Separator } from '$lib/components/ui/separator';
 	import { formatCurrency } from '$lib/utils';
 
-	import Building2 from '@lucide/svelte/icons/building-2';
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import Wallet from '@lucide/svelte/icons/wallet';
 	import Store from '@lucide/svelte/icons/store';
-	import MapPin from '@lucide/svelte/icons/map-pin';
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
 	type Props = {
 		selectedSalesperson: Salesperson | null;
 	};
 
+	// eslint-disable-next-line
 	let { selectedSalesperson }: Props = $props();
 
 	function getInitials(firstName?: string, lastName?: string): string {
 		return `${firstName?.[0] ?? ''}${lastName?.[0] ?? ''}`.toUpperCase();
-	}
-
-	function formatDate(dateStr?: string): string {
-		if (!dateStr) return 'N/A';
-		return new Date(dateStr).toLocaleDateString('en-KE', {
-			year: 'numeric',
-			month: 'short',
-			day: 'numeric'
-		});
 	}
 </script>
 
@@ -84,7 +74,7 @@
 					<span>Total Commission</span>
 				</div>
 				<p class="mt-2 text-lg font-bold text-red-400">
-					{formatCurrency(selectedSalesperson.totalCommission ?? 0)}
+					{formatCurrency(selectedSalesperson.performanceSummary?.totalCommissionEarned ?? 0)}
 				</p>
 			</div>
 
@@ -94,7 +84,7 @@
 					<span>Total Revenue</span>
 				</div>
 				<p class="mt-2 text-lg font-semibold text-green-500">
-					{formatDate(selectedSalesperson.hireDate)}
+					{formatCurrency(selectedSalesperson.performanceSummary?.totalRevenueGenerated ?? 0)}
 				</p>
 			</div>
 		</div>
@@ -104,7 +94,7 @@
 		<!-- Assigned Shop Details -->
 		<div class="space-y-3">
 			<h4 class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
-				Assigned Branch & Shop
+				Assigned Shop
 			</h4>
 
 			{#if selectedSalesperson.assignedShop}
@@ -119,13 +109,13 @@
 						</Badge>
 					</div>
 
-					<div class="grid grid-cols-2 gap-2 pt-1 text-xs text-muted-foreground">
+					<div class="gap-2 text-xs text-muted-foreground">
 						<div class="flex items-center gap-1.5">
-							<Building2 class="size-3.5" />
+							<!-- <Building2 class="size-3.5" /> -->
 							<span>{selectedSalesperson.assignedShop.shopCode}</span>
 						</div>
 						<div class="flex items-center gap-1.5">
-							<MapPin class="size-3.5" />
+							<!-- <MapPin class="size-3.5" /> -->
 							<span>{selectedSalesperson.assignedShop.address.town}</span>
 						</div>
 					</div>

@@ -1,4 +1,4 @@
-import type { Product } from './product.types';
+import type { Product } from '../product/product.types';
 
 export type ShopStatus = 'Active' | 'Inactive' | 'Under Maintenance';
 
@@ -31,16 +31,16 @@ export type Shop = {
 };
 
 export type CreateShopInput = {
-    name: string;
-    type: ShopType;
-    status: ShopStatus;
-    address: ShopAddress;
-    notes?: string;
+	name: string;
+	type: ShopType;
+	status: ShopStatus;
+	address: ShopAddress;
+	notes?: string;
 };
 
-export type ShopListResponse={
+export type ShopListResponse = {
 	shops: Shop[];
-	totalShops:number;
-	currentPage:number;
-	totalPages:number;
-}
+	totalShops: number;
+	currentPage: number;
+	totalPages: number;
+};
