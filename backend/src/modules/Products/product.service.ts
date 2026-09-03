@@ -17,6 +17,12 @@ const invalidateProductCache = (): void => {
   productCache.flushAll();
 };
 
+const LOCATION_PROFILE_POPULATE = [
+  {
+    path: "inventoryDistribution.locationId",
+  },
+];
+
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set<string>([
   "code",
@@ -129,6 +135,7 @@ export class ProductService {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
+        .populate(LOCATION_PROFILE_POPULATE)
         .lean(),
       ProductModel.countDocuments(filter),
     ]);
@@ -156,7 +163,9 @@ export class ProductService {
     const cachedProduct = productCache.get<Product>(cacheKey);
     if (cachedProduct) return cachedProduct;
 
-    const product = await ProductModel.findById(productId).lean();
+    const product = await ProductModel.findById(productId)
+      .populate(LOCATION_PROFILE_POPULATE)
+      .lean();
     if (!product) {
       throw new NotFoundError("Product not found!");
     }
@@ -180,7 +189,9 @@ export class ProductService {
       productId,
       { $set: flattenedUpdateData },
       { new: true, runValidators: true },
-    ).lean();
+    )
+      .populate(LOCATION_PROFILE_POPULATE)
+      .lean();
 
     if (!product) {
       throw new NotFoundError("Product not found!");
