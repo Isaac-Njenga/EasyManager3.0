@@ -20,6 +20,7 @@ export type Product = {
 	totalQuantity: number;
 	status: ProductStatus;
 	inventory?: LocationStock[];
+	inventoryDistribution?: LocationStock[];
 	createdAt?: string;
 	updatedAt?: string;
 };

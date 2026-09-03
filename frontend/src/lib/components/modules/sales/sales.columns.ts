@@ -1,5 +1,5 @@
 import type { TableColumn } from '$lib/types/table.types';
-import type { Sale } from '$lib/types/sale.types';
+import type { Sale } from '$lib/services/sales/sales.types';
 
 export const saleColumns: TableColumn<Sale>[] = [
 	{
@@ -26,7 +26,8 @@ export const saleColumns: TableColumn<Sale>[] = [
 		header: 'Total',
 		class: 'text-left',
 		cell: 'totalCell'
-	},{
+	},
+	{
 		key: 'commission',
 		header: 'Commission',
 		class: 'text-left',

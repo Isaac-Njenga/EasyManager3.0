@@ -29,7 +29,7 @@ export const load: PageServerLoad = async ({ params, cookies, locals }) => {
             error(err.status, err.message);
         }
 
-        console.error(`Error loading salesperson: ${id}:`, err);
+        console.error(`Error loading data: ${id}:`, err);
         error(500, 'Server is currently unreachable');
     }
 };

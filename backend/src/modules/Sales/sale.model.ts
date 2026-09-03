@@ -14,6 +14,7 @@ const saleItemSchema = new mongoose.Schema({
     required: true,
   },
   quantity: { type: Number, required: true, default: 0 },
+  soldPrice: { type: Number, required: true, min: 0 },
   shop: { type: mongoose.Schema.Types.ObjectId, ref: "Shop", required: true },
   netProfit: { type: Number, required: false, default: 0 },
   netLoss: { type: Number, required: false, default: 0 },
@@ -23,7 +24,7 @@ const saleItemSchema = new mongoose.Schema({
 
 const saleSchema = new mongoose.Schema(
   {
-    receiptNumber: { type: String, required: true, unique: true },
+    receiptNumber: { type: String, unique: true },
     customer: { type: customerSchema, required: false },
     items: { type: [saleItemSchema], required: true },
     subTotal: { type: Number, required: true, default: 0 },

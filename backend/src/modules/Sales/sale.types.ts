@@ -9,6 +9,7 @@ export type SaleStatus = "Completed" | "Processing" | "Cancelled" | "Returned";
 export type SaleItem = {
   product: Product;
   quantity: number;
+  soldPrice: number;
   shop: Shop;
   netProfit?: number; // (sellingPrice - costPrice)
   netLoss?: number; // (costPrice - sellingPrice)

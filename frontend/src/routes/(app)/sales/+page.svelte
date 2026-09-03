@@ -8,17 +8,25 @@
 	import Calendar from '@lucide/svelte/icons/calendar';
 	import { formatCurrency } from '$lib/utils';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import { salesData } from '$lib/data/sales.data';
 	import Search from '$lib/components/common/Search.svelte';
 	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+
+	let { data }: PageProps = $props();
+	const sales = $derived(data.sales ?? []);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load sales', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
-
 	let selectedStatus = $state('All');
-
 	let isSearching = $state(false);
-	// const statusTags = ['All', 'Active', 'Inactive'];
 
 	// --- State ---
 	// Default to current week's Monday
@@ -51,7 +59,7 @@
 		Array.from({ length: 7 }, (_, i) => {
 			const dayDate = addDays(selectedWeekStart, i);
 			const dateStr = formatDateKey(dayDate);
-			const salesForDay = salesData.filter((s) => s.dateOfSale?.startsWith(dateStr));
+			const salesForDay = sales.filter((s) => s.dateOfSale?.startsWith(dateStr));
 			const totalRevenue = salesForDay.reduce((sum, s) => sum + (s.grandTotal || 0), 0);
 
 			return {
@@ -87,7 +95,7 @@
 	}
 
 	let filteredSales = $derived(
-		salesData.filter((item) => {
+		sales.filter((item) => {
 			const normalizedSearch = searchTerm.trim().toLowerCase();
 
 			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;

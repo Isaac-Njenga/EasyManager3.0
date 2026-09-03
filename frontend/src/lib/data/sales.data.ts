@@ -1,4 +1,4 @@
-import type { Sale } from '$lib/types/sale.types';
+import type { Sale } from '$lib/services/sales/sales.types';
 
 export const salesData: Sale[] = [
 	{
@@ -53,29 +53,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100101',
-		firstName: 'Kelvin',
-		lastName: 'Kiprono',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200101',
-			shopCode: 'SHP-NRB-001',
-			name: 'Kilimani Flagship Showroom',
-			type: 'Showroom',
+			_id: '66c01a9f1b2c3d001a100101',
+			firstName: 'Kelvin',
+			lastName: 'Kiprono',
 			status: 'Active',
-			address: {
-				building: 'Argwings Arcade, 2nd Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200101',
+				shopCode: 'SHP-NRB-001',
+				name: 'Kilimani Flagship Showroom',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Argwings Arcade, 2nd Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-01-10T08:00:00.000Z',
+				updatedAt: '2026-08-01T10:30:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-01-10T08:00:00.000Z',
-			updatedAt: '2026-08-01T10:30:00.000Z'
+			totalCommission: 145200,
+			hireDate: '2024-03-15',
+			createdAt: '2024-03-15T09:00:00.000Z',
+			updatedAt: '2026-08-25T14:20:00.000Z'
 		},
-		totalCommission: 145200,
-		hireDate: '2024-03-15',
-		createdAt: '2024-03-15T09:00:00.000Z',
-		updatedAt: '2026-08-25T14:20:00.000Z'
-	},
 		commission: 7000,
 		createdAt: '2026-02-20T09:15:00.000Z',
 		updatedAt: '2026-02-15T09:15:00.000Z'
@@ -131,30 +131,30 @@ export const salesData: Sale[] = [
 		paymentMethod: 'M-Pesa',
 		paymentStatus: 'Paid',
 		status: 'Completed',
-		saleperson:{
-		_id: '66c01a9f1b2c3d001a100101',
-		firstName: 'Kelvin',
-		lastName: 'Kiprono',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200101',
-			shopCode: 'SHP-NRB-001',
-			name: 'Kilimani Flagship Showroom',
-			type: 'Showroom',
+		saleperson: {
+			_id: '66c01a9f1b2c3d001a100101',
+			firstName: 'Kelvin',
+			lastName: 'Kiprono',
 			status: 'Active',
-			address: {
-				building: 'Argwings Arcade, 2nd Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200101',
+				shopCode: 'SHP-NRB-001',
+				name: 'Kilimani Flagship Showroom',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Argwings Arcade, 2nd Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-01-10T08:00:00.000Z',
+				updatedAt: '2026-08-01T10:30:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-01-10T08:00:00.000Z',
-			updatedAt: '2026-08-01T10:30:00.000Z'
+			totalCommission: 145200,
+			hireDate: '2024-03-15',
+			createdAt: '2024-03-15T09:00:00.000Z',
+			updatedAt: '2026-08-25T14:20:00.000Z'
 		},
-		totalCommission: 145200,
-		hireDate: '2024-03-15',
-		createdAt: '2024-03-15T09:00:00.000Z',
-		updatedAt: '2026-08-25T14:20:00.000Z'
-	},
 		commission: 1400,
 		createdAt: '2026-02-15T10:30:00.000Z',
 		updatedAt: '2026-02-15T10:30:00.000Z'
@@ -211,29 +211,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100101',
-		firstName: 'Kelvin',
-		lastName: 'Kiprono',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200101',
-			shopCode: 'SHP-NRB-001',
-			name: 'Kilimani Flagship Showroom',
-			type: 'Showroom',
+			_id: '66c01a9f1b2c3d001a100101',
+			firstName: 'Kelvin',
+			lastName: 'Kiprono',
 			status: 'Active',
-			address: {
-				building: 'Argwings Arcade, 2nd Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200101',
+				shopCode: 'SHP-NRB-001',
+				name: 'Kilimani Flagship Showroom',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Argwings Arcade, 2nd Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-01-10T08:00:00.000Z',
+				updatedAt: '2026-08-01T10:30:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-01-10T08:00:00.000Z',
-			updatedAt: '2026-08-01T10:30:00.000Z'
+			totalCommission: 145200,
+			hireDate: '2024-03-15',
+			createdAt: '2024-03-15T09:00:00.000Z',
+			updatedAt: '2026-08-25T14:20:00.000Z'
 		},
-		totalCommission: 145200,
-		hireDate: '2024-03-15',
-		createdAt: '2024-03-15T09:00:00.000Z',
-		updatedAt: '2026-08-25T14:20:00.000Z'
-	},
 		commission: 2200,
 		createdAt: '2026-02-15T11:45:00.000Z',
 		updatedAt: '2026-02-15T11:45:00.000Z'
@@ -289,29 +289,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Partially Paid',
 		status: 'Processing',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100102',
-		firstName: 'Mercy',
-		lastName: 'Wanjiku',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200101',
-			shopCode: 'SHP-NRB-001',
-			name: 'Kilimani Flagship Showroom',
-			type: 'Showroom',
+			_id: '66c01a9f1b2c3d001a100102',
+			firstName: 'Mercy',
+			lastName: 'Wanjiku',
 			status: 'Active',
-			address: {
-				building: 'Argwings Arcade, 2nd Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200101',
+				shopCode: 'SHP-NRB-001',
+				name: 'Kilimani Flagship Showroom',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Argwings Arcade, 2nd Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-01-10T08:00:00.000Z',
+				updatedAt: '2026-08-01T10:30:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-01-10T08:00:00.000Z',
-			updatedAt: '2026-08-01T10:30:00.000Z'
+			totalCommission: 210800,
+			hireDate: '2023-11-01',
+			createdAt: '2023-11-01T08:30:00.000Z',
+			updatedAt: '2026-08-26T11:15:00.000Z'
 		},
-		totalCommission: 210800,
-		hireDate: '2023-11-01',
-		createdAt: '2023-11-01T08:30:00.000Z',
-		updatedAt: '2026-08-26T11:15:00.000Z'
-	},
 		commission: 10500,
 		notes: '50% deposit paid via cheque. Delivery pending.',
 		createdAt: '2026-02-16T08:20:00.000Z',
@@ -369,29 +369,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100102',
-		firstName: 'Mercy',
-		lastName: 'Wanjiku',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200101',
-			shopCode: 'SHP-NRB-001',
-			name: 'Kilimani Flagship Showroom',
-			type: 'Showroom',
+			_id: '66c01a9f1b2c3d001a100102',
+			firstName: 'Mercy',
+			lastName: 'Wanjiku',
 			status: 'Active',
-			address: {
-				building: 'Argwings Arcade, 2nd Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200101',
+				shopCode: 'SHP-NRB-001',
+				name: 'Kilimani Flagship Showroom',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Argwings Arcade, 2nd Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-01-10T08:00:00.000Z',
+				updatedAt: '2026-08-01T10:30:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-01-10T08:00:00.000Z',
-			updatedAt: '2026-08-01T10:30:00.000Z'
+			totalCommission: 210800,
+			hireDate: '2023-11-01',
+			createdAt: '2023-11-01T08:30:00.000Z',
+			updatedAt: '2026-08-26T11:15:00.000Z'
 		},
-		totalCommission: 210800,
-		hireDate: '2023-11-01',
-		createdAt: '2023-11-01T08:30:00.000Z',
-		updatedAt: '2026-08-26T11:15:00.000Z'
-	},
 		commission: 1100,
 		createdAt: '2026-02-16T12:10:00.000Z',
 		updatedAt: '2026-02-16T12:10:00.000Z'
@@ -447,29 +447,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100103',
-		firstName: 'Brian',
-		lastName: 'Ochieng',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200102',
-			shopCode: 'SHP-NRB-002',
-			name: 'Westlands Retail Outlet',
-			type: 'Retail Store',
+			_id: '66c01a9f1b2c3d001a100103',
+			firstName: 'Brian',
+			lastName: 'Ochieng',
 			status: 'Active',
-			address: {
-				building: 'Sarit Centre, Ground Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200102',
+				shopCode: 'SHP-NRB-002',
+				name: 'Westlands Retail Outlet',
+				type: 'Retail Store',
+				status: 'Active',
+				address: {
+					building: 'Sarit Centre, Ground Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-02-01T08:00:00.000Z',
+				updatedAt: '2026-07-20T09:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-02-01T08:00:00.000Z',
-			updatedAt: '2026-07-20T09:00:00.000Z'
+			totalCommission: 98500,
+			hireDate: '2025-01-15',
+			createdAt: '2025-01-15T07:45:00.000Z',
+			updatedAt: '2026-08-24T16:50:00.000Z'
 		},
-		totalCommission: 98500,
-		hireDate: '2025-01-15',
-		createdAt: '2025-01-15T07:45:00.000Z',
-		updatedAt: '2026-08-24T16:50:00.000Z'
-	},
 		commission: 3200,
 		createdAt: '2026-02-16T14:50:00.000Z',
 		updatedAt: '2026-02-16T14:50:00.000Z'
@@ -525,29 +525,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Partially Paid',
 		status: 'Returned',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100103',
-		firstName: 'Brian',
-		lastName: 'Ochieng',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200102',
-			shopCode: 'SHP-NRB-002',
-			name: 'Westlands Retail Outlet',
-			type: 'Retail Store',
+			_id: '66c01a9f1b2c3d001a100103',
+			firstName: 'Brian',
+			lastName: 'Ochieng',
 			status: 'Active',
-			address: {
-				building: 'Sarit Centre, Ground Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200102',
+				shopCode: 'SHP-NRB-002',
+				name: 'Westlands Retail Outlet',
+				type: 'Retail Store',
+				status: 'Active',
+				address: {
+					building: 'Sarit Centre, Ground Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-02-01T08:00:00.000Z',
+				updatedAt: '2026-07-20T09:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-02-01T08:00:00.000Z',
-			updatedAt: '2026-07-20T09:00:00.000Z'
+			totalCommission: 98500,
+			hireDate: '2025-01-15',
+			createdAt: '2025-01-15T07:45:00.000Z',
+			updatedAt: '2026-08-24T16:50:00.000Z'
 		},
-		totalCommission: 98500,
-		hireDate: '2025-01-15',
-		createdAt: '2025-01-15T07:45:00.000Z',
-		updatedAt: '2026-08-24T16:50:00.000Z'
-	},
 		commission: 3500,
 		notes: 'Customer returned item due to color mismatch.',
 		createdAt: '2026-02-17T09:00:00.000Z',
@@ -605,29 +605,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100104',
-		firstName: 'Faith',
-		lastName: 'Achieng',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200102',
-			shopCode: 'SHP-NRB-002',
-			name: 'Westlands Retail Outlet',
-			type: 'Retail Store',
+			_id: '66c01a9f1b2c3d001a100104',
+			firstName: 'Faith',
+			lastName: 'Achieng',
 			status: 'Active',
-			address: {
-				building: 'Sarit Centre, Ground Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200102',
+				shopCode: 'SHP-NRB-002',
+				name: 'Westlands Retail Outlet',
+				type: 'Retail Store',
+				status: 'Active',
+				address: {
+					building: 'Sarit Centre, Ground Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-02-01T08:00:00.000Z',
+				updatedAt: '2026-07-20T09:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-02-01T08:00:00.000Z',
-			updatedAt: '2026-07-20T09:00:00.000Z'
+			totalCommission: 175400,
+			hireDate: '2024-06-01',
+			createdAt: '2024-06-01T09:15:00.000Z',
+			updatedAt: '2026-08-25T18:05:00.000Z'
 		},
-		totalCommission: 175400,
-		hireDate: '2024-06-01',
-		createdAt: '2024-06-01T09:15:00.000Z',
-		updatedAt: '2026-08-25T18:05:00.000Z'
-	},
 		commission: 1100,
 		createdAt: '2026-02-17T11:15:00.000Z',
 		updatedAt: '2026-02-17T11:15:00.000Z'
@@ -683,29 +683,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100104',
-		firstName: 'Faith',
-		lastName: 'Achieng',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200102',
-			shopCode: 'SHP-NRB-002',
-			name: 'Westlands Retail Outlet',
-			type: 'Retail Store',
+			_id: '66c01a9f1b2c3d001a100104',
+			firstName: 'Faith',
+			lastName: 'Achieng',
 			status: 'Active',
-			address: {
-				building: 'Sarit Centre, Ground Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200102',
+				shopCode: 'SHP-NRB-002',
+				name: 'Westlands Retail Outlet',
+				type: 'Retail Store',
+				status: 'Active',
+				address: {
+					building: 'Sarit Centre, Ground Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-02-01T08:00:00.000Z',
+				updatedAt: '2026-07-20T09:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-02-01T08:00:00.000Z',
-			updatedAt: '2026-07-20T09:00:00.000Z'
+			totalCommission: 175400,
+			hireDate: '2024-06-01',
+			createdAt: '2024-06-01T09:15:00.000Z',
+			updatedAt: '2026-08-25T18:05:00.000Z'
 		},
-		totalCommission: 175400,
-		hireDate: '2024-06-01',
-		createdAt: '2024-06-01T09:15:00.000Z',
-		updatedAt: '2026-08-25T18:05:00.000Z'
-	},
 		commission: 9000,
 		createdAt: '2026-02-17T16:00:00.000Z',
 		updatedAt: '2026-02-17T16:00:00.000Z'
@@ -762,29 +762,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100105',
-		firstName: 'David',
-		lastName: 'Mutua',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200103',
-			shopCode: 'SHP-MBA-001',
-			name: 'Nyali Coastal Branch',
-			type: 'Retail Store',
-			status: 'Under Maintenance',
-			address: {
-				building: 'City Mall Nyali',
-				town: 'Mombasa'
+			_id: '66c01a9f1b2c3d001a100105',
+			firstName: 'David',
+			lastName: 'Mutua',
+			status: 'Active',
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200103',
+				shopCode: 'SHP-MBA-001',
+				name: 'Nyali Coastal Branch',
+				type: 'Retail Store',
+				status: 'Under Maintenance',
+				address: {
+					building: 'City Mall Nyali',
+					town: 'Mombasa'
+				},
+				inventoryItems: [],
+				createdAt: '2025-04-12T08:00:00.000Z',
+				updatedAt: '2026-08-10T12:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-04-12T08:00:00.000Z',
-			updatedAt: '2026-08-10T12:00:00.000Z'
+			totalCommission: 82000,
+			hireDate: '2025-03-01',
+			createdAt: '2025-03-01T08:00:00.000Z',
+			updatedAt: '2026-08-20T10:10:00.000Z'
 		},
-		totalCommission: 82000,
-		hireDate: '2025-03-01',
-		createdAt: '2025-03-01T08:00:00.000Z',
-		updatedAt: '2026-08-20T10:10:00.000Z'
-	},
 		commission: 0,
 		createdAt: '2026-02-18T08:45:00.000Z',
 		updatedAt: '2026-02-18T08:45:00.000Z'
@@ -878,29 +878,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100105',
-		firstName: 'David',
-		lastName: 'Mutua',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200103',
-			shopCode: 'SHP-MBA-001',
-			name: 'Nyali Coastal Branch',
-			type: 'Retail Store',
-			status: 'Under Maintenance',
-			address: {
-				building: 'City Mall Nyali',
-				town: 'Mombasa'
+			_id: '66c01a9f1b2c3d001a100105',
+			firstName: 'David',
+			lastName: 'Mutua',
+			status: 'Active',
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200103',
+				shopCode: 'SHP-MBA-001',
+				name: 'Nyali Coastal Branch',
+				type: 'Retail Store',
+				status: 'Under Maintenance',
+				address: {
+					building: 'City Mall Nyali',
+					town: 'Mombasa'
+				},
+				inventoryItems: [],
+				createdAt: '2025-04-12T08:00:00.000Z',
+				updatedAt: '2026-08-10T12:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-04-12T08:00:00.000Z',
-			updatedAt: '2026-08-10T12:00:00.000Z'
+			totalCommission: 82000,
+			hireDate: '2025-03-01',
+			createdAt: '2025-03-01T08:00:00.000Z',
+			updatedAt: '2026-08-20T10:10:00.000Z'
 		},
-		totalCommission: 82000,
-		hireDate: '2025-03-01',
-		createdAt: '2025-03-01T08:00:00.000Z',
-		updatedAt: '2026-08-20T10:10:00.000Z'
-	},
 		commission: 10300,
 		createdAt: '2026-02-18T10:10:00.000Z',
 		updatedAt: '2026-02-18T10:10:00.000Z'
@@ -957,29 +957,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Pending',
 		status: 'Cancelled',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100106',
-		firstName: 'Esther',
-		lastName: 'Nanjala',
-		status: 'Inactive',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200103',
-			shopCode: 'SHP-MBA-001',
-			name: 'Nyali Coastal Branch',
-			type: 'Retail Store',
-			status: 'Under Maintenance',
-			address: {
-				building: 'City Mall Nyali',
-				town: 'Mombasa'
+			_id: '66c01a9f1b2c3d001a100106',
+			firstName: 'Esther',
+			lastName: 'Nanjala',
+			status: 'Inactive',
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200103',
+				shopCode: 'SHP-MBA-001',
+				name: 'Nyali Coastal Branch',
+				type: 'Retail Store',
+				status: 'Under Maintenance',
+				address: {
+					building: 'City Mall Nyali',
+					town: 'Mombasa'
+				},
+				inventoryItems: [],
+				createdAt: '2025-04-12T08:00:00.000Z',
+				updatedAt: '2026-08-10T12:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-04-12T08:00:00.000Z',
-			updatedAt: '2026-08-10T12:00:00.000Z'
+			totalCommission: 45000,
+			hireDate: '2024-09-10',
+			createdAt: '2024-09-10T07:30:00.000Z',
+			updatedAt: '2026-07-01T09:00:00.000Z'
 		},
-		totalCommission: 45000,
-		hireDate: '2024-09-10',
-		createdAt: '2024-09-10T07:30:00.000Z',
-		updatedAt: '2026-07-01T09:00:00.000Z'
-	},
 		commission: 0,
 		notes: 'Transaction timed out during STK push.',
 		createdAt: '2026-02-18T13:20:00.000Z',
@@ -1036,29 +1036,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100106',
-		firstName: 'Esther',
-		lastName: 'Nanjala',
-		status: 'Inactive',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200103',
-			shopCode: 'SHP-MBA-001',
-			name: 'Nyali Coastal Branch',
-			type: 'Retail Store',
-			status: 'Under Maintenance',
-			address: {
-				building: 'City Mall Nyali',
-				town: 'Mombasa'
+			_id: '66c01a9f1b2c3d001a100106',
+			firstName: 'Esther',
+			lastName: 'Nanjala',
+			status: 'Inactive',
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200103',
+				shopCode: 'SHP-MBA-001',
+				name: 'Nyali Coastal Branch',
+				type: 'Retail Store',
+				status: 'Under Maintenance',
+				address: {
+					building: 'City Mall Nyali',
+					town: 'Mombasa'
+				},
+				inventoryItems: [],
+				createdAt: '2025-04-12T08:00:00.000Z',
+				updatedAt: '2026-08-10T12:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-04-12T08:00:00.000Z',
-			updatedAt: '2026-08-10T12:00:00.000Z'
+			totalCommission: 45000,
+			hireDate: '2024-09-10',
+			createdAt: '2024-09-10T07:30:00.000Z',
+			updatedAt: '2026-07-01T09:00:00.000Z'
 		},
-		totalCommission: 45000,
-		hireDate: '2024-09-10',
-		createdAt: '2024-09-10T07:30:00.000Z',
-		updatedAt: '2026-07-01T09:00:00.000Z'
-	},
 		commission: 6000,
 		createdAt: '2026-02-19T09:30:00.000Z',
 		updatedAt: '2026-02-19T09:30:00.000Z'
@@ -1115,29 +1115,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100102',
-		firstName: 'Mercy',
-		lastName: 'Wanjiku',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200101',
-			shopCode: 'SHP-NRB-001',
-			name: 'Kilimani Flagship Showroom',
-			type: 'Showroom',
+			_id: '66c01a9f1b2c3d001a100102',
+			firstName: 'Mercy',
+			lastName: 'Wanjiku',
 			status: 'Active',
-			address: {
-				building: 'Argwings Arcade, 2nd Floor',
-				town: 'Nairobi'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200101',
+				shopCode: 'SHP-NRB-001',
+				name: 'Kilimani Flagship Showroom',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Argwings Arcade, 2nd Floor',
+					town: 'Nairobi'
+				},
+				inventoryItems: [],
+				createdAt: '2025-01-10T08:00:00.000Z',
+				updatedAt: '2026-08-01T10:30:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-01-10T08:00:00.000Z',
-			updatedAt: '2026-08-01T10:30:00.000Z'
+			totalCommission: 210800,
+			hireDate: '2023-11-01',
+			createdAt: '2023-11-01T08:30:00.000Z',
+			updatedAt: '2026-08-26T11:15:00.000Z'
 		},
-		totalCommission: 210800,
-		hireDate: '2023-11-01',
-		createdAt: '2023-11-01T08:30:00.000Z',
-		updatedAt: '2026-08-26T11:15:00.000Z'
-	},
 		commission: 1500,
 		createdAt: '2026-02-19T11:05:00.000Z',
 		updatedAt: '2026-02-19T11:05:00.000Z'
@@ -1231,29 +1231,29 @@ export const salesData: Sale[] = [
 		paymentStatus: 'Paid',
 		status: 'Completed',
 		saleperson: {
-		_id: '66c01a9f1b2c3d001a100107',
-		firstName: 'Dennis',
-		lastName: 'Kipchumba',
-		status: 'Active',
-		assignedShop: {
-			_id: '66a12b8f3c4d5e001f200104',
-			shopCode: 'SHP-ELD-001',
-			name: 'Rift Valley Home Depot',
-			type: 'Showroom',
+			_id: '66c01a9f1b2c3d001a100107',
+			firstName: 'Dennis',
+			lastName: 'Kipchumba',
 			status: 'Active',
-			address: {
-				building: 'Rupa Mills Complex',
-				town: 'Eldoret'
+			assignedShop: {
+				_id: '66a12b8f3c4d5e001f200104',
+				shopCode: 'SHP-ELD-001',
+				name: 'Rift Valley Home Depot',
+				type: 'Showroom',
+				status: 'Active',
+				address: {
+					building: 'Rupa Mills Complex',
+					town: 'Eldoret'
+				},
+				inventoryItems: [],
+				createdAt: '2025-06-01T08:00:00.000Z',
+				updatedAt: '2026-08-15T14:00:00.000Z'
 			},
-			inventoryItems: [],
-			createdAt: '2025-06-01T08:00:00.000Z',
-			updatedAt: '2026-08-15T14:00:00.000Z'
+			totalCommission: 132600,
+			hireDate: '2025-05-15',
+			createdAt: '2025-05-15T08:00:00.000Z',
+			updatedAt: '2026-08-26T17:30:00.000Z'
 		},
-		totalCommission: 132600,
-		hireDate: '2025-05-15',
-		createdAt: '2025-05-15T08:00:00.000Z',
-		updatedAt: '2026-08-26T17:30:00.000Z'
-	},
 		commission: 3850,
 		createdAt: '2026-02-20T08:15:00.000Z',
 		updatedAt: '2026-02-20T08:15:00.000Z'

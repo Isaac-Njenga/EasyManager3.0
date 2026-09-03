@@ -1,27 +1,33 @@
-import type { Salesperson } from './saleperson.types';
-import type { Shop } from '../services/shop/shop.types';
+import type { Product } from '../product/product.types';
+import type { Salesperson } from '../salesperson/salesperson.types';
+import type { Shop } from '../shop/shop.types';
 
 export type PaymentMethod = 'Cash' | 'M-Pesa' | 'Credit Card' | 'Bank Transfer';
 export type PaymentStatus = 'Paid' | 'Pending' | 'Partially Paid';
 export type SaleStatus = 'Completed' | 'Processing' | 'Cancelled' | 'Returned';
 
+export type OmittedProduct = Omit<Product, 'inventory'>;
+
 export type SaleItem = {
-	productId: string; // Refers to Product._id
-	productName: string;
-	image?: string[];
-	category: string;
-	colour: string;
-	description?: string;
-	code?: string; // Cached for snapshot/historical integrity
-	sku: string;
-	sellingPrice: number; // Price at time of sale
-	costPrice: number; // Cost price at time of sale (for profit metrics)
+	product: OmittedProduct;
 	quantity: number;
 	shop: Shop;
+	soldPrice?: number;
 	netProfit?: number; // (sellingPrice - costPrice)
 	netLoss?: number; // (costPrice - sellingPrice)
 	discount: number; // Discount per item (in KES)
 	totalPrice: number; // (unitPrice * quantity) - discount
+};
+
+export type CreateSaleItem = {
+	product: string;
+	quantity: number;
+	shop: string;
+	soldPrice: number;
+	netProfit?: number;
+	netLoss?: number;
+	discount: number;
+	subTotal: number;
 };
 
 export type CustomerInfo = {
@@ -32,21 +38,41 @@ export type CustomerInfo = {
 
 export type Sale = {
 	_id: string;
-	receiptNumber: string; // e.g., "REC-2026-001"
+	receiptNumber: string;
 	customer?: CustomerInfo;
 	items: SaleItem[];
 	subTotal: number;
-	// taxAmount: number;        // VAT or local tax calculation
 	discountTotal: number;
 	dateOfSale: string;
 	grandTotal: number; // subTotal + taxAmount - discountTotal
 	paymentMethod: PaymentMethod;
 	paymentStatus: PaymentStatus;
 	status: SaleStatus;
-	// mpesaReference?: string;  // Payment transaction codes
-	saleperson: string | Salesperson;
+	saleperson: Salesperson;
 	commission: number;
 	notes?: string;
 	createdAt: string; // ISO Date String
 	updatedAt: string; // ISO Date String
+};
+
+export type CreateSaleInput = {
+	customer?: CustomerInfo;
+	items: CreateSaleItem[];
+	subTotal: number;
+	discountTotal: number;
+	dateOfSale: string;
+	grandTotal: number; // subTotal + taxAmount - discountTotal
+	paymentMethod: PaymentMethod;
+	paymentStatus: PaymentStatus;
+	status: SaleStatus;
+	saleperson: string;
+	commission: number;
+	notes?: string;
+};
+
+export type SaleListResponse = {
+	sales: Sale[];
+	totalSales: number;
+	currentPage: number;
+	totalPages: number;
 };

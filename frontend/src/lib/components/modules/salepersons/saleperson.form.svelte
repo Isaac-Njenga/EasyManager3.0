@@ -89,7 +89,7 @@
 			hireDate
 		};
 
-		console.log('Submitted Salesperson & Account Payload:', payload);
+		// console.log('Submitted Salesperson & Account Payload:', payload);
 		await onSubmit(payload);
 	}
 </script>

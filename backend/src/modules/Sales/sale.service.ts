@@ -19,14 +19,14 @@ const invalidateSaleCache = (): void => {
 
 const PRODUCT_PROFILE_POPULATE = [
   {
-    path: "items",
+    path: "items.product",
     select:
       "name sku code colour image description category costPrice sellingPrice totalQuantity status inventoryDisribution createdAt updatedAt",
   },
 ];
 const SHOP_PROFILE_POPULATE = [
   {
-    path: "shop",
+    path: "items.shop",
     select:
       "name status shopCode type address inventorySummary inventoryItems notes createdAt updatedAt",
   },

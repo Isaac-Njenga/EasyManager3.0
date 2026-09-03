@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Sale } from '$lib/types/sale.types';
+	import type { Sale } from '$lib/services/sales/sales.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 

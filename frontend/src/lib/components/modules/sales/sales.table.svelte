@@ -15,8 +15,8 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { saleColumns } from '$lib/components/modules/sales/sales.columns';
-	import type { Sale } from '$lib/types/sale.types';
-	import SalesDetails from '../../../../routes/(app)/sales/SaleDetails.svelte';
+	import type { Sale } from '$lib/services/sales/sales.types';
+	import SalesDetails from '../../../../routes/(app)/sales/[id]/+page.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -50,7 +50,7 @@
 	}
 
 	function editSale(sale: Sale) {
-		goto(resolve(`/sales/${sale._id}`));
+		goto(resolve(`/sales/${sale._id}/edit`));
 	}
 
 	function openDeleteModal(sale: Sale) {
@@ -81,7 +81,7 @@
 	<div class="w-full space-y-0.5">
 		{#if sale.items.length > 0}
 			<div class="truncate text-xs font-medium">
-				{sale.items[0].productName}
+				{sale.items[0].product.name}
 			</div>
 			{#if sale.items.length > 1}
 				<p class="text-[11px] text-muted-foreground">

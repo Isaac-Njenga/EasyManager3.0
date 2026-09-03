@@ -7,7 +7,7 @@ export interface Salesperson {
 	firstName: string;
 	lastName: string;
 	status: SalespersonStatus;
-	assignedShop: Shop;
+	assignedShop?: Shop;
 	totalCommission: number;
 	performanceSummary?: SalespersonPerformanceSummary;
 	hireDate: string;

@@ -3,10 +3,12 @@
 	import type {
 		Sale,
 		SaleItem,
+		CreateSaleItem,
 		PaymentMethod,
 		PaymentStatus,
-		SaleStatus
-	} from '$lib/types/sale.types';
+		SaleStatus,
+		CreateSaleInput
+	} from '$lib/services/sales/sales.types';
 	import type { Shop } from '$lib/services/shop/shop.types';
 
 	import { Button } from '$lib/components/ui/button';
@@ -23,12 +25,28 @@
 	import Package from '@lucide/svelte/icons/package';
 	import Loader2 from '@lucide/svelte/icons/loader-2';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	import { productsData } from '$lib/data/products.data';
-	import { shopsData } from '$lib/data/shop.data';
+	// import { shopsData } from '$lib/data/shop.data';
 	import { formatCurrency } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
-	import type { Salesperson } from '$lib/types/saleperson.types';
-	import { salespersonsData } from '$lib/data/saleperson.data';
+	import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
+
+	type Props = {
+		products?: Product[];
+		sale?: Sale;
+		shops?: Shop[];
+		salespersons?: Salesperson[];
+		onSubmit: (payload: CreateSaleInput) => Promise<void> | void;
+		isSubmitting?: boolean;
+	};
+
+	let { products, sale, shops, salespersons, onSubmit, isSubmitting = false }: Props = $props();
+
+	$effect(() => {
+		console.log(products);
+		if (!products || products.length === 0 || !salespersons || salespersons.length === 0) {
+			console.warn('No shops provided to SalepersonForm component.');
+		}
+	});
 
 	const paymentStatusOptions = [
 		{ value: 'Paid', label: 'Paid' },
@@ -36,10 +54,12 @@
 		{ value: 'Partially Paid', label: 'Partially Paid' }
 	];
 
-	const salepersonOptions = salespersonsData.map((sp) => ({
-		value: sp._id,
-		label: `${sp.firstName} ${sp.lastName}`
-	}));
+	const salepersonOptions = $derived(
+		salespersons?.map((sp) => ({
+			value: sp._id,
+			label: `${sp.firstName} ${sp.lastName}`
+		}))
+	);
 
 	const paymentOptions = [
 		{ value: 'Cash', label: 'Cash' },
@@ -48,14 +68,6 @@
 		{ value: 'Bank Transfer', label: 'Bank Transfer' }
 	];
 
-	type Props = {
-		products?: Product[];
-		sale?: Sale;
-	};
-
-	let { products = productsData, sale }: Props = $props();
-
-	// --- Form Reactive State ---
 	let searchQuery = $state('');
 	let isProductSearchOpen = $state(false);
 	let selectedItems = $state<SaleItem[]>([]);
@@ -67,26 +79,14 @@
 	let paymentMethod = $state<PaymentMethod>('Cash');
 	let paymentStatus = $state<PaymentStatus>('Paid');
 	let saleStatus = $state<SaleStatus>('Completed');
-	let saleperson = $state<Salesperson | null>(null);
-	let salepersonId = $state('');
+	let saleperson = $state<string>('');
 	let dateOfSale = $state(new Date().toISOString().split('T')[0]);
 	let notes = $state('');
 	let loadedImageIds = $state<string[]>([]);
-	let initializedSaleId = $state<string | null>(null);
 
-	const requiredFieldsConfig = [
-		{ label: 'Payment Method', getValue: () => paymentMethod },
-		{ label: 'Payment Status', getValue: () => paymentStatus },
-		{ label: 'Salesperson', getValue: () => salepersonId },
-		{ label: 'Sale Status', getValue: () => saleStatus },
-		{ label: 'Date of Sale', getValue: () => dateOfSale }
-	];
+	let errors = $state<Record<string, string>>({});
 
 	$effect(() => {
-		const saleId = sale?._id ?? 'new';
-		if (initializedSaleId === saleId) return;
-		initializedSaleId = saleId;
-
 		selectedItems = sale?.items ?? [];
 		customerName = sale?.customer?.name ?? '';
 		customerPhone = sale?.customer?.phone ?? '';
@@ -95,17 +95,10 @@
 		paymentMethod = sale?.paymentMethod ?? 'Cash';
 		paymentStatus = sale?.paymentStatus ?? 'Paid';
 		saleStatus = sale?.status ?? 'Completed';
-		const saleSaleperson = sale?.saleperson;
-		saleperson =
-			typeof saleSaleperson === 'string'
-				? (salespersonsData.find((sp) => sp._id === saleSaleperson) ?? null)
-				: (saleSaleperson ?? null);
-		salepersonId = saleperson?._id ?? '';
+		saleperson = sale?.saleperson?._id ?? '';
 		dateOfSale = sale?.dateOfSale ?? new Date().toISOString().split('T')[0];
 		notes = sale?.notes ?? '';
 	});
-
-	let isSubmitting = $state(false);
 
 	// --- Select Trigger Labels ---
 	const paymentStatusTriggerContent = $derived(
@@ -114,7 +107,7 @@
 	);
 
 	const salepersonTriggerContent = $derived(
-		salepersonOptions.find((sp) => sp.value === salepersonId)?.label ?? 'Select salesperson'
+		salepersonOptions?.find((sp) => sp.value === saleperson)?.label ?? 'Select salesperson'
 	);
 
 	const paymentTriggerContent = $derived(
@@ -122,15 +115,9 @@
 	);
 
 	// --- Derived Calculations ---
-	// All active products loaded, filtered dynamically if search text is typed
+	// All products loaded, filtered dynamically if search text is typed
 	let filteredProducts = $derived(
-		products.filter((p) => {
-			const isActive = p.status === 'Active';
-			if (!isActive) return false;
-			const hasShopStock = (p.inventory ?? []).some(
-				(stock) => stock.locationType === 'Shop' && stock.quantity > 0
-			);
-			if (!hasShopStock) return false;
+		products?.filter((p) => {
 			if (!searchQuery.trim()) return true;
 
 			const q = searchQuery.toLowerCase();
@@ -143,7 +130,10 @@
 	);
 
 	let subTotal = $derived(
-		selectedItems.reduce((acc, item) => acc + item.sellingPrice * item.quantity, 0)
+		selectedItems.reduce(
+			(acc, item) => acc + (item.soldPrice ?? item.product.sellingPrice) * item.quantity,
+			0
+		)
 	);
 
 	let discountTotal = $derived(
@@ -155,15 +145,15 @@
 	let commission = $derived(subTotal > 10000 ? subTotal * 0.1 : 0);
 
 	function getShopStock(product: Product, shopId: string) {
-		const directStock = (product.inventory ?? []).filter(
+		const directStock = (product.inventoryDistribution ?? product.inventory ?? []).filter(
 			(stock) => stock.locationType === 'Shop' && stock.locationId === shopId
 		);
 		if (directStock.length > 0) {
 			return directStock.reduce((total, stock) => total + stock.quantity, 0);
 		}
 
-		const shopProduct = shopsData
-			.find((shop) => shop._id === shopId)
+		const shopProduct = shops
+			?.find((shop) => shop._id === shopId)
 			?.inventoryItems?.find((item) => item._id === product._id);
 		return (shopProduct?.inventory ?? [])
 			.filter((stock) => stock.locationType === 'Shop')
@@ -171,15 +161,15 @@
 	}
 
 	function getItemShopStock(item: SaleItem, shopId: string) {
-		const product = products?.find((candidate) => candidate._id === item.productId);
+		const product = products?.find((candidate) => candidate._id === item.product._id);
 		return getShopStock(product ?? ({} as Product), shopId);
 	}
 
 	function selectShop(item: SaleItem, shopId: string | undefined) {
-		const shop = shopsData.find((candidate) => candidate._id === shopId);
+		const shop = shops?.find((candidate) => candidate._id === shopId);
 		if (!shop) return;
 		selectedItems = selectedItems.map((candidate) =>
-			candidate.productId === item.productId ? { ...candidate, shop } : candidate
+			candidate.product._id === item.product._id ? { ...candidate, shop } : candidate
 		);
 	}
 
@@ -189,7 +179,7 @@
 
 	// --- Actions ---
 	function addProductToSale(product: Product) {
-		const existingIndex = selectedItems.findIndex((i) => i.productId === product._id);
+		const existingIndex = selectedItems.findIndex((i) => i.product._id === product._id);
 
 		if (existingIndex > -1) {
 			updateItem(existingIndex, {
@@ -197,17 +187,9 @@
 			});
 		} else {
 			const newItem: SaleItem = {
-				productId: product._id,
-				productName: product.name,
-				image: product.image,
-				category: product.category,
-				colour: product.colour,
-				description: product.description,
-				code: product.code,
-				sku: product.sku,
-				sellingPrice: product.sellingPrice,
-				costPrice: product.costPrice,
+				product,
 				quantity: 1,
+				soldPrice: product.sellingPrice,
 				shop: {} as Shop,
 				discount: 0,
 				totalPrice: product.sellingPrice
@@ -223,7 +205,9 @@
 			const updatedItem = { ...item, ...changes };
 			updatedItem.totalPrice = Math.max(
 				0,
-				(updatedItem.sellingPrice || 0) * (updatedItem.quantity || 1) - (updatedItem.discount || 0)
+				(updatedItem.soldPrice ?? updatedItem.product.sellingPrice ?? 0) *
+					(updatedItem.quantity || 1) -
+					(updatedItem.discount || 0)
 			);
 			return updatedItem;
 		});
@@ -233,31 +217,43 @@
 		selectedItems = selectedItems.filter((_, itemIndex) => itemIndex !== index);
 	}
 
-	function handleSubmit(e: SubmitEvent) {
+	function validate(): boolean {
+		const newErrors: Record<string, string> = {};
+
+		if (!paymentMethod.trim()) newErrors.paymentMethod = 'Payment method is required';
+		if (!paymentStatus.trim()) newErrors.paymentStatus = 'Payment status is required';
+		if (!saleperson.trim()) newErrors.salepersonId = 'Salesperson is required';
+		if (!saleStatus.trim()) newErrors.saleStatus = 'Status is required';
+		if (!dateOfSale.trim()) newErrors.dateOfSale = 'Date of Sale is required';
+
+		errors = newErrors;
+		return Object.keys(newErrors).length === 0;
+	}
+
+	async function handleFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
 
-		const rawItems = $state.snapshot(selectedItems);
+		if (!validate()) return;
 
-		const missingFields = requiredFieldsConfig
-			.filter((field) => !field.getValue()?.toString().trim())
-			.map((field) => field.label);
-
-		if (missingFields.length > 0) {
-			toast.warning('Please fill in required fields', {
-				description: `Missing: ${missingFields.join(', ')}`
-			});
-			return;
-		}
+		const rawItems: CreateSaleItem[] = $state.snapshot(selectedItems).map((item) => ({
+			product: item.product._id,
+			quantity: item.quantity,
+			soldPrice: item.soldPrice ?? item.product.sellingPrice,
+			shop: item.shop?._id ?? '',
+			netProfit: item.netProfit,
+			netLoss: item.netLoss,
+			discount: item.discount,
+			subTotal: item.totalPrice
+		}));
 
 		if (selectedItems.length === 0) {
 			toast.warning('Please add at least one item to the sale.');
 			return;
 		}
-		console.log(saleperson);
-		isSubmitting = true;
 
-		const newSale: Partial<Sale> = {
-			receiptNumber: `REC-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+		const selectedSalesperson = salespersons?.find((s) => s._id === saleperson);
+
+		const payload: CreateSaleInput = {
 			customer: {
 				name: customerName || 'Walk-in Customer',
 				phone: customerPhone || undefined,
@@ -272,21 +268,16 @@
 			paymentStatus,
 			status: saleStatus,
 			commission,
-			saleperson: salepersonId,
-			notes: notes || undefined,
-			createdAt: new Date().toISOString(),
-			updatedAt: new Date().toISOString()
+			saleperson: selectedSalesperson ? selectedSalesperson._id : '',
+			notes: notes || undefined
 		};
 
-		console.log('Submitting Sale:', newSale);
-
-		toast.success('Sale Saved!');
-		isSubmitting = false;
+		await onSubmit(payload);
 	}
 </script>
 
 <div class="m-auto w-220 rounded-xl border bg-card p-5 shadow-sm">
-	<form onsubmit={handleSubmit} class="space-y-6">
+	<form onsubmit={handleFormSubmit} class="space-y-6">
 		<!-- LEFT PANEL: Item Selection & Line Items (7 Cols) -->
 		<div class="space-y-6 lg:col-span-8">
 			<!-- Product Picker / Search Combobox -->
@@ -319,7 +310,7 @@
 						<div
 							class="mb-1 flex items-center justify-between border-b px-2 py-1 text-[11px] font-semibold text-muted-foreground"
 						>
-							<span>Available Products ({filteredProducts.length})</span>
+							<span>Available Products ({filteredProducts?.length})</span>
 							<button
 								type="button"
 								class="text-xs hover:underline"
@@ -329,7 +320,7 @@
 							</button>
 						</div>
 
-						{#if filteredProducts.length === 0}
+						{#if filteredProducts?.length === 0}
 							<p class="p-3 text-center text-xs text-muted-foreground">No active products found.</p>
 						{:else}
 							{#each filteredProducts as product (product._id)}
@@ -401,15 +392,15 @@
 					</div>
 				{:else}
 					<div class="space-y-2">
-						{#each selectedItems as item, index (item.productId)}
+						{#each selectedItems as item, index (item.product._id)}
 							<div
 								class="flex flex-col gap-2 rounded-md border p-2 text-xs sm:flex-row sm:items-center sm:justify-between"
 							>
 								<!-- Item Identity -->
 								<div class="flex-1 space-y-0.5">
-									<p class="font-semibold text-foreground">{item.productName}</p>
+									<p class="font-semibold text-foreground">{item.product.name}</p>
 									<p class="text-11px] text-muted-foreground">
-										{item.code} | {item.colour}
+										{item.product.code} | {item.product.colour}
 									</p>
 								</div>
 
@@ -431,7 +422,7 @@
 											</Select.Trigger>
 											<Select.Content>
 												<Select.Group>
-													{#each shopsData as shop (shop._id)}
+													{#each shops as shop (shop._id)}
 														<Select.Item value={shop._id} label={shop.name}>
 															{shop.name} - ({getItemShopStock(item, shop._id)} available)
 														</Select.Item>
@@ -447,10 +438,10 @@
 											type="number"
 											min="0"
 											step="any"
-											value={item.sellingPrice}
+											value={item.soldPrice ?? item.product.sellingPrice}
 											oninput={(event) =>
 												updateItem(index, {
-													sellingPrice: Number((event.currentTarget as HTMLInputElement).value)
+													soldPrice: Number((event.currentTarget as HTMLInputElement).value)
 												})}
 											class="h-8 text-xs"
 										/>
@@ -530,7 +521,16 @@
 						<Label for="sale-date">
 							Date of Sale <span class="text-destructive">*</span>
 						</Label>
-						<Input id="sale-date" type="date" bind:value={dateOfSale} required />
+						<Input
+							id="sale-date"
+							type="date"
+							bind:value={dateOfSale}
+							required
+							aria-invalid={!!errors.dateOfSale}
+						/>
+						{#if errors.dateOfSale}
+							<p class="mt-1 text-xs text-destructive">{errors.dateOfSale}</p>
+						{/if}
 					</div>
 
 					<!-- Salesperson -->
@@ -541,11 +541,9 @@
 						<Select.Root
 							type="single"
 							name="saleperson"
-							value={salepersonId}
-							onValueChange={(value) => {
-								salepersonId = value ?? '';
-								saleperson = salespersonsData.find((sp) => sp._id === value) ?? null;
-							}}
+							value={saleperson}
+							onValueChange={(val) => (saleperson = val)}
+							required
 						>
 							<Select.Trigger
 								class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
@@ -562,6 +560,9 @@
 								</Select.Group>
 							</Select.Content>
 						</Select.Root>
+						{#if errors.salepersonId}
+							<p class="mt-1 text-xs text-destructive">{errors.salepersonId}</p>
+						{/if}
 					</div>
 
 					<!-- Payment Method -->
@@ -569,7 +570,7 @@
 						<Label>
 							Payment Method <span class="text-destructive">*</span>
 						</Label>
-						<Select.Root type="single" name="paymentMethod" bind:value={paymentMethod}>
+						<Select.Root type="single" name="paymentMethod" bind:value={paymentMethod} required>
 							<Select.Trigger
 								class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
 							>
@@ -585,6 +586,9 @@
 								</Select.Group>
 							</Select.Content>
 						</Select.Root>
+						{#if errors.paymentMethod}
+							<p class="mt-1 text-xs text-destructive">{errors.paymentMethod}</p>
+						{/if}
 					</div>
 
 					<!-- Payment Status -->
@@ -592,7 +596,7 @@
 						<Label>
 							Payment Status <span class="text-destructive">*</span>
 						</Label>
-						<Select.Root type="single" name="paymentStatus" bind:value={paymentStatus}>
+						<Select.Root type="single" name="paymentStatus" bind:value={paymentStatus} required>
 							<Select.Trigger
 								class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
 							>
@@ -607,7 +611,9 @@
 									{/each}
 								</Select.Group>
 							</Select.Content>
-						</Select.Root>
+						</Select.Root>{#if errors.paymentStatus}
+							<p class="mt-1 text-xs text-destructive">{errors.paymentStatus}</p>
+						{/if}
 					</div>
 				</div>
 
