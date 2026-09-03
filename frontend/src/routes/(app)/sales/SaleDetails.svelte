@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import type { Sale } from '$lib/services/sales/sales.types';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
@@ -33,7 +33,6 @@
 	</div>
 {:else}
 	<div class="space-y-6 p-1 text-sm">
-		<!-- Header Info Card -->
 		<div class="flex items-start justify-between rounded-lg border bg-card p-4 shadow-sm">
 			<div class="space-y-1">
 				<div class="flex items-center gap-2">
@@ -56,7 +55,6 @@
 				</p>
 			</div>
 
-			<!-- Transaction Badges -->
 			<div class="flex flex-col items-end gap-1.5">
 				<Badge
 					variant="secondary"
@@ -71,7 +69,6 @@
 			</div>
 		</div>
 
-		<!-- Purchased Line Items -->
 		<div class="space-y-3">
 			<div class="flex items-center justify-between">
 				<h4 class="text-xs font-semibold tracking-wider text-muted-foreground uppercase">
@@ -82,7 +79,6 @@
 			<div class="space-y-2.5">
 				{#each selectedSale.items as item (item.productId)}
 					<div class="flex items-start gap-3 rounded-lg border bg-card p-3 shadow-sm">
-						<!-- Product Image / Placeholder -->
 						{#if item.image && item.image.length > 0}
 							<img
 								src={item.image[0]}
@@ -97,7 +93,6 @@
 							</div>
 						{/if}
 
-						<!-- Item Details -->
 						<div class="flex-1 space-y-1">
 							<div class="flex items-start justify-between gap-2">
 								<h5 class="text-xs leading-snug font-semibold">{item.productName}</h5>
@@ -136,7 +131,6 @@
 
 		<Separator />
 
-		<!-- Order Financial Summary -->
 		<div class="space-y-2 rounded-lg border bg-muted/40 p-4">
 			<div class="flex justify-between text-xs text-muted-foreground">
 				<span>Subtotal</span>
@@ -158,7 +152,6 @@
 			</div>
 		</div>
 
-		<!-- Order Notes -->
 		{#if selectedSale.notes}
 			<div
 				class="rounded-lg border border-amber-500/20 bg-amber-500/5 p-3 text-xs text-amber-900 dark:text-amber-200"
@@ -168,7 +161,6 @@
 			</div>
 		{/if}
 
-		<!-- Additional Actions -->
 		<LogFooter createTimestamp={selectedSale.createdAt} updateTimestamp={selectedSale.updatedAt} />
 	</div>
-{/if}
+{/if} -->
