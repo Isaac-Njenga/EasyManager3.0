@@ -3,8 +3,9 @@
 		Expense,
 		ExpenseCategory,
 		PaymentMethod,
-		ExpenseStatus
-	} from '$lib/types/expense.types';
+		ExpenseStatus,
+		CreateExpenseInput
+	} from '$lib/services/expenses/expense.types';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -16,13 +17,14 @@
 	import Tag from '@lucide/svelte/icons/tag';
 	import FileText from '@lucide/svelte/icons/file-text';
 	import CreditCard from '@lucide/svelte/icons/credit-card';
-	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		expense?: Expense;
+		onSubmit: (payload: CreateExpenseInput) => Promise<void> | void;
+		isSubmitting?: boolean;
 	};
 
-	let { expense }: Props = $props();
+	let { expense, onSubmit, isSubmitting = false }: Props = $props();
 
 	// --- Select Options ---
 	const categoryOptions: { value: ExpenseCategory; label: string }[] = [
@@ -59,6 +61,8 @@
 	let paymentStatus = $state<ExpenseStatus>('Paid');
 	let notes = $state('');
 
+	let errors = $state<Record<string, string>>({});
+
 	$effect(() => {
 		title = expense?.title ?? '';
 		payee = expense?.payee ?? '';
@@ -69,8 +73,6 @@
 		dateOfExpense = expense?.dateOfExpense ?? new Date().toISOString().split('T')[0];
 		notes = expense?.notes ?? '';
 	});
-
-	let isSubmitting = $state(false);
 
 	// --- Derived Select Triggers ---
 	const categoryTriggerContent = $derived(
@@ -85,57 +87,42 @@
 		statusOptions.find((s) => s.value === paymentStatus)?.label ?? 'Select status'
 	);
 
-	// --- Form Submission ---
-	function handleSubmit(e: SubmitEvent) {
+	function validate(): boolean {
+		const newErrors: Record<string, string> = {};
+
+		if (!title.trim()) newErrors.title = 'Title is required';
+		if (!category.trim()) newErrors.category = 'Category is required';
+		if (!amount) newErrors.amount = 'Amount is required';
+		if (Number(amount) <= 0) newErrors.amount = 'Amount must be greater than zero';
+		if (!dateOfExpense.trim()) newErrors.dateOfExpense = 'Expense date is required';
+		if (!paymentMethod.trim()) newErrors.paymentMethod = 'Payment method is required';
+		if (!paymentStatus.trim()) newErrors.paymentStatus = 'Status is required';
+
+		errors = newErrors;
+		return Object.keys(newErrors).length === 0;
+	}
+
+	async function handleFormSubmit(e: SubmitEvent) {
 		e.preventDefault();
 
-		const requiredFields = [
-			{ name: 'Title', value: title },
-			// { name: 'Payee', value: payee },
-			{ name: 'Category', value: category },
-			{ name: 'Amount', value: amount },
-			{ name: 'Date of Expense', value: dateOfExpense }
-		];
+		if (!validate()) return;
 
-		const missing = requiredFields.filter((f) => !f.value?.toString().trim());
-
-		if (missing.length > 0) {
-			toast.warning('Please fill in required fields', {
-				description: `Missing: ${missing.map((m) => m.name).join(', ')}`
-			});
-			return;
-		}
-
-		if (Number(amount) <= 0) {
-			toast.warning('Amount must be greater than zero');
-			return;
-		}
-
-		isSubmitting = true;
-
-		const payload: Partial<Expense> = {
-			...expense,
-			expenseNumber:
-				expense?.expenseNumber ??
-				`EXP-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`,
+		const payload: CreateExpenseInput = {
 			title: title.trim(),
-			payee: payee.trim(),
+			...(payee.trim() ? { payee: payee.trim() } : {}),
 			category,
 			amount: Number(amount),
 			dateOfExpense,
 			paymentMethod,
 			paymentStatus,
-			notes: notes.trim() || undefined
+			...(notes.trim() ? { notes: notes.trim() } : {})
 		};
 
-		console.log('Expense Saved:', payload);
-
-		toast.success('Expense saved!');
-		isSubmitting = false;
+		await onSubmit(payload);
 	}
 </script>
 
-<form onsubmit={handleSubmit} class="space-y-6">
+<form onsubmit={handleFormSubmit} class="space-y-6">
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
 		<!-- Card 1: Core Expense Overview -->
 		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
@@ -152,7 +139,10 @@
 					<Label for="title">
 						Expense Title <span class="text-destructive">*</span>
 					</Label>
-					<Input id="title" bind:value={title} required />
+					<Input id="title" bind:value={title} required aria-invalid={!!errors.title} />
+					{#if errors.title}
+						<p class="text-xs text-destructive">{errors.title}</p>
+					{/if}
 				</div>
 
 				<!-- Payee -->
@@ -181,7 +171,9 @@
 								{/each}
 							</Select.Group>
 						</Select.Content>
-					</Select.Root>
+					</Select.Root>{#if errors.category}
+						<p class="text-xs text-destructive">{errors.category}</p>
+					{/if}
 				</div>
 			</div>
 		</div>
@@ -201,7 +193,15 @@
 					<Label for="dateOfExpense">
 						Date of Expense <span class="text-destructive">*</span>
 					</Label>
-					<Input id="dateOfExpense" type="date" bind:value={dateOfExpense} required />
+					<Input
+						id="dateOfExpense"
+						type="date"
+						bind:value={dateOfExpense}
+						required
+						aria-invalid={!!errors.dateOfExpense}
+					/>{#if errors.dateOfExpense}
+						<p class="text-xs text-destructive">{errors.dateOfExpense}</p>
+					{/if}
 				</div>
 
 				<!-- Amount -->
@@ -210,7 +210,17 @@
 						Amount (KES) <span class="text-destructive">*</span>
 					</Label>
 					<div class="relative">
-						<Input id="amount" type="number" min="0" step="any" bind:value={amount} required />
+						<Input
+							id="amount"
+							type="number"
+							min="0"
+							step="any"
+							bind:value={amount}
+							required
+							aria-invalid={!!errors.amount}
+						/>{#if errors.dateOfExpense}
+							<p class="text-xs text-destructive">{errors.dateOfExpense}</p>
+						{/if}
 					</div>
 				</div>
 
@@ -219,7 +229,7 @@
 					<Label>
 						Payment Method <span class="text-destructive">*</span>
 					</Label>
-					<Select.Root type="single" name="paymentMethod" bind:value={paymentMethod}>
+					<Select.Root type="single" name="paymentMethod" bind:value={paymentMethod} required>
 						<Select.Trigger
 							class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
 						>
@@ -234,7 +244,9 @@
 								{/each}
 							</Select.Group>
 						</Select.Content>
-					</Select.Root>
+					</Select.Root>{#if errors.dateOfExpense}
+						<p class="text-xs text-destructive">{errors.dateOfExpense}</p>
+					{/if}
 				</div>
 
 				<!-- Payment Status -->
@@ -242,7 +254,7 @@
 					<Label>
 						Payment Status <span class="text-destructive">*</span>
 					</Label>
-					<Select.Root type="single" name="paymentStatus" bind:value={paymentStatus}>
+					<Select.Root type="single" name="paymentStatus" bind:value={paymentStatus} required>
 						<Select.Trigger
 							class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
 						>
@@ -257,7 +269,9 @@
 								{/each}
 							</Select.Group>
 						</Select.Content>
-					</Select.Root>
+					</Select.Root>{#if errors.dateOfExpense}
+						<p class="text-xs text-destructive">{errors.dateOfExpense}</p>
+					{/if}
 				</div>
 			</div>
 		</div>

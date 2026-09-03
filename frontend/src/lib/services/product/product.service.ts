@@ -1,5 +1,5 @@
 import { apiClient } from '$lib/services/api/client';
-import type { CreateProductInput, Product, ProductListResponse } from '$lib/types/product.types';
+import type { CreateProductInput, Product, ProductListResponse } from './product.types';
 import type { ServiceContext } from '../api/types';
 
 export const productService = {

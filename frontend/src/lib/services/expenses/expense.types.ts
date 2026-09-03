@@ -25,3 +25,21 @@ export type Expense = {
 	createdAt: string;
 	updatedAt: string;
 };
+
+export type CreateExpenseInput = {
+	title: string;
+	category: ExpenseCategory;
+	amount: number;
+	dateOfExpense: string;
+	paymentMethod: PaymentMethod;
+	paymentStatus: ExpenseStatus;
+	payee?: string;
+	notes?: string;
+};
+
+export type ExpenseListResponse = {
+	expenses: Expense[];
+	totalExpenses: number;
+	currentPage: number;
+	totalPages: number;
+};

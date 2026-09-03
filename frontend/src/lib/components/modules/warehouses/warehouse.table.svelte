@@ -69,7 +69,7 @@
 	async function deleteWarehouse(warehouse: Warehouse) {
 		try {
 			await warehouseService.delete(getBrowserServiceContext(), warehouse._id);
-			toast.success('Warehouse deleted successfully.');
+			toast.success('Warehouse deleted');
 			isDeleteWarehouseOpen = false;
 			selectedWarehouse = null;
 			await invalidateAll();
@@ -77,7 +77,6 @@
 			const description = error instanceof Error ? error.message : 'Failed to delete warehouse.';
 			toast.error('Warehouse deletion failed', { description });
 		}
-		// isDrawerOpen = false;
 	}
 </script>
 

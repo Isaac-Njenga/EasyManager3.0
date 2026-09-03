@@ -29,7 +29,7 @@
 		try {
 			await warehouseService.update(getBrowserServiceContext(), selectedWarehouse._id, payload);
 
-			toast.success('Warehouse Updated Successfully!');
+			toast.success('Warehouse updated');
 			goto(resolve('/warehouses'));
 		} catch (error) {
 			const description =

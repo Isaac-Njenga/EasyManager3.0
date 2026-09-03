@@ -53,7 +53,7 @@
 	async function deleteSalesperson(salesperson: Salesperson) {
 		try {
 			await salespersonService.delete(getBrowserServiceContext(), salesperson._id);
-			toast.success('Salesperson deleted successfully');
+			toast.success('Salesperson deleted');
 
 			isDeleteSalespersonOpen = false;
 			selectedSalesperson = null;
@@ -212,7 +212,7 @@
 	{#snippet footer()}
 		<div class="flex w-full flex-col gap-2">
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/salespersons/${selectedSalesperson?._id}`} size="xs" class="w-full">
+				<Button href={`/salespersons/${selectedSalesperson?._id}/edit`} size="xs" class="w-full">
 					Edit Salesperson
 				</Button>
 				<Button

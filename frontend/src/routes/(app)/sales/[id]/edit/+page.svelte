@@ -32,7 +32,7 @@
 		try {
 			await saleService.update(getBrowserServiceContext(), selectedSale._id, payload);
 
-			toast.success('Sale Updated Successfully!');
+			toast.success('Sale updated');
 			goto(resolve('/sales'));
 		} catch (error) {
 			const description =

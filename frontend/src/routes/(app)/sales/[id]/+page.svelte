@@ -7,7 +7,6 @@
 	import Receipt from '@lucide/svelte/icons/receipt';
 	import Package from '@lucide/svelte/icons/package';
 	import { formatCurrency } from '$lib/utils';
-	import { salespersonsData } from '$lib/data/saleperson.data';
 	import { format } from 'date-fns';
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
 
@@ -17,12 +16,6 @@
 
 	// eslint-disable-next-line
 	let { selectedSale }: Props = $props();
-
-	function salespersonName(saleperson: Sale['saleperson']) {
-		if (typeof saleperson !== 'string') return `${saleperson.firstName} ${saleperson.lastName}`;
-		const person = salespersonsData.find((candidate) => candidate._id === saleperson);
-		return person ? `${person.firstName} ${person.lastName}` : saleperson;
-	}
 </script>
 
 {#if !selectedSale}
@@ -52,7 +45,7 @@
 				</p>
 				<p class="text-xs text-muted-foreground">
 					Salesperson: <span class="font-medium text-foreground"
-						>{salespersonName(selectedSale.saleperson)}</span
+						>{selectedSale.saleperson.firstName} {selectedSale.saleperson.lastName}</span
 					>
 				</p>
 			</div>

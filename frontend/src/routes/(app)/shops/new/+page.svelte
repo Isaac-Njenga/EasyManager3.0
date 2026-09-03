@@ -10,7 +10,6 @@
 
 	let isSubmitting = $state(false);
 
-	// --- Form Submission ---
 	async function handleCreate(payload: CreateShopInput) {
 		isSubmitting = true;
 

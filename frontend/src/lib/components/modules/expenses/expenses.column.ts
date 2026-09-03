@@ -1,12 +1,13 @@
 import type { TableColumn } from '$lib/types/table.types';
-import type { Expense } from '$lib/types/expense.types';
+import type { Expense } from '$lib/services/expenses/expense.types';
 
 export const expenseColumns: TableColumn<Expense>[] = [
 	{
 		key: 'expenseNumber',
 		header: '#',
 		class: 'max-w-[60px] text-xs font-semibold'
-	},	{
+	},
+	{
 		key: 'dateOfExpense',
 		header: 'Date',
 		class: 'max-w-[70px]',

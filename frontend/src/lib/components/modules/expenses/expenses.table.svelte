@@ -15,14 +15,18 @@
 	import MoreHorizontal from '@lucide/svelte/icons/more-horizontal';
 
 	import { expenseColumns } from '$lib/components/modules/expenses/expenses.column';
-	import ExpenseDetails from '../../../../routes/(app)/expenses/ExpenseDetails.svelte';
-	import type { Expense } from '$lib/types/expense.types';
+	import ExpenseDetails from '../../../../routes/(app)/expenses/[id]/+page.svelte';
+	import type { Expense } from '$lib/services/expenses/expense.types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { format } from 'date-fns';
 	import { formatCurrency } from '$lib/utils';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
+	import { expenseService } from '$lib/services/expenses/expense.service';
 
 	type Props = {
 		filteredExpenses: Expense[];
@@ -41,7 +45,7 @@
 	}
 
 	function editExpense(expense: Expense) {
-		goto(resolve(`/expenses/${expense._id}`));
+		goto(resolve(`/expenses/${expense._id}/edit`));
 	}
 
 	function openDeleteModal(expense: Expense) {
@@ -49,11 +53,19 @@
 		isDeleteExpenseOpen = true;
 	}
 
-	function deleteExpense(expense: Expense) {
-		console.log('Delete Expense:', expense._id);
-		isDeleteExpenseOpen = false;
-		selectedExpense = null;
-		isDrawerOpen = false;
+	async function deleteExpense(expense: Expense) {
+		try {
+			await expenseService.delete(getBrowserServiceContext(), expense._id);
+			toast.success('Expense deleted');
+
+			isDeleteExpenseOpen = false;
+			selectedExpense = null;
+			await invalidateAll();
+			isDrawerOpen = false;
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete expense.';
+			toast.error('Expense deletion failed', { description });
+		}
 	}
 </script>
 
@@ -160,7 +172,7 @@
 		<div class="flex w-full flex-col gap-2">
 			<!-- Top row: Edit and Delete take 50% width each -->
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/expenses/${selectedExpense?._id}`} size="xs" class="w-full">
+				<Button href={`/expenses/${selectedExpense?._id}/edit`} size="xs" class="w-full">
 					Edit Expense
 				</Button>
 				<Button

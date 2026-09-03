@@ -23,7 +23,10 @@
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { format } from 'date-fns';
 	import { formatCurrency } from '$lib/utils';
-	import { salespersonsData } from '$lib/data/saleperson.data';
+	import { invalidateAll } from '$app/navigation';
+	import { toast } from 'svelte-sonner';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { saleService } from '$lib/services/sales/sales.service';
 
 	type Props = {
 		filteredSales: Sale[];
@@ -34,15 +37,6 @@
 	let isDrawerOpen = $state(false);
 	let isDeleteSaleOpen = $state(false);
 	let selectedSale = $state<Sale | null>(null);
-
-	function salespersonName(saleperson: Sale['saleperson']) {
-		return typeof saleperson === 'string'
-			? (() => {
-					const person = salespersonsData.find((candidate) => candidate._id === saleperson);
-					return person ? `${person.firstName} ${person.lastName}` : saleperson;
-				})()
-			: `${saleperson.firstName} ${saleperson.lastName}`;
-	}
 
 	function viewSale(sale: Sale) {
 		selectedSale = sale;
@@ -58,11 +52,18 @@
 		isDeleteSaleOpen = true;
 	}
 
-	function deleteSale(sale: Sale) {
-		console.log('Delete sale:', sale._id);
-		isDeleteSaleOpen = false;
-		selectedSale = null;
-		isDrawerOpen = false;
+	async function deleteSale(sale: Sale) {
+		try {
+			await saleService.delete(getBrowserServiceContext(), sale._id);
+			toast.success('Sale deleted');
+			isDeleteSaleOpen = false;
+			selectedSale = null;
+			await invalidateAll();
+			isDrawerOpen = false;
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete sale.';
+			toast.error('Sale deletion failed', { description });
+		}
 	}
 </script>
 
@@ -71,7 +72,10 @@
 {#snippet receiptCell(value: unknown, sale: Sale)}
 	<div class="w-full">
 		<span class="font-semibold text-foreground">{sale.receiptNumber}</span>
-		<p class="text-xs text-muted-foreground">{salespersonName(sale.saleperson)}</p>
+		<p class="text-xs text-muted-foreground">
+			{sale.saleperson.firstName}
+			{sale.saleperson.lastName}
+		</p>
 	</div>
 {/snippet}
 
@@ -221,7 +225,9 @@
 <DataDrawer
 	bind:open={isDrawerOpen}
 	title={selectedSale?.receiptNumber ?? 'Sale Details'}
-	description={selectedSale ? `Sale by ${salespersonName(selectedSale.saleperson)}` : ''}
+	description={selectedSale
+		? `Sale by ${selectedSale.saleperson.firstName} ${selectedSale.saleperson.lastName}`
+		: ''}
 	direction="right"
 >
 	{#if selectedSale}
@@ -230,7 +236,8 @@
 	{#snippet footer()}
 		<div class="flex w-full flex-col gap-2">
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/sales/${selectedSale?._id}`} size="xs" class="w-full">Edit Sale</Button>
+				<Button href={`/sales/${selectedSale?._id}/edit`} size="xs" class="w-full">Edit Sale</Button
+				>
 				<Button
 					onclick={() => openDeleteModal(selectedSale!)}
 					size="xs"

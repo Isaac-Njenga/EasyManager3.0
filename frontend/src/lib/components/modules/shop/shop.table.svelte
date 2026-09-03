@@ -67,7 +67,7 @@
 	async function deleteShop(shop: Shop) {
 		try {
 			await shopService.delete(getBrowserServiceContext(), shop._id);
-			toast.success('Shop deleted successfully.');
+			toast.success('Shop deleted');
 			isDeleteShopOpen = false;
 			selectedShop = null;
 			await invalidateAll();

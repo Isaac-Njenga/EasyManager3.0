@@ -29,7 +29,7 @@
 		try {
 			await shopService.update(getBrowserServiceContext(), selectedShop._id, payload);
 
-			toast.success('Shop Updated Successfully!');
+			toast.success('Shop updated');
 			goto(resolve('/shops'));
 		} catch (error) {
 			const description =

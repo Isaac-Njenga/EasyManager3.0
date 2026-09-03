@@ -55,7 +55,7 @@
 	async function deleteProduct(product: Product) {
 		try {
 			await productService.delete(getBrowserServiceContext(), product._id);
-			toast.success('Product deleted successfully');
+			toast.success('Product deleted');
 			isDeleteProductOpen = false;
 			selectedProduct = null;
 			isDrawerOpen = false;

@@ -2,7 +2,6 @@
 	import Search from '$lib/components/common/Search.svelte';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
-	import { expensesData as expenses } from '$lib/data/expenses.data';
 	import ExpenseTable from '$lib/components/modules/expenses/expenses.table.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Card, CardContent } from '$lib/components/ui/card';
@@ -12,6 +11,20 @@
 	import FileText from '@lucide/svelte/icons/file-text';
 	import { formatCurrency } from '$lib/utils';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+
+	let { data }: PageProps = $props();
+
+	// Reactive derivations from server load
+	const expenses = $derived(data.expenses ?? []);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load expenses', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let selectedStatus = $state('All');
@@ -140,7 +153,7 @@
 				</div>
 
 				<span class="text-xs font-medium text-muted-foreground">
-					Expenses: {filteredExpenses.length} 
+					Expenses: {filteredExpenses.length}
 				</span>
 			</div>
 		</div>
