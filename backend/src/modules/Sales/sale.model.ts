@@ -59,11 +59,8 @@ const saleSchema = new mongoose.Schema(
 
 function generateReceiptNumber(): string {
   const namePrefix = "REC";
-  const currentDate = new Date().toISOString().slice(0, 10).replace(/-/g, "");
   const randomSuffix = crypto.randomBytes(2).toString("hex").toUpperCase();
-  return `${namePrefix}-${currentDate}-${randomSuffix}`;
-  // Option B: Pure sequential counter/hash if preferred
-  // return `REC-${Math.floor(100000 + Math.random() * 900000)}`;
+  return `${namePrefix}-${randomSuffix}`;
 }
 
 saleSchema.pre("save", async function () {
