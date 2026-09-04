@@ -1,8 +1,8 @@
-<script lang='ts'>
+<script lang="ts">
 	import type { Product } from '$lib/services/product/product.types';
-    import type { PageProps } from './$types';
-    import LogFooter from '$lib/components/common/LogFooter.svelte';
-	
+	import type { PageProps } from './$types';
+	import LogFooter from '$lib/components/common/LogFooter.svelte';
+
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ProductsTable from '$lib/components/modules/products/products.table.svelte';
 	// import Search from '$lib/components/common/Search.svelte';
@@ -10,8 +10,9 @@
 	import FileText from '@lucide/svelte/icons/file-text';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import Boxes from '@lucide/svelte/icons/boxes';
+	import { toast } from 'svelte-sonner';
 
-const typeTags = [
+	const typeTags = [
 		{ label: 'Warehouse-Warehouse', value: 'inter_warehouse' },
 		{ label: 'Shop-Warehouse', value: 'return_to_hub' },
 		{ label: 'Warehouse-Shop', value: 'store_replenishment' },
@@ -20,12 +21,19 @@ const typeTags = [
 
 	let { data }: PageProps = $props();
 
-    const selectedTransfer = $derived(data.transfer);
+	const selectedTransfer = $derived(data.transfer);
+	const error = $derived(data.error);
 
-    let searchTerm = $state('');
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load warehouse', { description: error });
+		}
+	});
+
+	let searchTerm = $state('');
 	let isSearching = $state(false);
 
-    const populatedProducts = $derived.by<Product[]>(() => {
+	const populatedProducts = $derived.by<Product[]>(() => {
 		if (!selectedTransfer?.items) return [];
 		return selectedTransfer.items.filter(
 			(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
@@ -48,13 +56,13 @@ const typeTags = [
 {#if selectedTransfer}
 	<div class="space-y-6">
 		<PageHeader
-			title={`${selectedTransfer.source.name} to ${selectedTransfer.destination.name}`}
+			title={`${selectedTransfer.source.locationId.name} to ${selectedTransfer.destination.locationId.name}`}
 			description={`${selectedTransfer.transferNumber} | ${typeTags.find((t) => t.value === selectedTransfer.type)?.label}`}
 			actionLabel="Back to Transfers"
 			actionHref="/transfers"
 		/>
 
-        <!-- Inventory Products Section -->
+		<!-- Inventory Products Section -->
 		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-4 py-8">
@@ -73,7 +81,7 @@ const typeTags = [
 					<div class="flex items-center gap-2">
 						<span class="text-xs font-medium text-muted-foreground">
 							Products:{populatedProducts.length}
-						</span>						
+						</span>
 					</div>
 				</div>
 				<Separator />
@@ -103,7 +111,7 @@ const typeTags = [
 			{/if}
 		</div>
 
-        <!-- Operational Remarks & Notes -->
+		<!-- Operational Remarks & Notes -->
 		{#if selectedTransfer.notes}
 			<div class="space-y-2 rounded-xl border bg-card p-5 shadow-sm">
 				<h3
@@ -124,8 +132,7 @@ const typeTags = [
 			createTimestamp={selectedTransfer.createdAt}
 			updateTimestamp={selectedTransfer.updatedAt}
 		/>
-
-    </div>{:else}
+	</div>{:else}
 	<div class="py-12 text-center text-xs text-muted-foreground">
 		No transfer selected to display details.
 	</div>

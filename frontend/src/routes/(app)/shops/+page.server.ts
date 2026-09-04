@@ -2,16 +2,21 @@ import type { PageServerLoad } from './$types';
 
 import { ApiError } from '$lib/services/api/errors';
 import { shopService } from '$lib/services/shop/shop.service';
+import { productService } from '$lib/services/product/product.service';
 
 export const load: PageServerLoad = async ({ cookies, locals }) => {
 	try {
-		const shops = await shopService.fetch({
+		const shops = shopService.fetch({
 			cookies,
 			locals
 		});
+		const products = productService.fetch({ cookies, locals });
+
+		const [shopData, productData] = await Promise.all([shops, products]);
 
 		return {
-			shops,
+			shops: shopData,
+			products: productData,
 			error: null
 		};
 	} catch (err) {
@@ -30,5 +35,3 @@ export const load: PageServerLoad = async ({ cookies, locals }) => {
 		};
 	}
 };
-
-

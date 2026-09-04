@@ -21,17 +21,19 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import { shopService } from '$lib/services/shop/shop.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import type { Product } from '$lib/services/product/product.types';
 
 	type Props = {
 		filteredShops: Shop[];
+		products: Product[];
 	};
 
-	let { filteredShops }: Props = $props();
+	let { filteredShops, products }: Props = $props();
 
 	let isTransferDrawerOpen = $state(false);
 	let isDeleteShopOpen = $state(false);
@@ -57,9 +59,8 @@
 		isTransferDrawerOpen = true;
 	}
 
-	function executeTransferAction() {
-		transferStore.handleTransfer();
-		if (transferStore.items.length === 0) {
+	async function executeTransferAction() {
+		if (await transferStore.handleTransfer()) {
 			isTransferDrawerOpen = false;
 		}
 	}
@@ -196,7 +197,7 @@
 	description={selectedShop ? selectedShop.shopCode : ''}
 >
 	{#if selectedShop}
-		<TransferForm preselectedSourceId={selectedShop._id} />
+		<TransferForm preselectedSourceId={selectedShop._id} {products} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">

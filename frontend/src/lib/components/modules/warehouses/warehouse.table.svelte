@@ -21,17 +21,19 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
+	import type { Product } from '$lib/services/product/product.types';
 
 	type Props = {
 		filteredWarehouses: Warehouse[];
+		products: Product[];
 	};
 
-	let { filteredWarehouses }: Props = $props();
+	let { filteredWarehouses, products }: Props = $props();
 
 	// let isDrawerOpen = $state(false);
 	let isTransferDrawerOpen = $state(false);
@@ -59,9 +61,8 @@
 		isTransferDrawerOpen = true;
 	}
 
-	function executeTransferAction() {
-		transferStore.handleTransfer();
-		if (transferStore.items.length === 0) {
+	async function executeTransferAction() {
+		if (await transferStore.handleTransfer()) {
 			isTransferDrawerOpen = false;
 		}
 	}
@@ -198,7 +199,7 @@
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
 >
 	{#if selectedWarehouse}
-		<TransferForm preselectedSourceId={selectedWarehouse._id} />
+		<TransferForm preselectedSourceId={selectedWarehouse._id} {products} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">

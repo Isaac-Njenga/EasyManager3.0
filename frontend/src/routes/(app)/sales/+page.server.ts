@@ -17,16 +17,16 @@ export const load: PageServerLoad = async ({ cookies, locals }) => {
 	} catch (err) {
 		if (err instanceof ApiError) {
 			return {
-				shops: [],
+				sales: [],
 				error: err.message
 			};
 		}
 
-		console.error('Failed to fetch shops:', err);
+		console.error('Failed to fetch sales:', err);
 
 		return {
-			shops: [],
-			error: 'Failed to load shops.'
+			sales: [],
+			error: 'Failed to load sales.'
 		};
 	}
 };

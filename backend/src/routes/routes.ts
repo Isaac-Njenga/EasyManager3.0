@@ -6,6 +6,7 @@ import { ProductRouter } from "../modules/Products/product.routes";
 import { SaleRouter } from "../modules/Sales/sale.routes";
 import { SalespersonRouter } from "../modules/Salepersons/saleperson.routes";
 import { ExpenseRouter } from "../modules/Expenses/expense.routes";
+import { TransferRouter } from "../modules/Transfers/transfer.routes";
 
 export function createRoutes(): Router {
   const router = Router();
@@ -17,6 +18,7 @@ export function createRoutes(): Router {
   router.use("/sale", SaleRouter());
   router.use("/salesperson", SalespersonRouter());
   router.use("/expense", ExpenseRouter());
+  router.use("/transfer", TransferRouter());
 
   return router;
 }

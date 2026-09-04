@@ -6,8 +6,8 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
 	import ExpensesTable from '$lib/components/modules/expenses/expenses.table.svelte';
-	import { salesData } from '$lib/data/sales.data';
-	import { expensesData } from '$lib/data/expenses.data';
+	// import { salesData } from '$lib/data/sales.data';
+	// import { expensesData } from '$lib/data/expenses.data';
 	import { formatCurrency } from '$lib/utils';
 	import { format, subDays } from 'date-fns';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
@@ -17,6 +17,9 @@
 
 	let selectedTag = $state('Today');
 	let customDate = $state('');
+
+	let salesData = []
+	let expensesData = []
 
 	const dateTags = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 Days'];
 

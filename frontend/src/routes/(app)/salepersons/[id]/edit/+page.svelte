@@ -12,7 +12,7 @@
 	let { data }: PageProps = $props();
 
 	const selectedSalesperson = $derived(data.salesperson);
-	const shops = $derived(data.shops);
+	const shops = $derived(data.shops );
 	const error = $derived(data.error);
 
 	let isSubmitting = $state(false);
@@ -57,7 +57,7 @@
 	{:else}
 		<SalepersonForm
 			salesperson={selectedSalesperson}
-			{shops}
+			shops={shops}
 			onSubmit={handleUpdate}
 			{isSubmitting}
 		/>{/if}

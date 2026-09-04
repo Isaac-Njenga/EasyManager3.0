@@ -1,4 +1,4 @@
-<script lang="ts">
+<!-- <script lang="ts">
 	import type { Expense } from '$lib/types/expense.types';
 
 	import { Badge } from '$lib/components/ui/badge';
@@ -46,7 +46,7 @@
 				</p>
 			</div>
 
-			<!-- Total Big Stat -->
+			
 			<div class="rounded-lg bg-muted/50 p-2 text-left sm:text-right">
 				<span class="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase">
 					Total Amount
@@ -92,7 +92,6 @@
 		</div>
 	</div>
 
-	<!-- Section 3: Notes / Remarks -->
 	{#if expense?.notes}
 		<div class="space-y-2 rounded-xl border bg-card p-5 shadow-sm">
 			<h3 class="text-xs font-bold tracking-wider text-muted-foreground uppercase">
@@ -109,4 +108,4 @@
 		createTimestamp={expense?.createdAt ? expense.createdAt : new Date().toISOString()}
 		updateTimestamp={expense?.updatedAt ? expense.updatedAt : new Date().toISOString()}
 	/>
-</div>
+</div> -->

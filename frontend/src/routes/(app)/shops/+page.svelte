@@ -21,6 +21,7 @@
 
 	// Reactive derivations from server load
 	const shops = $derived(data.shops ?? []);
+	const products = $derived(data.products ?? []);
 	const error = $derived(data.error);
 
 	// Toast error alert if server load failed
@@ -188,7 +189,7 @@
 					</div>
 				{/if}
 
-				<ShopTable {filteredShops} />
+				<ShopTable {filteredShops} {products} />
 			{/if}
 		</div>
 	</div>

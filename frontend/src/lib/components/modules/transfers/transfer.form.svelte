@@ -1,7 +1,14 @@
 <script lang="ts">
 	import type { Product } from '$lib/services/product/product.types';
-	import { productsData } from '$lib/data/products.data';
-	import { transferLocations as locations, transferStore } from '$lib/stores/transfer.svelte';
+	import {
+		transferLocations as locations,
+		transferStore
+	} from '$lib/stores/transfers/transfer.svelte';
+	import { shopService } from '$lib/services/shop/shop.service';
+	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import type { LocationOption } from '$lib/stores/transfers/transfer.svelte';
+	import { toast } from 'svelte-sonner';
 
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -19,14 +26,44 @@
 	import { formatCurrency } from '$lib/utils';
 
 	type Props = {
-		products?: Product[];
+		products: Product[];
 		preselectedSourceId?: string;
 	};
 
-	let { products = productsData, preselectedSourceId }: Props = $props();
+	let { products, preselectedSourceId }: Props = $props();
 
 	let searchQuery = $state('');
 	let isProductSearchOpen = $state(false);
+
+	$effect(() => {
+		let cancelled = false;
+		const context = getBrowserServiceContext();
+
+		Promise.all([warehouseService.fetch(context), shopService.fetch(context)])
+			.then(([warehouses, shops]) => {
+				if (cancelled) return;
+				const locationOptions: LocationOption[] = [
+					...warehouses.map((warehouse) => ({
+						locationId: warehouse._id,
+						name: warehouse.name,
+						locationType: 'Warehouse' as const
+					})),
+					...shops.map((shop) => ({
+						locationId: shop._id,
+						name: shop.name,
+						locationType: 'Shop' as const
+					}))
+				];
+				transferStore.setLocations(locationOptions);
+			})
+			.catch(() => {
+				if (!cancelled) toast.error('Failed to load transfer locations');
+			});
+
+		return () => {
+			cancelled = true;
+		};
+	});
 
 	// Sync prop sourceId if provided
 	$effect(() => {
@@ -50,7 +87,9 @@
 		})
 	);
 
-	const destinationOptions = $derived(locations.filter((loc) => loc.id !== transferStore.sourceId));
+	const destinationOptions = $derived(
+		locations.filter((loc) => loc.locationId !== transferStore.sourceId)
+	);
 </script>
 
 <div class="space-y-6 p-1">
@@ -68,13 +107,13 @@
 			<Label class="text-xs font-semibold">Source Location</Label>
 			<Select.Root type="single" bind:value={transferStore.sourceId}>
 				<Select.Trigger class="h-9 w-full text-xs">
-					{locations.find((l) => l.id === transferStore.sourceId)?.name ?? 'Select Origin'}
+					{locations.find((l) => l.locationId === transferStore.sourceId)?.name ?? 'Select Origin'}
 				</Select.Trigger>
 				<Select.Content>
-					{#each locations as loc (loc.id)}
-						<Select.Item value={loc.id} label={loc.name}>
+					{#each locations as loc (loc.locationId)}
+						<Select.Item value={loc.locationId} label={loc.name}>
 							<span class="font-medium">{loc.name}</span>
-							<span class="ml-1 text-[10px] text-muted-foreground">({loc.type})</span>
+							<span class="ml-1 text-[10px] text-muted-foreground">({loc.locationType})</span>
 						</Select.Item>
 					{/each}
 				</Select.Content>
@@ -93,14 +132,14 @@
 			<Label class="text-xs font-semibold">Destination Location</Label>
 			<Select.Root type="single" bind:value={transferStore.destinationId}>
 				<Select.Trigger class="h-9 w-full text-xs">
-					{locations.find((l) => l.id === transferStore.destinationId)?.name ??
+					{locations.find((l) => l.locationId === transferStore.destinationId)?.name ??
 						'Select Destination'}
 				</Select.Trigger>
 				<Select.Content>
-					{#each destinationOptions as loc (loc.id)}
-						<Select.Item value={loc.id} label={loc.name}>
+					{#each destinationOptions as loc (loc.locationId)}
+						<Select.Item value={loc.locationId} label={loc.name}>
 							<span class="font-medium">{loc.name}</span>
-							<span class="ml-1 text-[10px] text-muted-foreground">({loc.type})</span>
+							<span class="ml-1 text-[10px] text-muted-foreground">({loc.locationType})</span>
 						</Select.Item>
 					{/each}
 				</Select.Content>

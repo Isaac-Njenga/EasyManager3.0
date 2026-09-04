@@ -6,9 +6,9 @@
 	import BoxesIcon from '@lucide/svelte/icons/boxes';
 	import TransferTable from '$lib/components/modules/transfers/transfer.table.svelte';
 	import Search from '$lib/components/common/Search.svelte';
-
-	import { transferData } from '$lib/data/transfer.data';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
 
 	const typeTags = [
 		{ label: 'All', value: 'All' },
@@ -18,19 +18,28 @@
 		{ label: 'Shop-Shop', value: 'inter_shop' }
 	];
 
+	let { data }: PageProps = $props();
+	const transfers = $derived(data.transfers ?? []);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load transfers', { description: error });
+		}
+	});
+
 	let searchTerm = $state('');
 	let selectedType = $state('All');
 	let isSearching = $state(false);
 
 	let filteredTransfers = $derived(
-		transferData.filter((item) => {
+		transfers.filter((item) => {
 			const matchesType = selectedType === 'All' || item.type === selectedType;
 
 			const matchesSearch =
-				!searchTerm.trim() ||
-				item.transferNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				item.source.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-				item.destination.name.toLowerCase().includes(searchTerm.toLowerCase());
+				!searchTerm.trim() || item.transferNumber.toLowerCase().includes(searchTerm.toLowerCase());
+			// item.source.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+			// item.destination.name.toLowerCase().includes(searchTerm.toLowerCase());
 
 			return matchesType && matchesSearch;
 		})
@@ -48,8 +57,8 @@
 	<PageHeader
 		title="Transfer Logs"
 		description="View all previous stock transfers."
-		actionLabel="Initiate Stock Transfer"
-		actionHref="/transfers/new"
+		// actionLabel="Initiate Stock Transfer"
+		// actionHref="/transfers/new"
 	/>
 
 	<!-- Analytics Cards Grid -->

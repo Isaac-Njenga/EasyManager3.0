@@ -1,28 +1,26 @@
-import type { Product } from '$lib/types/product.types';
-import type { TransferType, TransferLocation, LocationType } from '$lib/types/transfers.types';
-import { warehouseData as warehouses } from '$lib/data/warehouses.data';
-import { shopsData as shops } from '$lib/data/shop.data';
+import type { Product } from '$lib/services/product/product.types';
+import type {
+	TransferType,
+	TransferLocation,
+	LocationType,
+	CreateTransferInput
+} from '$lib/services/transfers/transfer.types';
 import { toast } from 'svelte-sonner';
+import { transferService } from '$lib/services/transfers/transfer.service';
+import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 export type LocationOption = TransferLocation;
 
-export const transferLocations: LocationOption[] = [
-	...warehouses.map((warehouse) => ({
-		id: warehouse._id,
-		name: warehouse.name,
-		type: 'warehouse' as const
-	})),
-	...shops.map((shop) => ({
-		id: shop._id,
-		name: shop.name,
-		type: 'shop' as const
-	}))
-];
+export const transferLocations = $state<LocationOption[]>([]);
 
 class TransferStore {
 	sourceId = $state('');
 	destinationId = $state('');
 	items = $state<Product[]>([]);
+
+	setLocations(locations: LocationOption[]) {
+		transferLocations.splice(0, transferLocations.length, ...locations);
+	}
 
 	start(sourceId: string) {
 		this.reset();
@@ -33,9 +31,9 @@ class TransferStore {
 	 * Determines transfer type based on source and destination location types
 	 */
 	determineTransferType(sourceType: LocationType, destType: LocationType): TransferType {
-		if (sourceType === 'warehouse' && destType === 'warehouse') return 'inter_warehouse';
-		if (sourceType === 'warehouse' && destType === 'shop') return 'store_replenishment';
-		if (sourceType === 'shop' && destType === 'warehouse') return 'return_to_hub';
+		if (sourceType === 'Warehouse' && destType === 'Warehouse') return 'inter_warehouse';
+		if (sourceType === 'Warehouse' && destType === 'Shop') return 'store_replenishment';
+		if (sourceType === 'Shop' && destType === 'Warehouse') return 'return_to_hub';
 		return 'inter_shop';
 	}
 
@@ -74,7 +72,7 @@ class TransferStore {
 	/**
 	 * Handles transfer submission. Returns true on success to allow modal/drawer closing.
 	 */
-	handleTransfer(): boolean {
+	async handleTransfer(): Promise<boolean> {
 		if (!this.sourceId || !this.destinationId) {
 			toast.warning('Please select both source and destination locations.');
 			return false;
@@ -96,36 +94,44 @@ class TransferStore {
 			return false;
 		}
 
-		const sourceLoc = transferLocations.find((location) => location.id === this.sourceId);
-		const destLoc = transferLocations.find((location) => location.id === this.destinationId);
+		const sourceLoc = transferLocations.find((location) => location.locationId === this.sourceId);
+		const destLoc = transferLocations.find(
+			(location) => location.locationId === this.destinationId
+		);
 
 		if (!sourceLoc || !destLoc) {
 			toast.error('Invalid location selection.');
 			return false;
 		}
 
-		const type = this.determineTransferType(sourceLoc.type, destLoc.type);
+		const type = this.determineTransferType(sourceLoc.locationType, destLoc.locationType);
 
-		const payload = {
-			transferNumber: `TRN-${Math.floor(1000 + Math.random() * 9000)}`,
+		const payload: CreateTransferInput = {
 			type,
-			source: sourceLoc,
-			destination: destLoc,
-			items: validItems,
+			source: {
+				locationId: sourceLoc.locationId,
+				locationType: sourceLoc.locationType
+			},
+			destination: {
+				locationId: destLoc.locationId,
+				locationType: destLoc.locationType
+			},
+			items: validItems.map((item) => item._id),
 			totalItemsCount: validItems.reduce((total, item) => total + item.totalQuantity, 0),
-			date: new Date().toISOString(),
+			dateOfTransfer: new Date().toISOString(),
 			notes: ''
 		};
 
-		console.log('Transfer Payload:', payload);
-
-		toast.success('Transfer Initiated!', {
-			description: `Moving ${validItems.length} item(s) from ${sourceLoc.name} to ${destLoc.name}.`
-		});
-
-		// Reset state
-		this.reset();
-		return true;
+		try {
+			await transferService.create(getBrowserServiceContext(), payload);
+			toast.success('Transfer initiated');
+			this.reset();
+			return true;
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to initiate transfer.';
+			toast.error('Transfer failed', { description });
+			return false;
+		}
 	}
 
 	reset() {

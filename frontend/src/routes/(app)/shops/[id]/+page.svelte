@@ -22,12 +22,13 @@
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 
 	let { data }: PageProps = $props();
 
 	const selectedShop = $derived(data.shop);
+	const products = $derived(data.products ?? []);
 	const error = $derived(data.error);
 
 	$effect(() => {
@@ -45,9 +46,8 @@
 		isTransferDrawerOpen = true;
 	}
 
-	function executeTransferAction() {
-		transferStore.handleTransfer();
-		if (transferStore.items.length === 0) {
+	async function executeTransferAction() {
+		if (await transferStore.handleTransfer()) {
 			isTransferDrawerOpen = false;
 		}
 	}
@@ -213,7 +213,7 @@
 	description={selectedShop ? selectedShop.shopCode : ''}
 >
 	{#if selectedShop}
-		<TransferForm preselectedSourceId={selectedShop._id} />
+		<TransferForm preselectedSourceId={selectedShop._id} {products} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">

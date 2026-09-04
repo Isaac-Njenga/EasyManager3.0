@@ -10,6 +10,7 @@ const product_routes_1 = require("../modules/Products/product.routes");
 const sale_routes_1 = require("../modules/Sales/sale.routes");
 const saleperson_routes_1 = require("../modules/Salepersons/saleperson.routes");
 const expense_routes_1 = require("../modules/Expenses/expense.routes");
+const transfer_routes_1 = require("../modules/Transfers/transfer.routes");
 function createRoutes() {
     const router = (0, express_1.Router)();
     router.use("/auth", (0, auth_routes_1.AuthRouter)());
@@ -19,6 +20,7 @@ function createRoutes() {
     router.use("/sale", (0, sale_routes_1.SaleRouter)());
     router.use("/salesperson", (0, saleperson_routes_1.SalespersonRouter)());
     router.use("/expense", (0, expense_routes_1.ExpenseRouter)());
+    router.use("/transfer", (0, transfer_routes_1.TransferRouter)());
     return router;
 }
 exports.appRouter = createRoutes();

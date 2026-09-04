@@ -1,4 +1,4 @@
-import type { Product } from './product.types';
+import type { Product } from '../product/product.types';
 
 export type WarehouseStatus = 'Active' | 'Inactive' | 'Under Maintenance' | 'Full Capacity';
 

@@ -20,13 +20,14 @@
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
-	import { transferStore } from '$lib/stores/transfer.svelte';
+	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import { toast } from 'svelte-sonner';
 
 	let { data }: PageProps = $props();
 
 	const selectedWarehouse = $derived(data.warehouse);
+	const products = $derived(data.products ?? []);
 	const error = $derived(data.error);
 
 	$effect(() => {
@@ -44,9 +45,8 @@
 		isTransferDrawerOpen = true;
 	}
 
-	function executeTransferAction() {
-		transferStore.handleTransfer();
-		if (transferStore.items.length === 0) {
+	async function executeTransferAction() {
+		if (await transferStore.handleTransfer()) {
 			isTransferDrawerOpen = false;
 		}
 	}
@@ -222,7 +222,7 @@
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
 >
 	{#if selectedWarehouse}
-		<TransferForm preselectedSourceId={selectedWarehouse._id} />
+		<TransferForm preselectedSourceId={selectedWarehouse._id} {products} />
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">
