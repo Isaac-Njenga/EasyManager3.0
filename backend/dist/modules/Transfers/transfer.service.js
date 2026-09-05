@@ -14,17 +14,26 @@ const TransferCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateTransferCache = () => {
     TransferCache.flushAll();
 };
-const SOURCE_PROFILE_POPULATE = [
-    {
-        path: "source.locationId",
-    },
-];
-const DESTINATION_PROFILE_POPULATE = [
-    {
-        path: "destination.locationId",
-    },
-];
-const PRODUCT_PROFILE_POPULATE = [{ path: "items" }];
+const PRODUCT_PROFILE_POPULATE = [{ path: "items", model: "Product" }];
+const hydrateLocationRefs = async (transfer) => {
+    if (transfer?.source?.locationId) {
+        const sourceModel = transfer.source.locationType === "Warehouse"
+            ? mongoose_1.default.model("Warehouse")
+            : mongoose_1.default.model("Shop");
+        transfer.source.locationId = await sourceModel
+            .findById(transfer.source.locationId)
+            .lean();
+    }
+    if (transfer?.destination?.locationId) {
+        const destinationModel = transfer.destination.locationType === "Warehouse"
+            ? mongoose_1.default.model("Warehouse")
+            : mongoose_1.default.model("Shop");
+        transfer.destination.locationId = await destinationModel
+            .findById(transfer.destination.locationId)
+            .lean();
+    }
+    return transfer;
+};
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set([
     "type",
@@ -74,12 +83,11 @@ class TransferService {
         const transferDoc = new transfer_model_1.TransferModel(createData);
         await transferDoc.save();
         const savedTransfer = await transfer_model_1.TransferModel.findById(transferDoc._id)
-            .populate(SOURCE_PROFILE_POPULATE)
-            .populate(DESTINATION_PROFILE_POPULATE)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
+        const hydratedTransfer = await hydrateLocationRefs(savedTransfer ?? transferDoc.toObject());
         invalidateTransferCache();
-        return toTransfer(savedTransfer ?? transferDoc.toObject());
+        return toTransfer(hydratedTransfer);
     }
     // Pure service method decoupled from Express Request
     static async fetchTransfers(queryParams) {
@@ -98,14 +106,13 @@ class TransferService {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
-                .populate(SOURCE_PROFILE_POPULATE)
-                .populate(DESTINATION_PROFILE_POPULATE)
                 .populate(PRODUCT_PROFILE_POPULATE)
                 .lean(),
             transfer_model_1.TransferModel.countDocuments(filter),
         ]);
+        const hydratedTransfers = await Promise.all(transfers.map((transfer) => hydrateLocationRefs(transfer)));
         const responseData = {
-            inventoryTransfers: transfers,
+            inventoryTransfers: hydratedTransfers,
             totalInventoryTransfers: totalTransfers,
             currentPage: page,
             totalPages: Math.ceil(totalTransfers / limit) || 1,
@@ -119,40 +126,41 @@ class TransferService {
         const cachedTransfer = TransferCache.get(cacheKey);
         if (cachedTransfer)
             return cachedTransfer;
-        const Transfer = await transfer_model_1.TransferModel.findById(transferId)
-            .populate(SOURCE_PROFILE_POPULATE)
-            .populate(DESTINATION_PROFILE_POPULATE)
+        const transfer = await transfer_model_1.TransferModel.findById(transferId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
-        if (!Transfer) {
+        if (!transfer) {
             throw new NotFoundError_1.NotFoundError("Transfer not found!");
         }
-        const result = toTransfer(Transfer);
+        const hydratedTransfer = await hydrateLocationRefs(transfer);
+        const result = toTransfer(hydratedTransfer);
         TransferCache.set(cacheKey, result);
         return result;
     }
     static async updateTransfer(transferId, data, requesterId, requesterRole) {
         assertTransferId(transferId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);
-        const transfer = await transfer_model_1.TransferModel.findByIdAndUpdate(transferId, { $set: flattenedUpdateData }, { new: true, runValidators: true }).lean();
-        if (!transfer) {
-            throw new NotFoundError_1.NotFoundError("Transfer not found!");
-        }
-        invalidateTransferCache();
-        return toTransfer(transfer);
-    }
-    static async deleteTransfer(transferId, requesterId, requesterRole) {
-        assertTransferId(transferId);
-        const transfer = await transfer_model_1.TransferModel.findByIdAndDelete(transferId)
-            .populate(SOURCE_PROFILE_POPULATE)
-            .populate(DESTINATION_PROFILE_POPULATE)
+        const transfer = await transfer_model_1.TransferModel.findByIdAndUpdate(transferId, { $set: flattenedUpdateData }, { new: true, runValidators: true })
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
         if (!transfer) {
             throw new NotFoundError_1.NotFoundError("Transfer not found!");
         }
+        const hydratedTransfer = await hydrateLocationRefs(transfer);
         invalidateTransferCache();
-        return toTransfer(transfer);
+        return toTransfer(hydratedTransfer);
+    }
+    static async deleteTransfer(transferId, requesterId, requesterRole) {
+        assertTransferId(transferId);
+        const transfer = await transfer_model_1.TransferModel.findByIdAndDelete(transferId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
+        if (!transfer) {
+            throw new NotFoundError_1.NotFoundError("Transfer not found!");
+        }
+        const hydratedTransfer = await hydrateLocationRefs(transfer);
+        invalidateTransferCache();
+        return toTransfer(hydratedTransfer);
     }
 }
 exports.TransferService = TransferService;

@@ -22,7 +22,13 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
+	import DistributionForm from '$lib/components/modules/products/product-distribution.form.svelte';
 	import { toast } from 'svelte-sonner';
+
+	// interface Entry {
+	// 	product?: Product;
+	// 	quantity?: number;
+	// }
 
 	let { data }: PageProps = $props();
 
@@ -39,6 +45,7 @@
 	let searchTerm = $state('');
 	let isSearching = $state(false);
 	let isTransferDrawerOpen = $state(false);
+	let isDistributionDrawerOpen = $state(false);
 
 	function transferStock(warehouse: Warehouse) {
 		transferStore.start(warehouse._id);
@@ -51,22 +58,49 @@
 		}
 	}
 
+	function distributeStock() {
+		isDistributionDrawerOpen = true;
+	}
+
 	const populatedProducts = $derived.by<Product[]>(() => {
 		if (!selectedWarehouse?.inventoryItems) return [];
-		return selectedWarehouse.inventoryItems.filter(
-			(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
-		);
+
+		//eslint-disable-next-line
+		return selectedWarehouse.inventoryItems.flatMap((entry: any) => {
+			if (!entry || typeof entry !== 'object') return [];
+
+			if ('_id' in entry && 'name' in entry && 'code' in entry) {
+				return [entry as Product];
+			}
+
+			if ('product' in entry && entry.product && typeof entry.product === 'object') {
+				const product = entry.product as Product;
+				if ('_id' in product && 'name' in product) {
+					return [
+						{
+							...product,
+							totalQuantity: Number(
+								(entry as { quantity?: number }).quantity ?? product.totalQuantity ?? 0
+							)
+						}
+					];
+				}
+			}
+
+			return [];
+		});
 	});
 
 	let filteredInventory = $derived(
 		populatedProducts.filter((item) => {
 			const normalizedSearch = searchTerm.trim().toLowerCase();
+			if (!normalizedSearch) return true;
 
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			const searchableText = [item.name, item.code ?? '', item.sku ?? '', item.category ?? '']
+				.join(' ')
+				.toLowerCase();
 
-			return matchesSearch;
+			return searchableText.includes(normalizedSearch);
 		})
 	);
 </script>
@@ -150,14 +184,21 @@
 					</div>
 					<div class="flex items-center gap-2">
 						<span class="text-xs font-medium text-muted-foreground">
-							Products:{populatedProducts.length}
+							Total Products:{populatedProducts.length}
 						</span>|
 						<Button
 							size="xs"
+							class="bg-green-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-green-700"
 							onclick={() => {
-								console.log('btn');
+								distributeStock();
+							}}>Add products</Button
+						>
+						<Button
+							size="xs"
+							class="bg-purple-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-purple-700"
+							onclick={() => {
 								transferStock(selectedWarehouse);
-							}}>Transfer</Button
+							}}>Initiate Transfer</Button
 						>
 					</div>
 				</div>
@@ -235,4 +276,14 @@
 			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>
 	{/snippet}
+</Modal>
+
+<Modal
+	bind:open={isDistributionDrawerOpen}
+	title={selectedWarehouse?.name ?? 'Initiate Product Distribution'}
+	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
+><div class='max-h-screen'>
+	{#if selectedWarehouse}
+		<DistributionForm selectedLocation={selectedWarehouse} locationType="Warehouse" {products} />
+	{/if}</div>
 </Modal>

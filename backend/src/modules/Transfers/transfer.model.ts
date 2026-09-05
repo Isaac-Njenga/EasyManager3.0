@@ -33,8 +33,13 @@ const transferSchema = new mongoose.Schema(
     source: { type: transferLocationSchema, required: true },
     destination: { type: transferLocationSchema, required: true },
     items: {
-      type: [mongoose.Schema.Types.ObjectId],
-      ref: "Product",
+      type: [
+        {
+          type: mongoose.Schema.Types.ObjectId,
+          ref: "Product",
+          required: true,
+        },
+      ],
       required: true,
     },
     totalItemsCount: {

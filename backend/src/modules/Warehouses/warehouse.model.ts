@@ -36,7 +36,7 @@ const warehouseSchema = new mongoose.Schema(
       city: { type: String, required: true },
     },
     inventorySummary: InventorySummarySchema,
-    inventoryItems: [InventoryItemSchema],
+    inventoryItems: { type: [InventoryItemSchema], required: false },
     notes: { type: String, required: false },
   },
   { collection: "warehouses", timestamps: true },

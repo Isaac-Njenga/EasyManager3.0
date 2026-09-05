@@ -14,12 +14,14 @@
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import AwardIcon from '@lucide/svelte/icons/award';
+	import type { Sale } from '$lib/services/sales/sales.types';
+	import type { Expense } from '$lib/services/expenses/expense.types';
 
 	let selectedTag = $state('Today');
 	let customDate = $state('');
 
-	let salesData = []
-	let expensesData = []
+	let salesData: Sale[] = [];
+	let expensesData: Expense[] = [];
 
 	const dateTags = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 Days'];
 
@@ -130,7 +132,6 @@
 			/>
 		</div>
 	</div>
-
 
 	<p class="text-xs font-medium text-muted-foreground">{activeFilterLabel}</p>
 

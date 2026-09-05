@@ -17,6 +17,10 @@ const invalidateWarehouseCache = (): void => {
   warehouseCache.flushAll();
 };
 
+const PRODUCT_PROFILE_POPULATE = [
+  { path: "inventoryItems.product", model: "Product" },
+];
+
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set<string>(["warehouseCode"]);
 const BLOCKED_UPDATE_FIELDS = new Set<string>([
@@ -118,7 +122,7 @@ export class WarehouseService {
     if (search) {
       filter.$or = [
         { name: { $regex: search, $options: "i" } },
-        { shopCode: { $regex: search, $options: "i" } },
+        { warehouseCode: { $regex: search, $options: "i" } },
         { "address.city": { $regex: search, $options: "i" } },
       ];
     }
@@ -127,6 +131,7 @@ export class WarehouseService {
       WarehouseModel.find(filter)
         .skip(skip)
         .limit(limit)
+        .populate(PRODUCT_PROFILE_POPULATE)
         .sort({ createdAt: -1 })
         .lean(),
       WarehouseModel.countDocuments(filter),
@@ -154,7 +159,9 @@ export class WarehouseService {
     const cachedWarehouse = warehouseCache.get<Warehouse>(cacheKey);
     if (cachedWarehouse) return cachedWarehouse;
 
-    const warehouse = await WarehouseModel.findById(warehouseId).lean();
+    const warehouse = await WarehouseModel.findById(warehouseId)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
     if (!warehouse) {
       throw new NotFoundError("Warehouse not found!");
     }
@@ -178,7 +185,9 @@ export class WarehouseService {
       warehouseId,
       { $set: flattenedUpdateData },
       { new: true, runValidators: true },
-    ).lean();
+    )
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
 
     if (!warehouse) {
       throw new NotFoundError("Warehouse not found!");
@@ -195,8 +204,9 @@ export class WarehouseService {
   ): Promise<Warehouse> {
     assertWarehouseId(warehouseId);
 
-    const warehouse =
-      await WarehouseModel.findByIdAndDelete(warehouseId).lean();
+    const warehouse = await WarehouseModel.findByIdAndDelete(warehouseId)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
     if (!warehouse) {
       throw new NotFoundError("Warehouse not found!");
     }

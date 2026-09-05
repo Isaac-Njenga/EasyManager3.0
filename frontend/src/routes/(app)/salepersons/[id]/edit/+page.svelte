@@ -1,7 +1,7 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import SalepersonForm from '$lib/components/modules/salepersons/saleperson.form.svelte';
-	import type { PageProps } from '../$types';
+	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 	import { resolve } from '$app/paths';
 	import { salespersonService } from '$lib/services/salesperson/salesperson.service';
@@ -12,7 +12,7 @@
 	let { data }: PageProps = $props();
 
 	const selectedSalesperson = $derived(data.salesperson);
-	const shops = $derived(data.shops );
+	const shops = $derived(data.shops);
 	const error = $derived(data.error);
 
 	let isSubmitting = $state(false);
@@ -57,7 +57,7 @@
 	{:else}
 		<SalepersonForm
 			salesperson={selectedSalesperson}
-			shops={shops}
+			{shops}
 			onSubmit={handleUpdate}
 			{isSubmitting}
 		/>{/if}

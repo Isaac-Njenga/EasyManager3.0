@@ -1,26 +1,26 @@
 import type { TableColumn } from '$lib/types/table.types';
-import type { Product } from '$lib/types/product.types';
+import type { Product } from '$lib/services/product/product.types';
 import { formatCurrency } from '$lib/utils';
 
 export const productColumns: TableColumn<Product>[] = [
 	{
 		key: 'image',
 		header: 'Image',
-		class: 'max-w-[50px]',
+		class: 'max-w-[60px]',
 		cell: 'imageCell'
 	},
 
 	{
 		key: 'name',
 		header: 'Product',
-		class: 'max-w-[160px]',
+		class: 'max-w-[170px]',
 		cell: 'nameCell'
 	},
 
 	{
 		key: 'code',
 		header: 'Code',
-		class: 'max-w-[100px]',
+		class: 'max-w-[70px]',
 		cell: 'codeCell'
 	},
 
@@ -35,7 +35,7 @@ export const productColumns: TableColumn<Product>[] = [
 		key: 'quantity',
 		header: 'Quantity',
 		cell: 'qtyCell',
-		class: 'text-right'
+		class: 'text-center'
 		// render: (value) => `${Number(value ?? 0)}`
 	},
 

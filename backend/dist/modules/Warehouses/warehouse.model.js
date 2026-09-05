@@ -35,7 +35,7 @@ const warehouseSchema = new mongoose_1.default.Schema({
         city: { type: String, required: true },
     },
     inventorySummary: InventorySummarySchema,
-    inventoryItems: [InventoryItemSchema],
+    inventoryItems: { type: [InventoryItemSchema], required: false },
     notes: { type: String, required: false },
 }, { collection: "warehouses", timestamps: true });
 function generateWarehouseCode(name = "") {

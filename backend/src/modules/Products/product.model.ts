@@ -11,7 +11,7 @@ const LocationStockSchema = new mongoose.Schema(
     locationId: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
-      refPath:'inventoryDistribution.locationType', // the dynamic ref link
+      refPath: "locationType",
     },
 
     quantity: {

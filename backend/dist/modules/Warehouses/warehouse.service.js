@@ -14,6 +14,9 @@ const warehouseCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateWarehouseCache = () => {
     warehouseCache.flushAll();
 };
+const PRODUCT_PROFILE_POPULATE = [
+    { path: "inventoryItems.product", model: "Product" },
+];
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set(["warehouseCode"]);
 const BLOCKED_UPDATE_FIELDS = new Set([
@@ -79,7 +82,7 @@ class WarehouseService {
         if (search) {
             filter.$or = [
                 { name: { $regex: search, $options: "i" } },
-                { shopCode: { $regex: search, $options: "i" } },
+                { warehouseCode: { $regex: search, $options: "i" } },
                 { "address.city": { $regex: search, $options: "i" } },
             ];
         }
@@ -87,6 +90,7 @@ class WarehouseService {
             warehouse_model_1.WarehouseModel.find(filter)
                 .skip(skip)
                 .limit(limit)
+                .populate(PRODUCT_PROFILE_POPULATE)
                 .sort({ createdAt: -1 })
                 .lean(),
             warehouse_model_1.WarehouseModel.countDocuments(filter),
@@ -106,7 +110,9 @@ class WarehouseService {
         const cachedWarehouse = warehouseCache.get(cacheKey);
         if (cachedWarehouse)
             return cachedWarehouse;
-        const warehouse = await warehouse_model_1.WarehouseModel.findById(warehouseId).lean();
+        const warehouse = await warehouse_model_1.WarehouseModel.findById(warehouseId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         if (!warehouse) {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
@@ -117,7 +123,9 @@ class WarehouseService {
     static async updateWarehouse(warehouseId, data, requesterId, requesterRole) {
         assertWarehouseId(warehouseId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);
-        const warehouse = await warehouse_model_1.WarehouseModel.findByIdAndUpdate(warehouseId, { $set: flattenedUpdateData }, { new: true, runValidators: true }).lean();
+        const warehouse = await warehouse_model_1.WarehouseModel.findByIdAndUpdate(warehouseId, { $set: flattenedUpdateData }, { new: true, runValidators: true })
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         if (!warehouse) {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
@@ -126,7 +134,9 @@ class WarehouseService {
     }
     static async deleteWarehouse(warehouseId, requesterId, requesterRole) {
         assertWarehouseId(warehouseId);
-        const warehouse = await warehouse_model_1.WarehouseModel.findByIdAndDelete(warehouseId).lean();
+        const warehouse = await warehouse_model_1.WarehouseModel.findByIdAndDelete(warehouseId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         if (!warehouse) {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
