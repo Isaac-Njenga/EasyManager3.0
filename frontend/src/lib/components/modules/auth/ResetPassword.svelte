@@ -14,6 +14,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import { resolve } from '$app/paths';
 	import { authService } from '$lib/services/auth/auth.service';
+	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 
 	type Props = { email: string; userId: string };
 
@@ -106,8 +107,11 @@
 			</div>
 			<Separator />
 			<div class="flex flex-col gap-2">
-				<Button type="submit" disabled={isSubmitting} variant="default" class="w-full"
-					>{isSubmitting ? 'Resetting password...' : 'Reset password'}</Button
+				<Button type="submit" disabled={isSubmitting} variant="default" class="w-full">
+					{#if isSubmitting}
+						<Loader2Icon class="size-4 animate-spin" /> Resetting password...
+					{:else}Reset password
+					{/if}</Button
 				>
 				<Button href="/login" disabled={isSubmitting} variant="outline" class="w-full"
 					>Back to sign in</Button

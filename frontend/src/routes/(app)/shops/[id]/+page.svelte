@@ -52,8 +52,18 @@
 	}
 
 	async function executeTransferAction() {
-		if (await transferStore.handleTransfer()) {
-			isTransferDrawerOpen = false;
+		isSubmitting = true;
+		try {
+			if (await transferStore.handleTransfer()) {
+				isTransferDrawerOpen = false;
+			}
+		} catch (error) {
+			toast.error('Transfer failed', {
+				description:
+					error instanceof Error ? error.message : 'Something went wrong. Please try again.'
+			});
+		} finally {
+			isSubmitting = true;
 		}
 	}
 
@@ -277,8 +287,12 @@
 			<Button
 				size="xs"
 				variant="default"
-				disabled={transferStore.items.length === 0}
-				onclick={executeTransferAction}>Initiate Transfer</Button
+				disabled={transferStore.items.length === 0 || isSubmitting}
+				onclick={executeTransferAction}
+				>{#if isSubmitting}
+					<Loader2Icon class="size-4 animate-spin" /> Transferring...
+				{:else}Initiate Transfer
+				{/if}</Button
 			>
 			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>

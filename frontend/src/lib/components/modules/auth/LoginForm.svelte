@@ -8,6 +8,8 @@
 	import { Label } from '$lib/components/ui/label';
 	import { authCookies, type LoginResult } from '$lib/config/auth';
 	import { toast } from 'svelte-sonner';
+	import Loader2Icon from '@lucide/svelte/icons/loader-2';
+
 	import { authService } from '$lib/services/auth/auth.service';
 
 	let userId = $state('');
@@ -132,7 +134,11 @@
 			{/if} -->
 
 			<Button type="submit" class="w-full" disabled={isLoading}>
-				{isLoading ? 'Signing in...' : 'Sign in'}
+
+				{#if isLoading}
+					<Loader2Icon class="size-4 animate-spin" /> 'Signing in...
+				{:else}Sign in
+				{/if}
 			</Button>
 		</form>
 	</CardContent>

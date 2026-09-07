@@ -12,6 +12,7 @@
 	import * as InputOTP from '$lib/components/ui/input-otp/index.js';
 	import ResetPassword from './ResetPassword.svelte';
 	import { authService } from '$lib/services/auth/auth.service';
+	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 
 	type Props = { email: string; userId: string };
 
@@ -108,7 +109,11 @@
 							disabled={isSubmitting || otpVerified}
 							variant="outline"
 							class="w-full"
-							>{isSubmitting ? 'Resending...' : 'Resend OTP'}
+						>
+							{#if isSubmitting}
+								<Loader2Icon class="size-4 animate-spin" /> Resending...
+							{:else}Resend OTP
+							{/if}
 						</Button>
 					</div>
 				</form>
