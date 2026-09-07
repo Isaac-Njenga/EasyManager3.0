@@ -11,6 +11,8 @@ const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const sale_model_1 = require("./sale.model");
 const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
+const product_service_1 = require("../Products/product.service");
+const shop_service_1 = require("../Shops/shop.service");
 const saleCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateSaleCache = () => {
     saleCache.flushAll();
@@ -92,6 +94,8 @@ class SaleService {
             await (0, stock_1.applyLocationStockChange)("Shop", shopId, changes, -1);
             await (0, stock_1.applyProductStockChange)(changes, "Shop", shopId, -1);
         }
+        (0, product_service_1.invalidateProductCache)();
+        (0, shop_service_1.invalidateShopCache)();
         const saleDoc = new sale_model_1.SaleModel(createData);
         await saleDoc.save();
         const savedSale = await sale_model_1.SaleModel.findById(saleDoc._id).lean();

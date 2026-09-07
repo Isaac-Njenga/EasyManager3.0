@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ProductService = void 0;
+exports.ProductService = exports.invalidateProductCache = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
@@ -14,6 +14,7 @@ const productCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateProductCache = () => {
     productCache.flushAll();
 };
+exports.invalidateProductCache = invalidateProductCache;
 const LOCATION_PROFILE_POPULATE = [
     {
         path: "inventoryDistribution.locationId",
@@ -70,7 +71,7 @@ class ProductService {
         const productDoc = new product_model_1.ProductModel(createData);
         await productDoc.save();
         const savedProduct = await product_model_1.ProductModel.findById(productDoc._id).lean();
-        invalidateProductCache();
+        (0, exports.invalidateProductCache)();
         return toProduct(savedProduct ?? productDoc.toObject());
     }
     static async fetchProducts(queryParams) {
@@ -139,7 +140,7 @@ class ProductService {
         if (!product) {
             throw new NotFoundError_1.NotFoundError("Product not found!");
         }
-        invalidateProductCache();
+        (0, exports.invalidateProductCache)();
         return toProduct(product);
     }
     static async deleteProduct(productId, requesterId, requesterRole) {
@@ -148,7 +149,7 @@ class ProductService {
         if (!product) {
             throw new NotFoundError_1.NotFoundError("Product not found!");
         }
-        invalidateProductCache();
+        (0, exports.invalidateProductCache)();
         return toProduct(product);
     }
 }

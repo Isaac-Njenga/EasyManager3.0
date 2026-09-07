@@ -11,6 +11,8 @@ import {
 } from "./transfer.types";
 import { flattenObject } from "../../utils/flattenObject";
 import { applyLocationStockChange } from "../../utils/stock";
+import { invalidateShopCache } from "../Shops/shop.service";
+import { invalidateWarehouseCache } from "../Warehouses/warehouse.service";
 
 const TransferCache = new NodeCache({ stdTTL: 300 });
 
@@ -150,6 +152,8 @@ export class TransferService {
       changes,
       1,
     );
+    invalidateShopCache();
+    invalidateWarehouseCache();
 
     const transferDoc = new TransferModel(createData);
 

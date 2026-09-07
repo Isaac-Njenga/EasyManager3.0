@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.WarehouseService = void 0;
+exports.WarehouseService = exports.invalidateWarehouseCache = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
@@ -12,10 +12,12 @@ const warehouse_model_1 = require("./warehouse.model");
 const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
 const inventorySummary_1 = require("../../utils/inventorySummary");
+const product_service_1 = require("../Products/product.service");
 const warehouseCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateWarehouseCache = () => {
     warehouseCache.flushAll();
 };
+exports.invalidateWarehouseCache = invalidateWarehouseCache;
 const PRODUCT_PROFILE_POPULATE = [
     { path: "inventoryItems.product", model: "Product" },
 ];
@@ -63,7 +65,7 @@ class WarehouseService {
         const warehouseDoc = new warehouse_model_1.WarehouseModel(createData);
         await warehouseDoc.save();
         const savedWarehouse = await warehouse_model_1.WarehouseModel.findById(warehouseDoc._id).lean();
-        invalidateWarehouseCache();
+        (0, exports.invalidateWarehouseCache)();
         return toWarehouse(savedWarehouse ?? warehouseDoc.toObject());
     }
     // Pure service method decoupled from Express Request
@@ -138,7 +140,7 @@ class WarehouseService {
             });
             warehouse.inventorySummary = inventorySummary;
         }
-        invalidateWarehouseCache();
+        (0, exports.invalidateWarehouseCache)();
         return toWarehouse(warehouse);
     }
     static async distributeInventory(warehouseId, data) {
@@ -149,10 +151,11 @@ class WarehouseService {
         const changes = data.inventoryItems;
         await (0, stock_1.applyLocationStockChange)("Warehouse", warehouseId, changes, 1);
         await (0, stock_1.applyProductStockChange)(changes, "Warehouse", warehouseId, 1, 1);
+        (0, product_service_1.invalidateProductCache)();
         const finalWarehouse = await warehouse_model_1.WarehouseModel.findById(warehouseId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
-        invalidateWarehouseCache();
+        (0, exports.invalidateWarehouseCache)();
         return toWarehouse(finalWarehouse);
     }
     static async deleteWarehouse(warehouseId, requesterId, requesterRole) {
@@ -163,7 +166,7 @@ class WarehouseService {
         if (!warehouse) {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
-        invalidateWarehouseCache();
+        (0, exports.invalidateWarehouseCache)();
         return toWarehouse(warehouse);
     }
 }

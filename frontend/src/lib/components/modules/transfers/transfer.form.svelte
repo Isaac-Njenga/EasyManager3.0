@@ -7,7 +7,7 @@
 	import { shopService } from '$lib/services/shop/shop.service';
 	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
-	import type { LocationOption } from '$lib/stores/transfers/transfer.svelte';
+	import type { TransferLocationOption } from '$lib/stores/transfers/transfer.svelte';
 	import { toast } from 'svelte-sonner';
 
 	import { Button } from '$lib/components/ui/button';
@@ -42,16 +42,18 @@
 		Promise.all([warehouseService.fetch(context), shopService.fetch(context)])
 			.then(([warehouses, shops]) => {
 				if (cancelled) return;
-				const locationOptions: LocationOption[] = [
+				const locationOptions: TransferLocationOption[] = [
 					...warehouses.map((warehouse) => ({
 						locationId: warehouse._id,
 						name: warehouse.name,
-						locationType: 'Warehouse' as const
+						locationType: 'Warehouse' as const,
+						inventoryItems: warehouse.inventoryItems
 					})),
 					...shops.map((shop) => ({
 						locationId: shop._id,
 						name: shop.name,
-						locationType: 'Shop' as const
+						locationType: 'Shop' as const,
+						inventoryItems: shop.inventoryItems
 					}))
 				];
 				transferStore.setLocations(locationOptions);
@@ -86,6 +88,18 @@
 			);
 		})
 	);
+
+	const selectedDestination = $derived(
+		locations.find((location) => location.locationId === transferStore.destinationId)
+	);
+
+	function getLocationQuantity(location: TransferLocationOption | undefined, productId: string) {
+		const item = location?.inventoryItems?.find((entry) => {
+			const product = entry.product;
+			return (typeof product === 'object' ? product._id : product) === productId;
+		});
+		return item?.quantity ?? 0;
+	}
 
 	const destinationOptions = $derived(
 		locations.filter((loc) => loc.locationId !== transferStore.sourceId)
@@ -197,9 +211,12 @@
 						<p class="p-3 text-center text-xs text-muted-foreground">No active products found.</p>
 					{:else}
 						{#each filteredProducts as product (product._id)}
+							{@const sourceQuantity = transferStore.getSourceQuantity(product._id)}
+							{@const isUnavailable = sourceQuantity <= 0}
 							<button
 								type="button"
-								class="flex w-full items-center justify-between rounded-sm p-2 text-left hover:bg-accent"
+								disabled={isUnavailable}
+								class="flex w-full items-center justify-between rounded-sm p-2 text-left hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
 								onclick={() => {
 									transferStore.addProductItem(product);
 									isProductSearchOpen = false;
@@ -220,8 +237,14 @@
 									<div>
 										<p class="text-xs font-semibold">{product.name}</p>
 										<p class="text-[11px] text-muted-foreground">
-											{product.code} | Qty: {product.totalQuantity}
+											{product.code} | Source: {sourceQuantity} | Destination:
+											{getLocationQuantity(selectedDestination, product._id)}
 										</p>
+										{#if isUnavailable}
+											<p class="text-[10px] text-amber-600">
+												Not available at the selected source location
+											</p>
+										{/if}
 									</div>
 								</div>
 								<div class="flex items-center gap-2">
@@ -266,9 +289,14 @@
 								type="number"
 								min="1"
 								placeholder="Qty"
+								max={transferStore.getSourceQuantity(item._id)}
 								bind:value={item.totalQuantity}
 								class="h-9 text-xs"
 							/>
+							<p class="text-[10px] text-muted-foreground">
+								Available: {transferStore.getSourceQuantity(item._id)} | After destination:
+								{getLocationQuantity(selectedDestination, item._id) + item.totalQuantity}
+							</p>
 						</div>
 
 						<Button

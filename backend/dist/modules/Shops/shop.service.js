@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.ShopService = void 0;
+exports.ShopService = exports.invalidateShopCache = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
@@ -12,10 +12,12 @@ const shop_model_1 = require("./shop.model");
 const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
 const inventorySummary_1 = require("../../utils/inventorySummary");
+const product_service_1 = require("../Products/product.service");
 const shopCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateShopCache = () => {
     shopCache.flushAll();
 };
+exports.invalidateShopCache = invalidateShopCache;
 const PRODUCT_PROFILE_POPULATE = [
     { path: "inventoryItems.product", model: "Product" },
 ];
@@ -63,7 +65,7 @@ class ShopService {
         const shopDoc = new shop_model_1.ShopModel(createData);
         await shopDoc.save();
         const savedShop = await shop_model_1.ShopModel.findById(shopDoc._id).lean();
-        invalidateShopCache();
+        (0, exports.invalidateShopCache)();
         return toShop(savedShop ?? shopDoc.toObject());
     }
     // Pure service method decoupled from Express Request
@@ -140,7 +142,7 @@ class ShopService {
             });
             shop.inventorySummary = inventorySummary;
         }
-        invalidateShopCache();
+        (0, exports.invalidateShopCache)();
         return toShop(shop);
     }
     static async distributeInventory(shopId, data) {
@@ -151,12 +153,13 @@ class ShopService {
         const changes = data.inventoryItems;
         await (0, stock_1.applyLocationStockChange)("Shop", shopId, changes, 1);
         await (0, stock_1.applyProductStockChange)(changes, "Shop", shopId, 1, 1);
+        (0, product_service_1.invalidateProductCache)();
         const shop = await shop_model_1.ShopModel.findById(shopId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
         if (!shop)
             throw new NotFoundError_1.NotFoundError("Shop not found!");
-        invalidateShopCache();
+        (0, exports.invalidateShopCache)();
         return toShop(shop);
     }
     static async deleteShop(shopId, requesterId, requesterRole) {
@@ -165,7 +168,7 @@ class ShopService {
         if (!shop) {
             throw new NotFoundError_1.NotFoundError("Shop not found!");
         }
-        invalidateShopCache();
+        (0, exports.invalidateShopCache)();
         return toShop(shop);
     }
 }

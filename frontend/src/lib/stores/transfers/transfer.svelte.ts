@@ -11,15 +11,33 @@ import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 export type LocationOption = TransferLocation;
 
-export const transferLocations = $state<LocationOption[]>([]);
+type LocationInventoryItem = {
+	product: Product | string;
+	quantity: number;
+};
+
+export type TransferLocationOption = LocationOption & {
+	inventoryItems?: LocationInventoryItem[];
+};
+
+export const transferLocations = $state<TransferLocationOption[]>([]);
 
 class TransferStore {
 	sourceId = $state('');
 	destinationId = $state('');
 	items = $state<Product[]>([]);
 
-	setLocations(locations: LocationOption[]) {
+	setLocations(locations: TransferLocationOption[]) {
 		transferLocations.splice(0, transferLocations.length, ...locations);
+	}
+
+	getSourceQuantity(productId: string): number {
+		const source = transferLocations.find((location) => location.locationId === this.sourceId);
+		const item = source?.inventoryItems?.find((entry) => {
+			const product = entry.product;
+			return (typeof product === 'object' ? product._id : product) === productId;
+		});
+		return item?.quantity ?? 0;
 	}
 
 	start(sourceId: string) {
@@ -38,9 +56,19 @@ class TransferStore {
 	}
 
 	addProductItem(product: Product) {
+		const availableQuantity = this.getSourceQuantity(product._id);
+		if (availableQuantity <= 0) {
+			toast.info(`${product.name} is not available at the selected source location.`);
+			return;
+		}
+
 		const existingIndex = this.items.findIndex((i) => i._id === product._id);
 
 		if (existingIndex !== -1) {
+			if (this.items[existingIndex].totalQuantity >= availableQuantity) {
+				toast.info(`Only ${availableQuantity} unit(s) of ${product.name} are available.`);
+				return;
+			}
 			this.items[existingIndex].totalQuantity += 1;
 			toast.info(`Updated quantity for ${product.name}`);
 		} else {
@@ -91,6 +119,10 @@ class TransferStore {
 		const validItems = this.items.filter((i) => i.name.trim() && i.totalQuantity > 0);
 		if (validItems.length === 0) {
 			toast.warning('Please ensure all items have valid quantities.');
+			return false;
+		}
+		if (validItems.some((item) => item.totalQuantity > this.getSourceQuantity(item._id))) {
+			toast.error('Transfer quantity cannot exceed source location stock.');
 			return false;
 		}
 

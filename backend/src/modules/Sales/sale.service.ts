@@ -14,6 +14,8 @@ import {
   applyLocationStockChange,
   applyProductStockChange,
 } from "../../utils/stock";
+import { invalidateProductCache } from "../Products/product.service";
+import { invalidateShopCache } from "../Shops/shop.service";
 
 const saleCache = new NodeCache({ stdTTL: 300 });
 
@@ -130,6 +132,9 @@ export class SaleService {
       await applyLocationStockChange("Shop", shopId, changes, -1);
       await applyProductStockChange(changes, "Shop", shopId, -1);
     }
+
+    invalidateProductCache();
+    invalidateShopCache();
 
     const saleDoc = new SaleModel(createData);
 

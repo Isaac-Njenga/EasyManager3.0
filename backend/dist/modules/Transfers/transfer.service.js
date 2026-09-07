@@ -11,6 +11,8 @@ const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const transfer_model_1 = require("./transfer.model");
 const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
+const shop_service_1 = require("../Shops/shop.service");
+const warehouse_service_1 = require("../Warehouses/warehouse.service");
 const TransferCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateTransferCache = () => {
     TransferCache.flushAll();
@@ -99,6 +101,8 @@ class TransferService {
         }));
         await (0, stock_1.applyLocationStockChange)(source.locationType, source.locationId, changes, -1);
         await (0, stock_1.applyLocationStockChange)(destination.locationType, destination.locationId, changes, 1);
+        (0, shop_service_1.invalidateShopCache)();
+        (0, warehouse_service_1.invalidateWarehouseCache)();
         const transferDoc = new transfer_model_1.TransferModel(createData);
         await transferDoc.save();
         const savedTransfer = await transfer_model_1.TransferModel.findById(transferDoc._id)

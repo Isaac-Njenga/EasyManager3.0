@@ -16,10 +16,11 @@ import {
   applyProductStockChange,
 } from "../../utils/stock";
 import { calculateInventorySummary } from "../../utils/inventorySummary";
+import { invalidateProductCache } from "../Products/product.service";
 
 const warehouseCache = new NodeCache({ stdTTL: 300 });
 
-const invalidateWarehouseCache = (): void => {
+export const invalidateWarehouseCache = (): void => {
   warehouseCache.flushAll();
 };
 
@@ -226,6 +227,7 @@ export class WarehouseService {
     const changes = data.inventoryItems;
     await applyLocationStockChange("Warehouse", warehouseId, changes, 1);
     await applyProductStockChange(changes, "Warehouse", warehouseId, 1, 1);
+    invalidateProductCache();
 
     const finalWarehouse = await WarehouseModel.findById(warehouseId)
       .populate(PRODUCT_PROFILE_POPULATE)

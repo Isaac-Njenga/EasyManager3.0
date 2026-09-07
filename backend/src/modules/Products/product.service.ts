@@ -13,7 +13,7 @@ import { flattenObject } from "../../utils/flattenObject";
 
 const productCache = new NodeCache({ stdTTL: 300 });
 
-const invalidateProductCache = (): void => {
+export const invalidateProductCache = (): void => {
   productCache.flushAll();
 };
 
