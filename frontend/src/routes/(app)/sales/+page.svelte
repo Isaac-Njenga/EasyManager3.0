@@ -50,7 +50,10 @@
 	}
 
 	function formatDateKey(date: Date): string {
-		return date.toISOString().split('T')[0];
+		const year = date.getFullYear();
+		const month = String(date.getMonth() + 1).padStart(2, '0');
+		const day = String(date.getDate()).padStart(2, '0');
+		return `${year}-${month}-${day}`;
 	}
 
 	// --- Derived Computations ---
@@ -59,7 +62,12 @@
 		Array.from({ length: 7 }, (_, i) => {
 			const dayDate = addDays(selectedWeekStart, i);
 			const dateStr = formatDateKey(dayDate);
-			const salesForDay = sales.filter((s) => s.dateOfSale?.startsWith(dateStr));
+			// Match using local date format key - for consistency
+			const salesForDay = sales.filter((s) => {
+				if (!s.dateOfSale) return false;
+				const saleLocalDateStr = formatDateKey(new Date(s.dateOfSale));
+				return saleLocalDateStr === dateStr;
+			});
 			const totalRevenue = salesForDay.reduce((sum, s) => sum + (s.grandTotal || 0), 0);
 
 			return {

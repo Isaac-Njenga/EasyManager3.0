@@ -5,6 +5,14 @@ const performanceSchema = new mongoose.Schema(
     totalSales: { type: Number, default: 0 },
     totalRevenueGenerated: { type: Number, default: 0 },
     totalCommissionEarned: { type: Number, default: 0 },
+    totalUnitsSold: { type: Number, default: 0 },
+  },
+  { _id: false },
+);
+
+const saleSchema = new mongoose.Schema(
+  {
+    sales: { type: mongoose.Schema.Types.ObjectId, ref: "Sale", default: 0 },
   },
   { _id: false },
 );
@@ -26,6 +34,7 @@ const salepersonSchema = new mongoose.Schema(
     },
     totalCommission: { type: Number, default: 0 },
     performanceSummary: { type: performanceSchema, default: {} },
+    sales: { type: [saleSchema], default: [] },
     hireDate: { type: Date, required: true },
   },
   { collection: "salepersons", timestamps: true },
