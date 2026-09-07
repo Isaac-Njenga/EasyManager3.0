@@ -44,3 +44,12 @@ export type CreateProductInput = {
 	sellingPrice: number;
 	status: ProductStatus;
 };
+
+export type ProductCategory =
+	| 'Chairs & Seats'
+	| 'Desks & Tables'
+	| 'Storage & Filing'
+	| 'Space Dividers & Panels'
+	| 'Second-hand Furniture'
+	| 'Accessories & Ergonomics'
+	| 'Outdoor & Breakroom';

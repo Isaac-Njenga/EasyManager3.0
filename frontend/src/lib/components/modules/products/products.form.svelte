@@ -2,7 +2,8 @@
 	import type {
 		Product,
 		ProductStatus,
-		CreateProductInput
+		CreateProductInput,
+		ProductCategory
 	} from '$lib/services/product/product.types';
 
 	import { Button } from '$lib/components/ui/button';
@@ -13,6 +14,7 @@
 	import * as RadioGroup from '$lib/components/ui/radio-group/index.js';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import ImageUpload from '$lib/components/common/ImageUpload.svelte';
+	import * as Select from '$lib/components/ui/select/index.js';
 
 	type Props = {
 		product?: Product;
@@ -22,13 +24,27 @@
 
 	let { product, onSubmit, isSubmitting = false }: Props = $props();
 
+	const categoryOptions: { value: ProductCategory; label: string }[] = [
+		{
+			value: 'Chairs & Seats',
+			label: 'Chairs & Seats'
+		},
+		{ value: 'Desks & Tables', label: 'Desks & Tables' },
+		{ value: 'Storage & Filing', label: 'Storage & Filing' },
+		{ value: 'Space Dividers & Panels', label: 'Space Dividers & Panels' },
+		{ value: 'Second-hand Furniture', label: 'Second-hand Furniture' },
+		{ value: 'Accessories & Ergonomics', label: 'Accessories & Ergonomics' },
+		{ value: 'Outdoor & Breakroom', label: 'Outdoor & Breakroom' }
+	];
+
 	let name = $state('');
 	let sku = $state('');
 	let code = $state('');
 	let colour = $state('');
 	let image = $state<string[]>([]);
 	let description = $state('');
-	let category = $state('');
+	// let category = $state<ProductCategory>('Chairs & Seats');
+	let category: ProductCategory | string = $state<ProductCategory>('Chairs & Seats');
 	let costPrice = $state('');
 	let sellingPrice = $state('');
 	let status = $state<ProductStatus>('Active');
@@ -42,11 +58,15 @@
 		colour = product?.colour ?? '';
 		image = product?.image ?? [];
 		description = product?.description ?? '';
-		category = product?.category ?? '';
+		category = product?.category ?? 'Chairs & Seats';
 		costPrice = product?.costPrice?.toString() ?? '';
 		sellingPrice = product?.sellingPrice?.toString() ?? '';
 		status = product?.status ?? 'Active';
 	});
+
+	const categoryTriggerContent = $derived(
+		categoryOptions.find((s) => s.value === category)?.label ?? 'Select status'
+	);
 
 	function validate(): boolean {
 		const newErrors: Record<string, string> = {};
@@ -73,7 +93,7 @@
 			colour: colour.trim() || undefined,
 			image: [...image],
 			description: description.trim() || undefined,
-			category: category.trim(),
+			category,
 			costPrice: Number(costPrice),
 			sellingPrice: Number(sellingPrice),
 			status: status
@@ -148,13 +168,29 @@
 
 					<div class="space-y-2 sm:col-span-2">
 						<Label for="category">Category <span class="text-destructive">*</span></Label>
-						<Input
+						<Select.Root type="single" name="category" bind:value={category}>
+							<Select.Trigger
+								class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
+							>
+								{categoryTriggerContent}
+							</Select.Trigger>
+							<Select.Content>
+								<Select.Group>
+									{#each categoryOptions as s (s.value)}
+										<Select.Item value={s.value} label={s.label}>
+											{s.label}
+										</Select.Item>
+									{/each}
+								</Select.Group>
+							</Select.Content>
+						</Select.Root>
+						<!-- <Input
 							id="category"
 							bind:value={category}
 							placeholder="Office Chair"
 							required
 							aria-invalid={!!errors.category}
-						/>
+						/> -->
 						{#if errors.category}
 							<p class="text-xs text-destructive">{errors.category}</p>
 						{/if}
