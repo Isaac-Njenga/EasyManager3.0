@@ -21,6 +21,13 @@ type InventoryDocument = {
 const getLocationModel = (locationType: StockLocationType) =>
   locationType === "Shop" ? ShopModel : WarehouseModel;
 
+const getObjectIdString = (value: unknown): string => {
+  if (value && typeof value === "object" && "_id" in value) {
+    return String((value as { _id: unknown })._id);
+  }
+  return String(value);
+};
+
 const assertChanges = (changes: StockChange[]): void => {
   if (!changes.length)
     throw new BadRequestError("At least one stock item is required");
@@ -60,7 +67,8 @@ export async function applyProductStockChange(
       );
     }
     const existing = (product.inventoryDistribution ?? []).find(
-      (entry: any) => String(entry.locationId) === String(locationId),
+      (entry: any) =>
+        getObjectIdString(entry.locationId) === String(locationId),
     );
     if (
       distributionDirection === -1 &&
@@ -83,7 +91,7 @@ export async function applyProductStockChange(
 
     const distribution: any[] = [...(product.inventoryDistribution ?? [])];
     const existing = distribution.find(
-      (entry) => String(entry.locationId) === String(locationId),
+      (entry) => getObjectIdString(entry.locationId) === String(locationId),
     );
 
     if (existing) {
@@ -134,7 +142,9 @@ export async function applyLocationStockChange(
 
   const items = location.inventoryItems ?? [];
   for (const [productId, quantity] of totals) {
-    const item = items.find((entry) => String(entry.product) === productId);
+    const item = items.find(
+      (entry) => getObjectIdString(entry.product) === productId,
+    );
     if (direction === -1 && (!item || item.quantity < quantity)) {
       throw new BadRequestError(
         `Insufficient stock for product ${productId} at ${locationType}`,
@@ -143,7 +153,9 @@ export async function applyLocationStockChange(
   }
 
   for (const [productId, quantity] of totals) {
-    const item = items.find((entry) => String(entry.product) === productId);
+    const item = items.find(
+      (entry) => getObjectIdString(entry.product) === productId,
+    );
     if (item) {
       item.quantity += direction * quantity;
     } else {

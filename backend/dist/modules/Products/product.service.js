@@ -31,6 +31,8 @@ const BLOCKED_UPDATE_FIELDS = new Set([
     "id",
     "createdAt",
     "updatedAt",
+    "totalQuantity",
+    "inventoryDistribution",
 ]);
 const assertProductId = (productId) => {
     if (!productId) {

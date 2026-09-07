@@ -12,6 +12,12 @@ const shop_model_1 = require("../modules/Shops/shop.model");
 const warehouse_model_1 = require("../modules/Warehouses/warehouse.model");
 const inventorySummary_1 = require("./inventorySummary");
 const getLocationModel = (locationType) => locationType === "Shop" ? shop_model_1.ShopModel : warehouse_model_1.WarehouseModel;
+const getObjectIdString = (value) => {
+    if (value && typeof value === "object" && "_id" in value) {
+        return String(value._id);
+    }
+    return String(value);
+};
 const assertChanges = (changes) => {
     if (!changes.length)
         throw new BadRequestError_1.BadRequestError("At least one stock item is required");
@@ -37,7 +43,7 @@ async function applyProductStockChange(changes, locationType, locationId, direct
         if (direction === -1 && product.totalQuantity < quantity) {
             throw new BadRequestError_1.BadRequestError(`Insufficient total stock for product ${productId}`);
         }
-        const existing = (product.inventoryDistribution ?? []).find((entry) => String(entry.locationId) === String(locationId));
+        const existing = (product.inventoryDistribution ?? []).find((entry) => getObjectIdString(entry.locationId) === String(locationId));
         if (distributionDirection === -1 &&
             (!existing || existing.quantity < quantity)) {
             throw new BadRequestError_1.BadRequestError(`Insufficient stock at ${locationType} ${locationId}`);
@@ -48,7 +54,7 @@ async function applyProductStockChange(changes, locationType, locationId, direct
             ? { _id: productId, totalQuantity: { $gte: quantity } }
             : { _id: productId }, { $inc: { totalQuantity: direction * quantity } }, { new: true, runValidators: true }));
         const distribution = [...(product.inventoryDistribution ?? [])];
-        const existing = distribution.find((entry) => String(entry.locationId) === String(locationId));
+        const existing = distribution.find((entry) => getObjectIdString(entry.locationId) === String(locationId));
         if (existing) {
             if (distributionDirection === -1 && existing.quantity < quantity) {
                 throw new BadRequestError_1.BadRequestError(`Insufficient stock at ${locationType} ${locationId}`);
@@ -81,13 +87,13 @@ async function applyLocationStockChange(locationType, locationId, changes, direc
     }
     const items = location.inventoryItems ?? [];
     for (const [productId, quantity] of totals) {
-        const item = items.find((entry) => String(entry.product) === productId);
+        const item = items.find((entry) => getObjectIdString(entry.product) === productId);
         if (direction === -1 && (!item || item.quantity < quantity)) {
             throw new BadRequestError_1.BadRequestError(`Insufficient stock for product ${productId} at ${locationType}`);
         }
     }
     for (const [productId, quantity] of totals) {
-        const item = items.find((entry) => String(entry.product) === productId);
+        const item = items.find((entry) => getObjectIdString(entry.product) === productId);
         if (item) {
             item.quantity += direction * quantity;
         }

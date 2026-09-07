@@ -35,6 +35,8 @@ const BLOCKED_UPDATE_FIELDS = new Set<string>([
   "id",
   "createdAt",
   "updatedAt",
+  "totalQuantity",
+  "inventoryDistribution",
 ]);
 
 const assertProductId = (productId: string): void => {

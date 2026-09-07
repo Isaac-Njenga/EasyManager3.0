@@ -2,8 +2,8 @@ import mongoose from "mongoose";
 import crypto from "node:crypto";
 
 const customerSchema = new mongoose.Schema({
-  name: { type: String, required: true },
-  phone: { type: String, required: true },
+  name: { type: String, required: false },
+  phone: { type: String, required: false },
   email: { type: String, required: false },
 });
 

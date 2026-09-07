@@ -225,7 +225,7 @@ export class WarehouseService {
 
     const changes = data.inventoryItems;
     await applyLocationStockChange("Warehouse", warehouseId, changes, 1);
-    await applyProductStockChange(changes, "Warehouse", warehouseId, -1, 1);
+    await applyProductStockChange(changes, "Warehouse", warehouseId, 1, 1);
 
     const finalWarehouse = await WarehouseModel.findById(warehouseId)
       .populate(PRODUCT_PROFILE_POPULATE)

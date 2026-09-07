@@ -225,7 +225,7 @@ export class ShopService {
 
     const changes = data.inventoryItems;
     await applyLocationStockChange("Shop", shopId, changes, 1);
-    await applyProductStockChange(changes, "Shop", shopId, -1, 1);
+    await applyProductStockChange(changes, "Shop", shopId, 1, 1);
 
     const shop = await ShopModel.findById(shopId)
       .populate(PRODUCT_PROFILE_POPULATE)

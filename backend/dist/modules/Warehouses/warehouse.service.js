@@ -148,7 +148,7 @@ class WarehouseService {
         }
         const changes = data.inventoryItems;
         await (0, stock_1.applyLocationStockChange)("Warehouse", warehouseId, changes, 1);
-        await (0, stock_1.applyProductStockChange)(changes, "Warehouse", warehouseId, -1, 1);
+        await (0, stock_1.applyProductStockChange)(changes, "Warehouse", warehouseId, 1, 1);
         const finalWarehouse = await warehouse_model_1.WarehouseModel.findById(warehouseId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();

@@ -139,10 +139,10 @@
 {#snippet stockCell(value: unknown, shop: Shop)}
 	<div class="flex flex-col">
 		<span class="font-medium text-foreground">
-			{shop.inventorySummary?.totalItemsInStock.toLocaleString() ?? 0} units
+			Total Units: {shop.inventorySummary?.totalItemsInStock.toLocaleString() ?? 0}
 		</span>
 		<span class="text-xs text-muted-foreground">
-			{shop.inventorySummary?.totalProducts ?? 0} items
+			Products: {shop.inventorySummary?.totalProducts ?? 0}
 		</span>
 	</div>
 {/snippet}

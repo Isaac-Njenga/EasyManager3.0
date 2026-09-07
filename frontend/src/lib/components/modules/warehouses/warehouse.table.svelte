@@ -93,6 +93,11 @@
 {#snippet nameCell(value: unknown, warehouse: Warehouse)}
 	<div class="w-full">
 		<div class="truncate font-medium text-foreground">{warehouse.name}</div>
+		{#if warehouse.address?.building}
+			<div class="truncate text-xs text-muted-foreground">
+				{warehouse.address.building}
+			</div>
+		{/if}
 	</div>
 {/snippet}
 
@@ -102,11 +107,6 @@
 		<div class="truncate font-medium text-foreground">
 			{warehouse.address?.city ?? 'N/A'}
 		</div>
-		{#if warehouse.address?.building}
-			<div class="truncate text-xs text-muted-foreground">
-				{warehouse.address.building}
-			</div>
-		{/if}
 	</div>
 {/snippet}
 
@@ -147,10 +147,10 @@
 {#snippet stockCell(value: unknown, warehouse: Warehouse)}
 	<div class="flex flex-col">
 		<span class="font-medium text-foreground">
-			{(warehouse.inventorySummary?.totalItemsInStock ?? 0).toLocaleString()} units
+			Total Units: {(warehouse.inventorySummary?.totalItemsInStock ?? 0).toLocaleString()}
 		</span>
 		<span class="text-xs text-muted-foreground">
-			{warehouse.inventorySummary?.totalProducts ?? 0} SKUs
+			Products: {warehouse.inventorySummary?.totalProducts ?? 0}
 		</span>
 	</div>
 {/snippet}

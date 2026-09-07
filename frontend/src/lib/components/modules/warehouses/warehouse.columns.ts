@@ -11,26 +11,26 @@ export const warehouseColumns: TableColumn<Warehouse>[] = [
 	{
 		key: 'name',
 		header: 'Warehouse',
-		cell: 'nameCell',
-		class: 'max-w-[80px]'
+		cell: 'nameCell', 
+		class: 'max-w-[100px]'
 	},
 	{
 		key: 'address',
 		header: 'Location',
-		class: 'max-w-[60px]',
+		class: 'max-w-[50px]',
 		cell: 'locationCell'
 	},
 	{
 		key: 'status',
 		header: 'Status',
 		cell: 'statusCell',
-		class: 'text-left max-w-[40px]'
+		class: 'text-left max-w-[50px]'
 	},
 	{
 		key: 'inventorySummary',
 		header: 'Stock Level',
 		cell: 'stockCell',
-		class: 'text-left max-w-[30px]'
+		class: 'text-left max-w-[60px]'
 	},
 	{
 		key: 'actions',

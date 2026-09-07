@@ -7,8 +7,8 @@ exports.SaleModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_crypto_1 = __importDefault(require("node:crypto"));
 const customerSchema = new mongoose_1.default.Schema({
-    name: { type: String, required: true },
-    phone: { type: String, required: true },
+    name: { type: String, required: false },
+    phone: { type: String, required: false },
     email: { type: String, required: false },
 });
 const saleItemSchema = new mongoose_1.default.Schema({

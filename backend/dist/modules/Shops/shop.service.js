@@ -150,7 +150,7 @@ class ShopService {
         }
         const changes = data.inventoryItems;
         await (0, stock_1.applyLocationStockChange)("Shop", shopId, changes, 1);
-        await (0, stock_1.applyProductStockChange)(changes, "Shop", shopId, -1, 1);
+        await (0, stock_1.applyProductStockChange)(changes, "Shop", shopId, 1, 1);
         const shop = await shop_model_1.ShopModel.findById(shopId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();

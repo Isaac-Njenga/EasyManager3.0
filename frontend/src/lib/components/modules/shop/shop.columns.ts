@@ -32,18 +32,10 @@ export const shopColumns: TableColumn<Shop>[] = [
 
 	{
 		key: 'inventorySummary',
-		header: 'Items in Stock',
+		header: 'Stock Level',
 		class: 'text-left max-w-[60px]',
 		cell: 'stockCell'
 	},
-
-	// {
-	// 	key: 'inventorySummary',
-	// 	header: 'Stock Value',
-	// 	class: 'text-right max-w-[130px]',
-	// 	render: (value) =>
-	// 		formatCurrency(Number((value as Shop['inventorySummary'])?.totalStockValue ?? 0))
-	// },
 
 	{
 		key: 'actions',
