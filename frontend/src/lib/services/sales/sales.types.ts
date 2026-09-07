@@ -9,7 +9,8 @@ export type SaleStatus = 'Completed' | 'Processing' | 'Cancelled' | 'Returned';
 export type OmittedProduct = Omit<Product, 'inventory'>;
 
 export type SaleItem = {
-	product: OmittedProduct;
+	product: Product;
+	// product: OmittedProduct;
 	quantity: number;
 	shop: Shop;
 	soldPrice?: number;

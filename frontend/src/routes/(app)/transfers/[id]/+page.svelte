@@ -33,11 +33,42 @@
 	let searchTerm = $state('');
 	let isSearching = $state(false);
 
+	// const populatedProducts = $derived.by<Product[]>(() => {
+	// 	if (!selectedTransfer?.items) return [];
+	// 	return selectedTransfer.items.flatMap((item) => item.product).filter(
+	// 		(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
+	// 	);
+	// });
+
+	
+
 	const populatedProducts = $derived.by<Product[]>(() => {
 		if (!selectedTransfer?.items) return [];
-		return selectedTransfer.items.filter(
-			(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
-		);
+
+		//eslint-disable-next-line
+		return selectedTransfer.items.flatMap((entry: any) => {
+			if (!entry || typeof entry !== 'object') return [];
+
+			if ('_id' in entry && 'name' in entry && 'code' in entry) {
+				return [entry as Product];
+			}
+
+			if ('product' in entry && entry.product && typeof entry.product === 'object') {
+				const product = entry.product as Product;
+				if ('_id' in product && 'name' in product) {
+					return [
+						{
+							...product,
+							totalQuantity: Number(
+								(entry as { quantity?: number }).quantity ?? product.totalQuantity ?? 0
+							)
+						}
+					];
+				}
+			}
+
+			return [];
+		});
 	});
 
 	let filteredInventory = $derived(
@@ -101,7 +132,7 @@
 				{#if populatedProducts.length > 0}
 					<ProductsTable
 						filteredProducts={filteredInventory}
-						// shopId={selectedWarehouse._id}
+						// shopId={selectedTransfer._id}
 					/>
 				{:else}
 					<div class="py-8 text-center text-xs text-muted-foreground">

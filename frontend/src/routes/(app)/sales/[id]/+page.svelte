@@ -43,11 +43,6 @@
 					<Calendar class="size-3.5" />
 					{format(new Date(selectedSale.dateOfSale), 'PPPP')}
 				</p>
-				<p class="text-xs text-muted-foreground">
-					Salesperson: <span class="font-medium text-foreground"
-						>{selectedSale.saleperson.firstName} {selectedSale.saleperson.lastName}</span
-					>
-				</p>
 			</div>
 
 			<!-- Transaction Badges -->
@@ -74,13 +69,13 @@
 			</div>
 
 			<div class="space-y-2.5">
-				{#each selectedSale.items.product as item (item._id)}
+				{#each selectedSale.items as item (item.product._id)}
 					<div class="flex items-start gap-3 rounded-lg border bg-card p-3 shadow-sm">
 						<!-- Product Image / Placeholder -->
-						{#if item.image && item.image.length > 0}
+						{#if item.product.image && item.product.image.length > 0}
 							<img
-								src={item.image[0]}
-								alt={item.name}
+								src={item.product.image[0]}
+								alt={item.product.code}
 								class="size-17 shrink-0 rounded-md border object-cover"
 							/>
 						{:else}
@@ -94,26 +89,32 @@
 						<!-- Item Details -->
 						<div class="flex-1 space-y-1">
 							<div class="flex items-start justify-between gap-2">
-								<h5 class="text-xs leading-snug font-semibold">{item.name}</h5>
+								<h5 class="text-xs leading-snug font-semibold">
+									{item.product.name} - {item.shop.name}
+								</h5>
 								<span class="font-semibold text-green-400">
-									{formatCurrency(item.totalPrice)}
+									{formatCurrency(item.product.sellingPrice)}
 								</span>
 							</div>
 
 							<div class="flex flex-row justify-between gap-2">
-								<div class="flex flex-col gap-2 text-[9px] text-muted-foreground">
-									<span><strong class="font-medium text-foreground">Code:</strong> {item.code}</span
+								<div class="flex flex-col gap-2 text-[11px] text-muted-foreground">
+									<span
+										><strong class="font-medium text-foreground">Code:</strong>
+										{item.product.code}</span
 									>
 									<span
-										><strong class="font-medium text-foreground">Colour:</strong>
-										{item.colour}</span
+										><strong class="text-capitalize font-medium text-foreground">Colour:</strong>
+										{item.product.colour}</span
 									>
 								</div>
 
 								<div class="flex items-center justify-between pt-1 text-xs">
 									<span class="flex items-center gap-1 text-[10px] text-muted-foreground"> </span>
 									<span class="text-muted-foreground">
-										{item.quantity} × {formatCurrency(item.sellingPrice)}
+										{item.quantity} × {item.soldPrice !== undefined
+											? formatCurrency(item.soldPrice)
+											: formatCurrency(item.product.sellingPrice)}
 										{#if item.discount > 0}
 											<span class="font-medium text-rose-500"
 												>(-{formatCurrency(item.discount)})</span
