@@ -11,6 +11,7 @@ function WarehouseRouter() {
     router.get("/get-warehouses", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, warehouse_controller_1.fetchWarehouses);
     router.get("/get-warehouse/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, warehouse_controller_1.fetchWarehouseById);
     router.put("/update-warehouse/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, warehouse_controller_1.updateWarehouse);
+    router.put("/distribute-inventory/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, warehouse_controller_1.distributeWarehouseInventory);
     router.delete("/delete-warehouse/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, warehouse_controller_1.deleteWarehouse);
     return router;
 }

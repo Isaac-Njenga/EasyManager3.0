@@ -11,14 +11,17 @@ const InventorySummarySchema = new mongoose.Schema(
   { _id: false },
 );
 
-const InventoryItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
+const InventoryItemSchema = new mongoose.Schema(
+  {
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: { type: Number, required: true },
   },
-  quantity: { type: Number, required: true },
-});
+  { _id: false },
+);
 
 const shopSchema = new mongoose.Schema(
   {
@@ -36,7 +39,7 @@ const shopSchema = new mongoose.Schema(
       town: { type: String, required: true },
     },
     inventorySummary: InventorySummarySchema,
-    inventoryItems: [InventoryItemSchema],
+    inventoryItems: { type: [InventoryItemSchema], required: false },
     notes: { type: String, required: false },
   },
   { collection: "shops", timestamps: true },

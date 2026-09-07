@@ -4,7 +4,11 @@ import { catchAsync } from "../../common/utils/catchAsync";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { createLog } from "../Logs/logs.service";
 import { ShopService } from "./shop.service";
-import { CreateShopDTO, UpdateShopDTO } from "./shop.types";
+import {
+  CreateShopDTO,
+  ShopDistributionInput,
+  UpdateShopDTO,
+} from "./shop.types";
 
 const getShopIdParam = (id: string | string[] | undefined): string => {
   if (!id) {
@@ -117,6 +121,23 @@ export const updateShop = catchAsync(
       success: true,
       data: shop,
       message: "Shop updated successfully",
+    });
+  },
+);
+
+export const distributeShopInventory = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const id = getShopIdParam(req.params.id);
+
+    const shop = await ShopService.distributeInventory(
+      id,
+      req.body as ShopDistributionInput,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: shop,
+      message: "Inventory distributed successfully",
     });
   },
 );

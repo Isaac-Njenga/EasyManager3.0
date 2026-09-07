@@ -1,7 +1,10 @@
 <script lang="ts">
 	import type { Product } from '$lib/services/product/product.types';
-	import type { Shop } from '$lib/services/shop/shop.types';
-	import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
+	import type { Shop, ShopDistributionInput } from '$lib/services/shop/shop.types';
+	import type {
+		Warehouse,
+		WarehouseDistributionInput
+	} from '$lib/services/warehouse/warehouse.types';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import SearchIcon from '@lucide/svelte/icons/search';
 	import XIcon from '@lucide/svelte/icons/x';
@@ -23,10 +26,9 @@
 		products: Product[];
 		selectedLocation?: Warehouse | Shop;
 		locationType: string;
-		onDistribute?: (payload: {
-			locationId: string;
-			items: { productId: string; quantity: number }[];
-		}) => Promise<void>;
+		onDistribute: (
+			payload: WarehouseDistributionInput | ShopDistributionInput
+		) => Promise<void> | void;
 	};
 
 	let { products, locationType, selectedLocation, onDistribute }: Props = $props();
@@ -125,23 +127,20 @@
 		e.preventDefault();
 		if (!selectedLocation || !hasValidAllocations) return;
 
-		const validItems = queuedList
+		const inventoryItems = queuedList
 			.filter((item) => item.quantityToAdd > 0)
 			.map((item) => ({
-				productId: item.product._id,
+				product: item.product._id,
 				quantity: item.quantityToAdd
 			}));
 
 		isSubmitting = true;
 		try {
-			await onDistribute?.({
-				locationId: selectedLocation._id,
-				items: validItems
-			});
-			console.log({
-				locationId: selectedLocation._id,
-				items: validItems
-			});
+			const payload: WarehouseDistributionInput = { inventoryItems: inventoryItems };
+
+			await onDistribute(payload);
+
+			// console.log({ payload });
 			resetForm();
 		} finally {
 			isSubmitting = false;

@@ -19,7 +19,7 @@ const InventoryItemSchema = new mongoose_1.default.Schema({
         required: true,
     },
     quantity: { type: Number, required: true },
-});
+}, { _id: false });
 const shopSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     status: {
@@ -35,7 +35,7 @@ const shopSchema = new mongoose_1.default.Schema({
         town: { type: String, required: true },
     },
     inventorySummary: InventorySummarySchema,
-    inventoryItems: [InventoryItemSchema],
+    inventoryItems: { type: [InventoryItemSchema], required: false },
     notes: { type: String, required: false },
 }, { collection: "shops", timestamps: true });
 // Code Generator Function

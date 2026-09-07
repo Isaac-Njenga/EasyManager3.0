@@ -10,10 +10,15 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const shop_model_1 = require("./shop.model");
 const flattenObject_1 = require("../../utils/flattenObject");
+const stock_1 = require("../../utils/stock");
+const inventorySummary_1 = require("../../utils/inventorySummary");
 const shopCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateShopCache = () => {
     shopCache.flushAll();
 };
+const PRODUCT_PROFILE_POPULATE = [
+    { path: "inventoryItems.product", model: "Product" },
+];
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set(["shopCode"]);
 const BLOCKED_UPDATE_FIELDS = new Set([
@@ -89,6 +94,7 @@ class ShopService {
             shop_model_1.ShopModel.find(filter)
                 .skip(skip)
                 .limit(limit)
+                .populate(PRODUCT_PROFILE_POPULATE)
                 .sort({ createdAt: -1 })
                 .lean(),
             shop_model_1.ShopModel.countDocuments(filter),
@@ -108,7 +114,9 @@ class ShopService {
         const cachedShop = shopCache.get(cacheKey);
         if (cachedShop)
             return cachedShop;
-        const shop = await shop_model_1.ShopModel.findById(shopId).lean();
+        const shop = await shop_model_1.ShopModel.findById(shopId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         if (!shop) {
             throw new NotFoundError_1.NotFoundError("Shop not found!");
         }
@@ -119,10 +127,35 @@ class ShopService {
     static async updateShop(shopId, data, requesterId, requesterRole) {
         assertShopId(shopId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);
-        const shop = await shop_model_1.ShopModel.findByIdAndUpdate(shopId, { $set: flattenedUpdateData }, { new: true, runValidators: true }).lean();
+        const shop = await shop_model_1.ShopModel.findByIdAndUpdate(shopId, { $set: flattenedUpdateData }, { new: true, runValidators: true })
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         if (!shop) {
             throw new NotFoundError_1.NotFoundError("Shop not found!");
         }
+        if (flattenedUpdateData.inventoryItems) {
+            const inventorySummary = (0, inventorySummary_1.calculateInventorySummary)(shop.inventoryItems);
+            await shop_model_1.ShopModel.findByIdAndUpdate(shopId, {
+                $set: { inventorySummary },
+            });
+            shop.inventorySummary = inventorySummary;
+        }
+        invalidateShopCache();
+        return toShop(shop);
+    }
+    static async distributeInventory(shopId, data) {
+        assertShopId(shopId);
+        if (!data?.inventoryItems?.length) {
+            throw new BadRequestError_1.BadRequestError("At least one inventory item is required");
+        }
+        const changes = data.inventoryItems;
+        await (0, stock_1.applyLocationStockChange)("Shop", shopId, changes, 1);
+        await (0, stock_1.applyProductStockChange)(changes, "Shop", shopId, -1, 1);
+        const shop = await shop_model_1.ShopModel.findById(shopId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
+        if (!shop)
+            throw new NotFoundError_1.NotFoundError("Shop not found!");
         invalidateShopCache();
         return toShop(shop);
     }

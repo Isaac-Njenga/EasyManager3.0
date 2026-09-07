@@ -4,7 +4,11 @@ import { catchAsync } from "../../common/utils/catchAsync";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { createLog } from "../Logs/logs.service";
 import { WarehouseService } from "./warehouse.service";
-import { CreateWarehouseDTO, UpdateWarehouseDTO } from "./warehouse.types";
+import {
+  CreateWarehouseDTO,
+  UpdateWarehouseDTO,
+  WarehouseDistributionInput,
+} from "./warehouse.types";
 
 const getWarehouseIdParam = (id: string | string[] | undefined): string => {
   if (!id) {
@@ -78,7 +82,7 @@ export const fetchWarehouseById = catchAsync(
       action: "received",
       title: "Warehouse profile retrieved",
       description: `Fetched profile for warehouse ${id}`,
-      refModel: "warehouse", 
+      refModel: "warehouse",
       actor: req.user?._id,
     });
 
@@ -116,6 +120,23 @@ export const updateWarehouse = catchAsync(
       success: true,
       data: warehouse,
       message: "Warehouse updated successfully",
+    });
+  },
+);
+
+export const distributeWarehouseInventory = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const id = getWarehouseIdParam(req.params.id);
+
+    const warehouse = await WarehouseService.distributeInventory(
+      id,
+      req.body as WarehouseDistributionInput,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: warehouse,
+      message: "Inventory distributed successfully",
     });
   },
 );

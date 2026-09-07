@@ -10,11 +10,12 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const transfer_model_1 = require("./transfer.model");
 const flattenObject_1 = require("../../utils/flattenObject");
+const stock_1 = require("../../utils/stock");
 const TransferCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateTransferCache = () => {
     TransferCache.flushAll();
 };
-const PRODUCT_PROFILE_POPULATE = [{ path: "items", model: "Product" }];
+const PRODUCT_PROFILE_POPULATE = [{ path: "items.product", model: "Product" }];
 const hydrateLocationRefs = async (transfer) => {
     if (transfer?.source?.locationId) {
         const sourceModel = transfer.source.locationType === "Warehouse"
@@ -80,6 +81,24 @@ const sanitizeUpdateData = (data, requesterRole) => {
 class TransferService {
     static async createTransfer(data, requesterRole) {
         const createData = sanitizeCreateData(data, requesterRole);
+        if (!createData.source || !createData.destination) {
+            throw new BadRequestError_1.BadRequestError("Transfer source and destination are required");
+        }
+        const source = createData.source;
+        const destination = createData.destination;
+        if (source.locationId === destination.locationId &&
+            source.locationType === destination.locationType) {
+            throw new BadRequestError_1.BadRequestError("Source and destination must be different");
+        }
+        if (!createData.items?.length) {
+            throw new BadRequestError_1.BadRequestError("A transfer must contain at least one item");
+        }
+        const changes = createData.items.map((item) => ({
+            product: String(item.product),
+            quantity: Number(item.quantity),
+        }));
+        await (0, stock_1.applyLocationStockChange)(source.locationType, source.locationId, changes, -1);
+        await (0, stock_1.applyLocationStockChange)(destination.locationType, destination.locationId, changes, 1);
         const transferDoc = new transfer_model_1.TransferModel(createData);
         await transferDoc.save();
         const savedTransfer = await transfer_model_1.TransferModel.findById(transferDoc._id)

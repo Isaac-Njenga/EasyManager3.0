@@ -10,6 +10,7 @@ import {
   InventoryTransferListResponse as TransferListResponse,
 } from "./transfer.types";
 import { flattenObject } from "../../utils/flattenObject";
+import { applyLocationStockChange } from "../../utils/stock";
 
 const TransferCache = new NodeCache({ stdTTL: 300 });
 
@@ -17,7 +18,7 @@ const invalidateTransferCache = (): void => {
   TransferCache.flushAll();
 };
 
-const PRODUCT_PROFILE_POPULATE = [{ path: "items", model: "Product" }];
+const PRODUCT_PROFILE_POPULATE = [{ path: "items.product", model: "Product" }];
 
 const hydrateLocationRefs = async <
   T extends { source?: any; destination?: any },
@@ -118,6 +119,38 @@ export class TransferService {
     requesterRole: string,
   ): Promise<Transfer> {
     const createData = sanitizeCreateData(data, requesterRole);
+    if (!createData.source || !createData.destination) {
+      throw new BadRequestError("Transfer source and destination are required");
+    }
+    const source = createData.source;
+    const destination = createData.destination;
+    if (
+      source.locationId === destination.locationId &&
+      source.locationType === destination.locationType
+    ) {
+      throw new BadRequestError("Source and destination must be different");
+    }
+    if (!createData.items?.length) {
+      throw new BadRequestError("A transfer must contain at least one item");
+    }
+
+    const changes = createData.items.map((item) => ({
+      product: String(item.product),
+      quantity: Number(item.quantity),
+    }));
+    await applyLocationStockChange(
+      source.locationType,
+      source.locationId,
+      changes,
+      -1,
+    );
+    await applyLocationStockChange(
+      destination.locationType,
+      destination.locationId,
+      changes,
+      1,
+    );
+
     const transferDoc = new TransferModel(createData);
 
     await transferDoc.save();

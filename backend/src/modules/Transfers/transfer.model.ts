@@ -17,6 +17,18 @@ const transferLocationSchema = new mongoose.Schema(
   { _id: false },
 );
 
+const transferItemSchema = new mongoose.Schema(
+  {
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: { type: Number, required: true, min: 1 },
+  },
+  { _id: false },
+);
+
 const transferSchema = new mongoose.Schema(
   {
     transferNumber: { type: String, unique: true },
@@ -32,16 +44,7 @@ const transferSchema = new mongoose.Schema(
     },
     source: { type: transferLocationSchema, required: true },
     destination: { type: transferLocationSchema, required: true },
-    items: {
-      type: [
-        {
-          type: mongoose.Schema.Types.ObjectId,
-          ref: "Product",
-          required: true,
-        },
-      ],
-      required: true,
-    },
+    items: { type: [transferItemSchema], required: true },
     totalItemsCount: {
       type: Number,
       required: true,

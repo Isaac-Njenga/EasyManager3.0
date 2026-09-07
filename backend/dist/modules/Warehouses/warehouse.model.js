@@ -6,6 +6,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.WarehouseModel = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_crypto_1 = __importDefault(require("node:crypto"));
+const inventorySummary_1 = require("../../utils/inventorySummary");
 const InventorySummarySchema = new mongoose_1.default.Schema({
     totalProducts: { type: Number, required: false, default: 0 },
     totalItemsInStock: { type: Number, required: false, default: 0 },
@@ -20,7 +21,7 @@ const InventoryItemSchema = new mongoose_1.default.Schema({
         required: true,
     },
     quantity: { type: Number, required: true },
-});
+}, { _id: false });
 const warehouseSchema = new mongoose_1.default.Schema({
     name: { type: String, required: true },
     status: {
@@ -47,6 +48,12 @@ function generateWarehouseCode(name = "") {
 }
 // Pre-save hook to generate and verify unique warehouseCode
 warehouseSchema.pre("save", async function () {
+    if (this.isModified("inventoryItems")) {
+        if (this.inventoryItems && this.inventoryItems.length > 0) {
+            await this.populate({ path: "inventoryItems.product", model: "Product" });
+        }
+        this.inventorySummary = (0, inventorySummary_1.calculateInventorySummary)(this.inventoryItems);
+    }
     // Only generate code if it hasn't been set yet or if this is a new document
     if (!this.warehouseCode) {
         let isUnique = false;

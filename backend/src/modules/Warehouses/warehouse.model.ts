@@ -1,5 +1,6 @@
 import mongoose from "mongoose";
 import crypto from "node:crypto";
+import { calculateInventorySummary } from "../../utils/inventorySummary";
 
 const InventorySummarySchema = new mongoose.Schema(
   {
@@ -12,14 +13,17 @@ const InventorySummarySchema = new mongoose.Schema(
   { _id: false },
 );
 
-const InventoryItemSchema = new mongoose.Schema({
-  product: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: "Product",
-    required: true,
+const InventoryItemSchema = new mongoose.Schema(
+  {
+    product: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Product",
+      required: true,
+    },
+    quantity: { type: Number, required: true },
   },
-  quantity: { type: Number, required: true },
-});
+  { _id: false },
+);
 
 const warehouseSchema = new mongoose.Schema(
   {
@@ -53,6 +57,15 @@ function generateWarehouseCode(name = ""): string {
 
 // Pre-save hook to generate and verify unique warehouseCode
 warehouseSchema.pre("save", async function () {
+  if (this.isModified("inventoryItems")) {
+    if (this.inventoryItems && this.inventoryItems.length > 0) {
+      await this.populate({ path: "inventoryItems.product", model: "Product" });
+    }
+    this.inventorySummary = calculateInventorySummary(
+      this.inventoryItems as any,
+    );
+  }
+
   // Only generate code if it hasn't been set yet or if this is a new document
   if (!this.warehouseCode) {
     let isUnique = false;

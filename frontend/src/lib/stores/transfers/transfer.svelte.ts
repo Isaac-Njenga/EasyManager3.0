@@ -116,7 +116,10 @@ class TransferStore {
 				locationId: destLoc.locationId,
 				locationType: destLoc.locationType
 			},
-			items: validItems.map((item) => item._id),
+			items: validItems.map((item) => ({
+				product: item._id,
+				quantity: item.totalQuantity
+			})),
 			totalItemsCount: validItems.reduce((total, item) => total + item.totalQuantity, 0),
 			dateOfTransfer: new Date().toISOString(),
 			notes: ''

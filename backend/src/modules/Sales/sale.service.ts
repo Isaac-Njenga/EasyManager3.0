@@ -10,6 +10,10 @@ import {
   SaleListResponse,
 } from "./sale.types";
 import { flattenObject } from "../../utils/flattenObject";
+import {
+  applyLocationStockChange,
+  applyProductStockChange,
+} from "../../utils/stock";
 
 const saleCache = new NodeCache({ stdTTL: 300 });
 
@@ -105,6 +109,28 @@ export class SaleService {
     requesterRole: string,
   ): Promise<Sale> {
     const createData = sanitizeCreateData(data, requesterRole);
+
+    if (!createData.items?.length) {
+      throw new BadRequestError("A sale must contain at least one item");
+    }
+
+    const changesByShop = new Map<
+      string,
+      Array<{ product: string; quantity: number }>
+    >();
+    for (const item of createData.items) {
+      const productId = String(item.product);
+      const shopId = String(item.shop);
+      const shopChanges = changesByShop.get(shopId) ?? [];
+      shopChanges.push({ product: productId, quantity: Number(item.quantity) });
+      changesByShop.set(shopId, shopChanges);
+    }
+
+    for (const [shopId, changes] of changesByShop) {
+      await applyLocationStockChange("Shop", shopId, changes, -1);
+      await applyProductStockChange(changes, "Shop", shopId, -1);
+    }
+
     const saleDoc = new SaleModel(createData);
 
     await saleDoc.save();

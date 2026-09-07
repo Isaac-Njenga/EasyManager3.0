@@ -26,7 +26,7 @@ export interface InventoryTransfer {
   type: TransferType;
   source: TransferLocation<LocationEntity>;
   destination: TransferLocation<LocationEntity>;
-  items: Product[];
+  items: Array<{ product: Product; quantity: number }>;
   totalItemsCount: number;
   dateOfTransfer: string;
   notes?: string;
@@ -39,7 +39,7 @@ export interface CreateInventoryTransferDTO {
   type: TransferType;
   source: TransferLocation<string>;
   destination: TransferLocation<string>;
-  items: string[];
+  items: Array<{ product: string; quantity: number }>;
   totalItemsCount: number;
   dateOfTransfer: string;
   notes?: string;
@@ -49,7 +49,7 @@ export interface UpdateInventoryTransferDTO {
   type?: TransferType;
   source?: TransferLocation<string>;
   destination?: TransferLocation<string>;
-  items?: string[];
+  items?: Array<{ product: string; quantity: number }>;
   totalItemsCount?: number;
   dateOfTransfer?: string;
   notes?: string;

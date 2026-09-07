@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Shop } from '$lib/services/shop/shop.types';
+	import type { Shop, ShopDistributionInput } from '$lib/services/shop/shop.types';
 	import type { Product } from '$lib/services/product/product.types';
 	import { formatCurrency } from '$lib/utils';
 	import Modal from '$lib/components/common/Modal.svelte';
@@ -24,6 +24,9 @@
 	import * as Dialog from '$lib/components/ui/dialog/index.js';
 	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
+	import DistributionForm from '$lib/components/modules/products/product-distribution.form.svelte';
+	import { shopService } from '$lib/services/shop/shop.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let { data }: PageProps = $props();
 
@@ -40,6 +43,8 @@
 	let searchTerm = $state('');
 	let isSearching = $state(false);
 	let isTransferDrawerOpen = $state(false);
+	let isDistributionDrawerOpen = $state(false);
+	let isSubmitting = $state(false);
 
 	function transferStock(shop: Shop) {
 		transferStore.start(shop._id);
@@ -52,12 +57,37 @@
 		}
 	}
 
-	// Filter populated Product objects from string IDs safely
+	function distributeStock() {
+		isDistributionDrawerOpen = true;
+	}
+
 	const populatedProducts = $derived.by<Product[]>(() => {
 		if (!selectedShop?.inventoryItems) return [];
-		return selectedShop.inventoryItems.filter(
-			(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
-		);
+
+		//eslint-disable-next-line
+		return selectedShop.inventoryItems.flatMap((entry: any) => {
+			if (!entry || typeof entry !== 'object') return [];
+
+			if ('_id' in entry && 'name' in entry && 'code' in entry) {
+				return [entry as Product];
+			}
+
+			if ('product' in entry && entry.product && typeof entry.product === 'object') {
+				const product = entry.product as Product;
+				if ('_id' in product && 'name' in product) {
+					return [
+						{
+							...product,
+							totalQuantity: Number(
+								(entry as { quantity?: number }).quantity ?? product.totalQuantity ?? 0
+							)
+						}
+					];
+				}
+			}
+
+			return [];
+		});
 	});
 
 	let filteredInventory = $derived(
@@ -71,6 +101,23 @@
 			return matchesSearch;
 		})
 	);
+
+	async function distributeProducts(payload: ShopDistributionInput) {
+		isSubmitting = true;
+
+		try {
+			await shopService.distributionUpdate(getBrowserServiceContext(), selectedShop._id, payload);
+
+			toast.success('Product distributed successfully!');
+			isDistributionDrawerOpen = false;
+		} catch (error) {
+			const description =
+				error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+			toast.error('Product distribution failed', { description });
+		} finally {
+			isSubmitting = false;
+		}
+	}
 </script>
 
 {#if selectedShop}
@@ -149,9 +196,19 @@
 						</span>|
 						<Button
 							size="xs"
+							class="bg-green-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-green-700"
+							disabled={isSubmitting}
+							onclick={() => {
+								distributeStock();
+							}}>Add products</Button
+						>
+						<Button
+							size="xs"
+							class="bg-purple-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-purple-700"
+							disabled={isSubmitting}
 							onclick={() => {
 								transferStock(selectedShop);
-							}}>Transfer</Button
+							}}>Initiate Transfer</Button
 						>
 					</div>
 				</div>
@@ -226,4 +283,20 @@
 			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>
 	{/snippet}
+</Modal>
+
+<Modal
+	bind:open={isDistributionDrawerOpen}
+	title={selectedShop?.name ?? 'Initiate Product Distribution'}
+	description={selectedShop ? selectedShop.shopCode : ''}
+	><div class="max-h-screen">
+		{#if selectedShop}
+			<DistributionForm
+				selectedLocation={selectedShop}
+				locationType="Shop"
+				{products}
+				onDistribute={distributeProducts}
+			/>
+		{/if}
+	</div>
 </Modal>

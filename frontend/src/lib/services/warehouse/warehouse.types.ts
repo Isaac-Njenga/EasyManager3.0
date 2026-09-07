@@ -15,6 +15,12 @@ export type WarehouseInventorySummary = {
 	outOfStockItemsCount: number;
 };
 
+export type WarehouseInventoryItem = {
+	_id?: string;
+	product: Product | string;
+	quantity: number;
+};
+
 export type Warehouse = {
 	_id: string;
 	warehouseCode: string; // e.g. "WH-NRB-001"
@@ -22,7 +28,7 @@ export type Warehouse = {
 	status: WarehouseStatus;
 	address: WarehouseAddress;
 	inventorySummary?: WarehouseInventorySummary;
-	inventoryItems: Product[];
+	inventoryItems: WarehouseInventoryItem[];
 	notes?: string;
 	createdAt: string;
 	updatedAt: string;
@@ -40,4 +46,12 @@ export interface CreateWarehouseInput {
 	status: WarehouseStatus;
 	address: WarehouseAddress;
 	notes?: string;
+}
+
+type InventoryItem = {
+	product: string;
+	quantity: number;
+};
+export interface WarehouseDistributionInput {
+	inventoryItems: InventoryItem[];
 }

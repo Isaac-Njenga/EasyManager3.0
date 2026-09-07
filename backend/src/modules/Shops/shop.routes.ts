@@ -7,6 +7,7 @@ import {
   fetchShopById,
   updateShop,
   deleteShop,
+  distributeShopInventory,
 } from "./shop.controller";
 
 export function ShopRouter(): Router {
@@ -16,6 +17,12 @@ export function ShopRouter(): Router {
   router.get("/get-shops", protectRoute, adminRoute, fetchShops);
   router.get("/get-shop/:id", protectRoute, adminRoute, fetchShopById);
   router.put("/update-shop/:id", protectRoute, adminRoute, updateShop);
+  router.put(
+    "/distribute-inventory/:id",
+    protectRoute,
+    adminRoute,
+    distributeShopInventory,
+  );
   router.delete("/delete-shop/:id", protectRoute, adminRoute, deleteShop);
 
   return router;

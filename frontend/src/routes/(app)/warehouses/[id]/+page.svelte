@@ -1,7 +1,10 @@
 <script lang="ts">
 	import { formatCurrency } from '$lib/utils';
 	import type { Product } from '$lib/services/product/product.types';
-	import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
+	import type {
+		Warehouse,
+		WarehouseDistributionInput
+	} from '$lib/services/warehouse/warehouse.types';
 	import Modal from '$lib/components/common/Modal.svelte';
 
 	import Separator from '$lib/components/ui/separator/separator.svelte';
@@ -24,11 +27,8 @@
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import DistributionForm from '$lib/components/modules/products/product-distribution.form.svelte';
 	import { toast } from 'svelte-sonner';
-
-	// interface Entry {
-	// 	product?: Product;
-	// 	quantity?: number;
-	// }
+	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let { data }: PageProps = $props();
 
@@ -46,6 +46,7 @@
 	let isSearching = $state(false);
 	let isTransferDrawerOpen = $state(false);
 	let isDistributionDrawerOpen = $state(false);
+	let isSubmitting = $state(false);
 
 	function transferStock(warehouse: Warehouse) {
 		transferStore.start(warehouse._id);
@@ -103,6 +104,27 @@
 			return searchableText.includes(normalizedSearch);
 		})
 	);
+
+	async function distributeProducts(payload: WarehouseDistributionInput) {
+		isSubmitting = true;
+
+		try {
+			await warehouseService.distributionUpdate(
+				getBrowserServiceContext(),
+				selectedWarehouse._id,
+				payload
+			);
+
+			toast.success('Product distributed successfully!');
+			isDistributionDrawerOpen = false;
+		} catch (error) {
+			const description =
+				error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+			toast.error('Product distribution failed', { description });
+		} finally {
+			isSubmitting = false;
+		}
+	}
 </script>
 
 {#if selectedWarehouse}
@@ -189,6 +211,7 @@
 						<Button
 							size="xs"
 							class="bg-green-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-green-700"
+							disabled={isSubmitting}
 							onclick={() => {
 								distributeStock();
 							}}>Add products</Button
@@ -196,6 +219,7 @@
 						<Button
 							size="xs"
 							class="bg-purple-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-purple-700"
+							disabled={isSubmitting}
 							onclick={() => {
 								transferStock(selectedWarehouse);
 							}}>Initiate Transfer</Button
@@ -282,8 +306,14 @@
 	bind:open={isDistributionDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Product Distribution'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
-><div class='max-h-screen'>
-	{#if selectedWarehouse}
-		<DistributionForm selectedLocation={selectedWarehouse} locationType="Warehouse" {products} />
-	{/if}</div>
+	><div class="max-h-screen">
+		{#if selectedWarehouse}
+			<DistributionForm
+				selectedLocation={selectedWarehouse}
+				locationType="Warehouse"
+				{products}
+				onDistribute={distributeProducts}
+			/>
+		{/if}
+	</div>
 </Modal>

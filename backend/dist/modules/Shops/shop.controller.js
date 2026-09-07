@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteShop = exports.updateShop = exports.fetchShopById = exports.fetchShops = exports.createShop = void 0;
+exports.deleteShop = exports.distributeShopInventory = exports.updateShop = exports.fetchShopById = exports.fetchShops = exports.createShop = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
@@ -82,6 +82,15 @@ exports.updateShop = (0, catchAsync_1.catchAsync)(async (req, res) => {
         success: true,
         data: shop,
         message: "Shop updated successfully",
+    });
+});
+exports.distributeShopInventory = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const id = getShopIdParam(req.params.id);
+    const shop = await shop_service_1.ShopService.distributeInventory(id, req.body);
+    res.status(200).json({
+        success: true,
+        data: shop,
+        message: "Inventory distributed successfully",
     });
 });
 exports.deleteShop = (0, catchAsync_1.catchAsync)(async (req, res) => {

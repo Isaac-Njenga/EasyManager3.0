@@ -10,6 +10,8 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const warehouse_model_1 = require("./warehouse.model");
 const flattenObject_1 = require("../../utils/flattenObject");
+const stock_1 = require("../../utils/stock");
+const inventorySummary_1 = require("../../utils/inventorySummary");
 const warehouseCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateWarehouseCache = () => {
     warehouseCache.flushAll();
@@ -129,8 +131,29 @@ class WarehouseService {
         if (!warehouse) {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
+        if (flattenedUpdateData.inventoryItems) {
+            const inventorySummary = (0, inventorySummary_1.calculateInventorySummary)(warehouse.inventoryItems);
+            await warehouse_model_1.WarehouseModel.findByIdAndUpdate(warehouseId, {
+                $set: { inventorySummary },
+            });
+            warehouse.inventorySummary = inventorySummary;
+        }
         invalidateWarehouseCache();
         return toWarehouse(warehouse);
+    }
+    static async distributeInventory(warehouseId, data) {
+        assertWarehouseId(warehouseId);
+        if (!data?.inventoryItems?.length) {
+            throw new BadRequestError_1.BadRequestError("At least one inventory item is required");
+        }
+        const changes = data.inventoryItems;
+        await (0, stock_1.applyLocationStockChange)("Warehouse", warehouseId, changes, 1);
+        await (0, stock_1.applyProductStockChange)(changes, "Warehouse", warehouseId, -1, 1);
+        const finalWarehouse = await warehouse_model_1.WarehouseModel.findById(warehouseId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
+        invalidateWarehouseCache();
+        return toWarehouse(finalWarehouse);
     }
     static async deleteWarehouse(warehouseId, requesterId, requesterRole) {
         assertWarehouseId(warehouseId);

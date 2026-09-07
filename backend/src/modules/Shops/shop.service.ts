@@ -8,14 +8,24 @@ import {
   UpdateShopDTO,
   Shop,
   ShopListResponse,
+  ShopDistributionInput,
 } from "./shop.types";
 import { flattenObject } from "../../utils/flattenObject";
+import {
+  applyLocationStockChange,
+  applyProductStockChange,
+} from "../../utils/stock";
+import { calculateInventorySummary } from "../../utils/inventorySummary";
 
 const shopCache = new NodeCache({ stdTTL: 300 });
 
 const invalidateShopCache = (): void => {
   shopCache.flushAll();
 };
+
+const PRODUCT_PROFILE_POPULATE = [
+  { path: "inventoryItems.product", model: "Product" },
+];
 
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set<string>(["shopCode"]);
@@ -127,6 +137,7 @@ export class ShopService {
       ShopModel.find(filter)
         .skip(skip)
         .limit(limit)
+        .populate(PRODUCT_PROFILE_POPULATE)
         .sort({ createdAt: -1 })
         .lean(),
       ShopModel.countDocuments(filter),
@@ -154,7 +165,9 @@ export class ShopService {
     const cachedShop = shopCache.get<Shop>(cacheKey);
     if (cachedShop) return cachedShop;
 
-    const shop = await ShopModel.findById(shopId).lean();
+    const shop = await ShopModel.findById(shopId)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
     if (!shop) {
       throw new NotFoundError("Shop not found!");
     }
@@ -178,11 +191,47 @@ export class ShopService {
       shopId,
       { $set: flattenedUpdateData },
       { new: true, runValidators: true },
-    ).lean();
+    )
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
 
     if (!shop) {
       throw new NotFoundError("Shop not found!");
     }
+
+    if (flattenedUpdateData.inventoryItems) {
+      const inventorySummary = calculateInventorySummary(
+        (shop as any).inventoryItems,
+      );
+      await ShopModel.findByIdAndUpdate(shopId, {
+        $set: { inventorySummary },
+      });
+      (shop as any).inventorySummary = inventorySummary;
+    }
+
+    invalidateShopCache();
+    return toShop(shop);
+  }
+
+  static async distributeInventory(
+    shopId: string,
+    data: ShopDistributionInput,
+  ): Promise<Shop> {
+    assertShopId(shopId);
+
+    if (!data?.inventoryItems?.length) {
+      throw new BadRequestError("At least one inventory item is required");
+    }
+
+    const changes = data.inventoryItems;
+    await applyLocationStockChange("Shop", shopId, changes, 1);
+    await applyProductStockChange(changes, "Shop", shopId, -1, 1);
+
+    const shop = await ShopModel.findById(shopId)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
+
+    if (!shop) throw new NotFoundError("Shop not found!");
 
     invalidateShopCache();
     return toShop(shop);

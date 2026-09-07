@@ -2,7 +2,8 @@ import { apiClient } from '$lib/services/api/client';
 import type {
 	CreateWarehouseInput,
 	Warehouse,
-	WarehouseListResponse
+	WarehouseListResponse,
+	WarehouseDistributionInput
 } from '$lib/services/warehouse/warehouse.types';
 import type { ServiceContext } from '../api/types';
 
@@ -29,6 +30,14 @@ export const warehouseService = {
 		input: CreateWarehouseInput
 	): Promise<Warehouse> {
 		return apiClient.put<Warehouse>(`/warehouse/update-warehouse/${id}`, input, context);
+	},
+
+	async distributionUpdate(
+		context: ServiceContext,
+		id: string,
+		input: WarehouseDistributionInput
+	): Promise<Warehouse> {
+		return apiClient.put<Warehouse>(`/warehouse/distribute-inventory/${id}`, input, context);
 	},
 
 	async delete(context: ServiceContext, id: string): Promise<void> {

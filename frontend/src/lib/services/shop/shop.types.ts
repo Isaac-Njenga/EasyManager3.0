@@ -16,6 +16,12 @@ export type ShopInventorySummary = {
 	lowStockItemsCount: number; // Items below minimum safety threshold
 };
 
+export type ShopInventoryItem = {
+	_id?: string;
+	product: Product | string;
+	quantity: number;
+};
+
 export type Shop = {
 	_id: string;
 	shopCode: string; // Unique Identifier, e.g., "SHP-NRB-001"
@@ -24,7 +30,7 @@ export type Shop = {
 	status: ShopStatus;
 	address: ShopAddress;
 	inventorySummary?: ShopInventorySummary;
-	inventoryItems?: Product[];
+	inventoryItems?: ShopInventoryItem[];
 	notes?: string;
 	createdAt: string;
 	updatedAt: string;
@@ -44,3 +50,11 @@ export type ShopListResponse = {
 	currentPage: number;
 	totalPages: number;
 };
+
+type InventoryItem = {
+	product: string;
+	quantity: number;
+};
+export interface ShopDistributionInput {
+	inventoryItems: InventoryItem[];
+}

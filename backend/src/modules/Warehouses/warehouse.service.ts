@@ -8,8 +8,14 @@ import {
   UpdateWarehouseDTO,
   Warehouse,
   WarehouseListResponse,
+  WarehouseDistributionInput,
 } from "./warehouse.types";
 import { flattenObject } from "../../utils/flattenObject";
+import {
+  applyLocationStockChange,
+  applyProductStockChange,
+} from "../../utils/stock";
+import { calculateInventorySummary } from "../../utils/inventorySummary";
 
 const warehouseCache = new NodeCache({ stdTTL: 300 });
 
@@ -193,8 +199,40 @@ export class WarehouseService {
       throw new NotFoundError("Warehouse not found!");
     }
 
+    if (flattenedUpdateData.inventoryItems) {
+      const inventorySummary = calculateInventorySummary(
+        (warehouse as any).inventoryItems,
+      );
+      await WarehouseModel.findByIdAndUpdate(warehouseId, {
+        $set: { inventorySummary },
+      });
+      (warehouse as any).inventorySummary = inventorySummary;
+    }
+
     invalidateWarehouseCache();
     return toWarehouse(warehouse);
+  }
+
+  static async distributeInventory(
+    warehouseId: string,
+    data: WarehouseDistributionInput,
+  ): Promise<Warehouse> {
+    assertWarehouseId(warehouseId);
+
+    if (!data?.inventoryItems?.length) {
+      throw new BadRequestError("At least one inventory item is required");
+    }
+
+    const changes = data.inventoryItems;
+    await applyLocationStockChange("Warehouse", warehouseId, changes, 1);
+    await applyProductStockChange(changes, "Warehouse", warehouseId, -1, 1);
+
+    const finalWarehouse = await WarehouseModel.findById(warehouseId)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
+
+    invalidateWarehouseCache();
+    return toWarehouse(finalWarehouse);
   }
 
   static async deleteWarehouse(

@@ -10,6 +10,7 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const sale_model_1 = require("./sale.model");
 const flattenObject_1 = require("../../utils/flattenObject");
+const stock_1 = require("../../utils/stock");
 const saleCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateSaleCache = () => {
     saleCache.flushAll();
@@ -76,6 +77,21 @@ const sanitizeUpdateData = (data, requesterRole) => {
 class SaleService {
     static async createSale(data, requesterRole) {
         const createData = sanitizeCreateData(data, requesterRole);
+        if (!createData.items?.length) {
+            throw new BadRequestError_1.BadRequestError("A sale must contain at least one item");
+        }
+        const changesByShop = new Map();
+        for (const item of createData.items) {
+            const productId = String(item.product);
+            const shopId = String(item.shop);
+            const shopChanges = changesByShop.get(shopId) ?? [];
+            shopChanges.push({ product: productId, quantity: Number(item.quantity) });
+            changesByShop.set(shopId, shopChanges);
+        }
+        for (const [shopId, changes] of changesByShop) {
+            await (0, stock_1.applyLocationStockChange)("Shop", shopId, changes, -1);
+            await (0, stock_1.applyProductStockChange)(changes, "Shop", shopId, -1);
+        }
         const saleDoc = new sale_model_1.SaleModel(createData);
         await saleDoc.save();
         const savedSale = await sale_model_1.SaleModel.findById(saleDoc._id).lean();

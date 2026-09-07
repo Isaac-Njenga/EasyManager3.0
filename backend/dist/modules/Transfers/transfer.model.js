@@ -18,6 +18,14 @@ const transferLocationSchema = new mongoose_1.default.Schema({
         enum: ["Shop", "Warehouse"],
     },
 }, { _id: false });
+const transferItemSchema = new mongoose_1.default.Schema({
+    product: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "Product",
+        required: true,
+    },
+    quantity: { type: Number, required: true, min: 1 },
+}, { _id: false });
 const transferSchema = new mongoose_1.default.Schema({
     transferNumber: { type: String, unique: true },
     type: {
@@ -32,16 +40,7 @@ const transferSchema = new mongoose_1.default.Schema({
     },
     source: { type: transferLocationSchema, required: true },
     destination: { type: transferLocationSchema, required: true },
-    items: {
-        type: [
-            {
-                type: mongoose_1.default.Schema.Types.ObjectId,
-                ref: "Product",
-                required: true,
-            },
-        ],
-        required: true,
-    },
+    items: { type: [transferItemSchema], required: true },
     totalItemsCount: {
         type: Number,
         required: true,
