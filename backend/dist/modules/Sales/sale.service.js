@@ -13,6 +13,8 @@ const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
 const product_service_1 = require("../Products/product.service");
 const shop_service_1 = require("../Shops/shop.service");
+const saleperson_model_1 = require("../Salepersons/saleperson.model");
+const saleperson_service_1 = require("../Salepersons/saleperson.service");
 const saleCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateSaleCache = () => {
     saleCache.flushAll();
@@ -82,6 +84,16 @@ class SaleService {
         if (!createData.items?.length) {
             throw new BadRequestError_1.BadRequestError("A sale must contain at least one item");
         }
+        if (!createData.saleperson ||
+            !mongoose_1.default.Types.ObjectId.isValid(String(createData.saleperson))) {
+            throw new BadRequestError_1.BadRequestError("A valid salesperson is required");
+        }
+        const salespersonExists = await saleperson_model_1.SalespersonModel.exists({
+            _id: createData.saleperson,
+        });
+        if (!salespersonExists) {
+            throw new BadRequestError_1.BadRequestError("Salesperson not found");
+        }
         const changesByShop = new Map();
         for (const item of createData.items) {
             const productId = String(item.product);
@@ -99,6 +111,21 @@ class SaleService {
         const saleDoc = new sale_model_1.SaleModel(createData);
         await saleDoc.save();
         const savedSale = await sale_model_1.SaleModel.findById(saleDoc._id).lean();
+        const totalUnitsSold = createData.items.reduce((total, item) => total + Number(item.quantity), 0);
+        const salesperson = await saleperson_model_1.SalespersonModel.findByIdAndUpdate(createData.saleperson, {
+            $push: { sales: saleDoc._id },
+            $inc: {
+                totalCommission: Number(createData.commission) || 0,
+                "performanceSummary.totalSales": 1,
+                "performanceSummary.totalRevenueGenerated": Number(createData.grandTotal) || 0,
+                "performanceSummary.totalCommissionEarned": Number(createData.commission) || 0,
+                "performanceSummary.totalUnitsSold": totalUnitsSold,
+            },
+        }, { new: true, runValidators: true });
+        if (!salesperson) {
+            throw new BadRequestError_1.BadRequestError("Salesperson not found");
+        }
+        (0, saleperson_service_1.invalidateSalespersonCache)();
         invalidateSaleCache();
         return toSale(savedSale ?? saleDoc.toObject());
     }

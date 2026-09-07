@@ -11,9 +11,6 @@ const performanceSchema = new mongoose_1.default.Schema({
     totalCommissionEarned: { type: Number, default: 0 },
     totalUnitsSold: { type: Number, default: 0 },
 }, { _id: false });
-const saleSchema = new mongoose_1.default.Schema({
-    sales: { type: mongoose_1.default.Schema.Types.ObjectId, ref: "Sale", default: 0 },
-}, { _id: false });
 const salepersonSchema = new mongoose_1.default.Schema({
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
@@ -30,7 +27,10 @@ const salepersonSchema = new mongoose_1.default.Schema({
     },
     totalCommission: { type: Number, default: 0 },
     performanceSummary: { type: performanceSchema, default: {} },
-    sales: { type: [saleSchema], default: [] },
+    sales: {
+        type: [{ type: mongoose_1.default.Schema.Types.ObjectId, ref: "Sale" }],
+        default: [],
+    },
     hireDate: { type: Date, required: true },
 }, { collection: "salepersons", timestamps: true });
 exports.SalespersonModel = mongoose_1.default.model("Saleperson", salepersonSchema);

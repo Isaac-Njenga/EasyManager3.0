@@ -13,15 +13,21 @@ import { flattenObject } from "../../utils/flattenObject";
 
 const salespersonCache = new NodeCache({ stdTTL: 300 });
 
-const invalidateSalespersonCache = (): void => {
+export const invalidateSalespersonCache = (): void => {
   salespersonCache.flushAll();
 };
 
 const SHOP_PROFILE_POPULATE = [
   {
     path: "assignedShop",
-    select:
-      "name status shopCode type address inventorySummary inventoryItems notes createdAt updatedAt",
+    model: "Shop",
+  },
+];
+
+const SALE_PROFILE_POPULATE = [
+  {
+    path: "sales",
+    model: "Sale",
   },
 ];
 
@@ -126,6 +132,7 @@ export class SalespersonService {
         .limit(limit)
         .sort({ createdAt: -1 })
         .populate(SHOP_PROFILE_POPULATE)
+        .populate(SALE_PROFILE_POPULATE)
         .lean(),
       SalespersonModel.countDocuments(filter),
     ]);
@@ -179,6 +186,7 @@ export class SalespersonService {
       { $set: flattenedUpdateData },
       { new: true, runValidators: true },
     )
+      .populate(SALE_PROFILE_POPULATE)
       .populate(SHOP_PROFILE_POPULATE)
       .lean();
 

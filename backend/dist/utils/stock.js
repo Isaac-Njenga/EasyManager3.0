@@ -30,7 +30,7 @@ const assertChanges = (changes) => {
         }
     }
 };
-async function applyProductStockChange(changes, locationType, locationId, direction, distributionDirection = direction) {
+async function applyProductStockChange(changes, locationType, locationId, direction, distributionDirection = direction === 0 ? 1 : direction) {
     assertChanges(changes);
     const totals = new Map();
     for (const change of changes) {
@@ -52,7 +52,7 @@ async function applyProductStockChange(changes, locationType, locationId, direct
     for (const [productId, quantity] of totals) {
         const product = (await product_model_1.ProductModel.findOneAndUpdate(direction === -1
             ? { _id: productId, totalQuantity: { $gte: quantity } }
-            : { _id: productId }, { $inc: { totalQuantity: direction * quantity } }, { new: true, runValidators: true }));
+            : { _id: productId }, direction === 0 ? {} : { $inc: { totalQuantity: direction * quantity } }, { new: true, runValidators: true }));
         const distribution = [...(product.inventoryDistribution ?? [])];
         const existing = distribution.find((entry) => getObjectIdString(entry.locationId) === String(locationId));
         if (existing) {

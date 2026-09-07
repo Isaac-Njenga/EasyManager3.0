@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.SalespersonService = void 0;
+exports.SalespersonService = exports.invalidateSalespersonCache = void 0;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
@@ -14,10 +14,17 @@ const salespersonCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateSalespersonCache = () => {
     salespersonCache.flushAll();
 };
+exports.invalidateSalespersonCache = invalidateSalespersonCache;
 const SHOP_PROFILE_POPULATE = [
     {
         path: "assignedShop",
-        select: "name status shopCode type address inventorySummary inventoryItems notes createdAt updatedAt",
+        model: "Shop",
+    },
+];
+const SALE_PROFILE_POPULATE = [
+    {
+        path: "sales",
+        model: "Sale",
     },
 ];
 // Configurable field restrictions
@@ -64,7 +71,7 @@ class SalespersonService {
         const salespersonDoc = new saleperson_model_1.SalespersonModel(createData);
         await salespersonDoc.save();
         const savedSalesperson = await saleperson_model_1.SalespersonModel.findById(salespersonDoc._id).lean();
-        invalidateSalespersonCache();
+        (0, exports.invalidateSalespersonCache)();
         return toSalesperson(savedSalesperson ?? salespersonDoc.toObject());
     }
     // Pure service method decoupled from Express Request
@@ -85,6 +92,7 @@ class SalespersonService {
                 .limit(limit)
                 .sort({ createdAt: -1 })
                 .populate(SHOP_PROFILE_POPULATE)
+                .populate(SALE_PROFILE_POPULATE)
                 .lean(),
             saleperson_model_1.SalespersonModel.countDocuments(filter),
         ]);
@@ -117,12 +125,13 @@ class SalespersonService {
         assertSalespersonId(salespersonId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);
         const sale = await saleperson_model_1.SalespersonModel.findByIdAndUpdate(salespersonId, { $set: flattenedUpdateData }, { new: true, runValidators: true })
+            .populate(SALE_PROFILE_POPULATE)
             .populate(SHOP_PROFILE_POPULATE)
             .lean();
         if (!sale) {
             throw new NotFoundError_1.NotFoundError("Salesperson not found!");
         }
-        invalidateSalespersonCache();
+        (0, exports.invalidateSalespersonCache)();
         return toSalesperson(sale);
     }
     static async deleteSalesperson(salespersonId, requesterId, requesterRole) {
@@ -131,7 +140,7 @@ class SalespersonService {
         if (!sale) {
             throw new NotFoundError_1.NotFoundError("Salesperson not found!");
         }
-        invalidateSalespersonCache();
+        (0, exports.invalidateSalespersonCache)();
         return toSalesperson(sale);
     }
 }

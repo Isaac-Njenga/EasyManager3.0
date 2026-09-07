@@ -16,6 +16,7 @@ export interface Salesperson {
   status: SalespersonStatus;
   assignedShop: Shop;
   totalCommission: number;
+  sales?: string[];
   hireDate: string;
   performanceSummary?: SalespersonPerformanceSummary;
   createdAt: string;
@@ -26,6 +27,7 @@ export interface SalespersonPerformanceSummary {
   totalSales: number;
   totalRevenueGenerated: number;
   totalCommissionEarned: number;
+  totalUnitsSold: number;
 }
 
 export interface CreateSalespersonDTO {

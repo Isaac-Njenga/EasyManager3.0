@@ -45,8 +45,8 @@ export async function applyProductStockChange(
   changes: StockChange[],
   locationType: StockLocationType,
   locationId: string,
-  direction: 1 | -1,
-  distributionDirection: 1 | -1 = direction,
+  direction: 1 | 0 | -1,
+  distributionDirection: 1 | -1 = direction === 0 ? 1 : direction,
 ): Promise<void> {
   assertChanges(changes);
 
@@ -85,7 +85,7 @@ export async function applyProductStockChange(
       direction === -1
         ? { _id: productId, totalQuantity: { $gte: quantity } }
         : { _id: productId },
-      { $inc: { totalQuantity: direction * quantity } },
+      direction === 0 ? {} : { $inc: { totalQuantity: direction * quantity } },
       { new: true, runValidators: true },
     )) as any;
 

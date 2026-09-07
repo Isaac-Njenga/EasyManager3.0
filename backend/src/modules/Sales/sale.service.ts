@@ -16,6 +16,8 @@ import {
 } from "../../utils/stock";
 import { invalidateProductCache } from "../Products/product.service";
 import { invalidateShopCache } from "../Shops/shop.service";
+import { SalespersonModel } from "../Salepersons/saleperson.model";
+import { invalidateSalespersonCache } from "../Salepersons/saleperson.service";
 
 const saleCache = new NodeCache({ stdTTL: 300 });
 
@@ -115,6 +117,18 @@ export class SaleService {
     if (!createData.items?.length) {
       throw new BadRequestError("A sale must contain at least one item");
     }
+    if (
+      !createData.saleperson ||
+      !mongoose.Types.ObjectId.isValid(String(createData.saleperson))
+    ) {
+      throw new BadRequestError("A valid salesperson is required");
+    }
+    const salespersonExists = await SalespersonModel.exists({
+      _id: createData.saleperson,
+    });
+    if (!salespersonExists) {
+      throw new BadRequestError("Salesperson not found");
+    }
 
     const changesByShop = new Map<
       string,
@@ -141,6 +155,31 @@ export class SaleService {
     await saleDoc.save();
 
     const savedSale = await SaleModel.findById(saleDoc._id).lean();
+    const totalUnitsSold = createData.items.reduce(
+      (total, item) => total + Number(item.quantity),
+      0,
+    );
+    const salesperson = await SalespersonModel.findByIdAndUpdate(
+      createData.saleperson,
+      {
+        $push: { sales: saleDoc._id },
+        $inc: {
+          totalCommission: Number(createData.commission) || 0,
+          "performanceSummary.totalSales": 1,
+          "performanceSummary.totalRevenueGenerated":
+            Number(createData.grandTotal) || 0,
+          "performanceSummary.totalCommissionEarned":
+            Number(createData.commission) || 0,
+          "performanceSummary.totalUnitsSold": totalUnitsSold,
+        },
+      },
+      { new: true, runValidators: true },
+    );
+    if (!salesperson) {
+      throw new BadRequestError("Salesperson not found");
+    }
+
+    invalidateSalespersonCache();
     invalidateSaleCache();
 
     return toSale(savedSale ?? saleDoc.toObject());

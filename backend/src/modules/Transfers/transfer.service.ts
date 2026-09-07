@@ -10,7 +10,11 @@ import {
   InventoryTransferListResponse as TransferListResponse,
 } from "./transfer.types";
 import { flattenObject } from "../../utils/flattenObject";
-import { applyLocationStockChange } from "../../utils/stock";
+import {
+  applyLocationStockChange,
+  applyProductStockChange,
+} from "../../utils/stock";
+import { invalidateProductCache } from "../Products/product.service";
 import { invalidateShopCache } from "../Shops/shop.service";
 import { invalidateWarehouseCache } from "../Warehouses/warehouse.service";
 
@@ -152,6 +156,21 @@ export class TransferService {
       changes,
       1,
     );
+    await applyProductStockChange(
+      changes,
+      source.locationType,
+      source.locationId,
+      0,
+      -1,
+    );
+    await applyProductStockChange(
+      changes,
+      destination.locationType,
+      destination.locationId,
+      0,
+      1,
+    );
+    invalidateProductCache();
     invalidateShopCache();
     invalidateWarehouseCache();
 
