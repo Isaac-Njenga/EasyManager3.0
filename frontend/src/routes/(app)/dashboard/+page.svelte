@@ -6,8 +6,6 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
 	import ExpensesTable from '$lib/components/modules/expenses/expenses.table.svelte';
-	// import { salesData } from '$lib/data/sales.data';
-	// import { expensesData } from '$lib/data/expenses.data';
 	import { formatCurrency } from '$lib/utils';
 	import { format, subDays } from 'date-fns';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
@@ -16,12 +14,25 @@
 	import AwardIcon from '@lucide/svelte/icons/award';
 	import type { Sale } from '$lib/services/sales/sales.types';
 	import type { Expense } from '$lib/services/expenses/expense.types';
+	import type { PageProps } from './$types';
+	import { toast } from 'svelte-sonner';
+
+	let { data }: PageProps = $props();
+
+	// Reactive derivations from server load
+	const sales = $derived<Sale[]>(data.sales ?? []);
+	const expenses = $derived<Expense[]>(data.expenses ?? []);
+	const error = $derived(data.error);
+
+	// Toast error alert if server load failed
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load shops', { description: error });
+		}
+	});
 
 	let selectedTag = $state('Today');
 	let customDate = $state('');
-
-	let salesData: Sale[] = [];
-	let expensesData: Expense[] = [];
 
 	const dateTags = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 Days'];
 
@@ -69,10 +80,10 @@
 
 	let range = $derived(getRange());
 	let filteredSales = $derived(
-		salesData.filter((sale) => sale.dateOfSale >= range.start && sale.dateOfSale <= range.end)
+		sales.filter((sale) => sale.dateOfSale >= range.start && sale.dateOfSale <= range.end)
 	);
 	let filteredExpenses = $derived(
-		expensesData.filter(
+		expenses.filter(
 			(expense) => expense.dateOfExpense >= range.start && expense.dateOfExpense <= range.end
 		)
 	);
@@ -81,7 +92,7 @@
 			.filter((sale) => sale.status === 'Completed' || sale.status === 'Processing')
 			.reduce((total, sale) => total + sale.grandTotal, 0)
 	);
-	let expenses = $derived(
+	let allExpenses = $derived(
 		filteredExpenses
 			.filter((expense) => expense.paymentStatus !== 'Cancelled')
 			.reduce((total, expense) => total + expense.amount, 0)
@@ -92,11 +103,14 @@
 			.reduce(
 				(total, sale) =>
 					total +
-					sale.items.reduce((itemTotal, item) => itemTotal + item.costPrice * item.quantity, 0),
+					sale.items.reduce(
+						(itemTotal, item) => itemTotal + item.product.costPrice * item.quantity,
+						0
+					),
 				0
 			)
 	);
-	let netProfit = $derived(revenue - costOfSales - expenses);
+	let netProfit = $derived(revenue - costOfSales - allExpenses);
 	let profitMargin = $derived(revenue ? (netProfit / revenue) * 100 : 0);
 </script>
 
@@ -161,7 +175,7 @@
 				</div>
 			</CardHeader>
 			<CardContent>
-				<div class="text-2xl font-bold text-rose-600">{formatCurrency(expenses)}</div>
+				<div class="text-2xl font-bold text-rose-600">{formatCurrency(allExpenses)}</div>
 				<div class="mt-1 flex items-center text-xs text-muted-foreground">
 					<span
 						>{filteredExpenses.length} record{filteredExpenses.length === 1 ? '' : 's'} logged</span
