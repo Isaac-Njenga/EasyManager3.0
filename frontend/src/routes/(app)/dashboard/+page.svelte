@@ -216,23 +216,28 @@
 		</Card>
 	</div>
 
-	<SalesExpenseProgression {sales} {expenses} />
+	<!-- <SalesExpenseProgression {sales} {expenses} /> -->
 
 	<!-- Main Detail Tabs -->
-	<div class="rounded-xl border bg-card p-4 shadow-sm">
-		<Tabs.Root value="sales" class="w-full">
-			<Tabs.List class="grid w-full max-w-80 grid-cols-2">
-				<Tabs.Trigger value="sales">Sales Analytics</Tabs.Trigger>
-				<Tabs.Trigger value="expenses">Expense Log</Tabs.Trigger>
-			</Tabs.List>
+	<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
+		<div>
+			<SalesExpenseProgression {sales} {expenses} />
+		</div>
+		<div class="rounded-xl border bg-card p-4 shadow-sm">
+			<Tabs.Root value="sales" class="w-full">
+				<Tabs.List class="grid w-full max-w-80 grid-cols-2">
+					<Tabs.Trigger value="sales">Sales Analytics</Tabs.Trigger>
+					<Tabs.Trigger value="expenses">Expense Log</Tabs.Trigger>
+				</Tabs.List>
 
-			<Tabs.Content value="sales" class="mt-2">
-				<SalesTable {filteredSales} />
-			</Tabs.Content>
+				<Tabs.Content value="sales" class="mt-2">
+					<SalesTable {filteredSales} />
+				</Tabs.Content>
 
-			<Tabs.Content value="expenses" class="mt-6">
-				<ExpensesTable {filteredExpenses} />
-			</Tabs.Content>
-		</Tabs.Root>
+				<Tabs.Content value="expenses" class="mt-6">
+					<ExpensesTable {filteredExpenses} />
+				</Tabs.Content>
+			</Tabs.Root>
+		</div>
 	</div>
 </div>
