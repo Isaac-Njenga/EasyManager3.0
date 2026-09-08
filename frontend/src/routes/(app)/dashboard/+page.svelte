@@ -6,6 +6,7 @@
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
 	import ExpensesTable from '$lib/components/modules/expenses/expenses.table.svelte';
+	import SalesExpenseProgression from '$lib/components/modules/dashboard/SalesExpenseProgression.svelte';
 	import { formatCurrency } from '$lib/utils';
 	import { format, subDays } from 'date-fns';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
@@ -214,6 +215,8 @@
 			</CardContent>
 		</Card>
 	</div>
+
+	<SalesExpenseProgression {sales} {expenses} />
 
 	<!-- Main Detail Tabs -->
 	<div class="rounded-xl border bg-card p-4 shadow-sm">
