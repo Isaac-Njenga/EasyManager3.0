@@ -13,6 +13,7 @@ import Warehouse from '@lucide/svelte/icons/warehouse';
 import ArrowRightLeft from '@lucide/svelte/icons/arrow-right-left';
 import ClipboardClock from '@lucide/svelte/icons/clipboard-clock';
 import Contact from '@lucide/svelte/icons/contact';
+import GlobeCheck from '@lucide/svelte/icons/globe-check';
 
 export type NavigationItem = {
 	title: string;
@@ -49,16 +50,21 @@ export const navigationGroups: NavigationGroup[] = [
 				href: '/sales',
 				icon: ShoppingCart
 			},
-			// {
-			// 	title: 'Customers',
-			// 	href: '/customers',
-			// 	icon: Users
-			// },
 			{
 				title: 'Expenses',
 				href: '/expenses',
 				icon: Receipt
+			},
+			{
+				title: 'Website',
+				href: '/website',
+				icon: GlobeCheck
 			}
+			// {
+			// 	title: 'Customers',
+			// 	href: '/customers',
+			// 	icon: GlobeCheck
+			// },
 		]
 	},
 	{
