@@ -8,3 +8,5 @@ export type WebProduct = {
 	description?: string;
 	inStock?: boolean;
 };
+
+export type CreateWebProductInput = { name: string };
