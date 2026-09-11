@@ -1,6 +1,6 @@
 export type WebProduct = {
 	_id: string;
-	img: string[];
+	image: string[];
 	name: string;
 	price: number;
 	discount: number;

@@ -4,6 +4,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import WebsiteTable from '$lib/components/modules/website/website.table.svelte';
 	import { webProductsData } from '$lib/data/website.data';
 
 	let searchTerm = $state('');
@@ -76,7 +77,7 @@
 					</div>
 				{/if}
 
-				<!-- <WebsiteTable {filteredContent} {webProductsData} /> -->
+				<WebsiteTable {filteredContent} />
 			{/if}
 		</div>
 	</div>

@@ -136,7 +136,7 @@
 			<Button type="submit" class="w-full" disabled={isLoading}>
 
 				{#if isLoading}
-					<Loader2Icon class="size-4 animate-spin" /> 'Signing in...
+					<Loader2Icon class="size-4 animate-spin" /> Signing in...
 				{:else}Sign in
 				{/if}
 			</Button>
