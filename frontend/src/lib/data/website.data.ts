@@ -6,14 +6,15 @@ export const webProductsData: Product[] = [
 		name: 'Mid-Century Modern Walnut Credenza',
 		price: 58000,
 		discount: 10,
-		category: 'Living Room',
+		category: 'Living Room Furniture',
 		description:
 			'American walnut wood sideboard featuring slatted sliding doors, brass hardware accents, and ample internal storage drawers.',
 		inStock: true,
 		image: [
 			'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90010',
@@ -27,7 +28,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90011',
@@ -41,7 +43,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1527038939684-727df7f4a57c?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90012',
@@ -55,7 +58,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90013',
@@ -69,7 +73,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1533779283484-8ad4940aa3a8?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90014',
@@ -83,7 +88,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1580481072645-022f9a6d1270?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1505797149-43b0069ec26b?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90015',
@@ -97,7 +103,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90016',
@@ -111,7 +118,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1579656381226-5fc0f0100c3b?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90017',
@@ -125,7 +133,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90018',
@@ -139,7 +148,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1601760562234-9814eea66632?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90019',
@@ -153,7 +163,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1524484485831-a92ffc0de03f?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90020',
@@ -167,7 +178,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1532323544230-7191fd51bc1b?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1533779283484-8ad4940aa3a8?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90021',
@@ -181,7 +193,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90022',
@@ -195,7 +208,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1532323544230-7191fd51bc1b?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1540518614846-7ede433c5172?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90023',
@@ -209,7 +223,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90024',
@@ -223,7 +238,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90025',
@@ -237,7 +253,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1578749556568-bc2c40e68b61?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90026',
@@ -251,7 +268,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1513506003901-1e6a229e2d15?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1533779283484-8ad4940aa3a8?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90027',
@@ -265,7 +283,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90028',
@@ -279,7 +298,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90029',
@@ -293,7 +313,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1579656381226-5fc0f0100c3b?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90030',
@@ -307,7 +328,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90031',
@@ -321,7 +343,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1540518614846-7ede433c5172?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90032',
@@ -335,7 +358,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90033',
@@ -349,7 +373,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90034',
@@ -363,7 +388,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1527038939684-727df7f4a57c?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90035',
@@ -377,7 +403,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90036',
@@ -391,7 +418,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90037',
@@ -405,7 +433,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1527038939684-727df7f4a57c?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90038',
@@ -419,7 +448,8 @@ export const webProductsData: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1538688525198-9b88f6f53126?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	}
 ];
 
@@ -437,51 +467,10 @@ export const bestSellingProducts: Product[] = [
 			'https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1530018607912-eff2daa1bac4?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
-	{
-		_id: '65f1a2b3c4d5e6f7a8b90002',
-		name: 'Velvet Ergonomic Accent Lounge Chair',
-		price: 28500,
-		discount: 10,
-		category: 'Living Room',
-		description:
-			'Plush velvet upholstery paired with matte black steel legs. Features deep cushioning and ergonomic lumbar support for extended relaxation.',
-		inStock: true,
-		image: [
-			'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=1000&q=80',
-			'https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=1000&q=80'
-		]
-	},
-	{
-		_id: '65f1a2b3c4d5e6f7a8b90003',
-		name: 'Modular Sectional L-Shape Sofa',
-		price: 85000,
-		discount: 20,
-		category: 'Living Room',
-		description:
-			'Versatile modular sofa with stain-resistant fabric. Can be reconfigured to fit left-hand or right-hand room layouts with ease.',
-		inStock: true,
-		image: [
-			'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=1000&q=80',
-			'https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=1000&q=80',
-			'https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=1000&q=80'
-		]
-	},
-	{
-		_id: '65f1a2b3c4d5e6f7a8b90004',
-		name: 'Industrial Metal & Walnut Bookshelf',
-		price: 22000,
-		discount: 0,
-		category: 'Office',
-		description:
-			'5-tier open bookshelf made with powder-coated iron frame and thick walnut veneer boards. Perfect for home offices or display rooms.',
-		inStock: true,
-		image: [
-			'https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=1000&q=80',
-			'https://images.unsplash.com/photo-1544457070-4cd773b4d71e?auto=format&fit=crop&w=1000&q=80'
-		]
-	}
+	
 ];
 
 export const freshDesignProducts: Product[] = [
@@ -496,7 +485,8 @@ export const freshDesignProducts: Product[] = [
 		inStock: true,
 		image: [
 			'https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90006',
@@ -510,7 +500,8 @@ export const freshDesignProducts: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1616594039964-ae9021a400a0?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90007',
@@ -524,7 +515,8 @@ export const freshDesignProducts: Product[] = [
 		image: [
 			'https://images.unsplash.com/photo-1533779283484-8ad4940aa3a8?auto=format&fit=crop&w=1000&q=80',
 			'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	},
 	{
 		_id: '65f1a2b3c4d5e6f7a8b90008',
@@ -537,6 +529,7 @@ export const freshDesignProducts: Product[] = [
 		inStock: false,
 		image: [
 			'https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=1000&q=80'
-		]
+		],
+		colours: ['black', 'red']
 	}
 ];

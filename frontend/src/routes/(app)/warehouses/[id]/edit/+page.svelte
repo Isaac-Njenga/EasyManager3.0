@@ -51,7 +51,7 @@
 
 	{#if error}
 		<div class="flex items-center justify-center py-10">
-			<p class="text-destructive">Failed to load shop details: {error}</p>
+			<p class="text-destructive">Failed to load details: {error}</p>
 		</div>
 	{:else}
 		<WarehouseForm warehouse={selectedWarehouse} onSubmit={handleUpdate} {isSubmitting} />{/if}
