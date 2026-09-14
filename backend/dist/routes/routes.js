@@ -7,6 +7,7 @@ const auth_routes_1 = require("../modules/Auth/auth.routes");
 const shop_routes_1 = require("../modules/Shops/shop.routes");
 const warehouse_routes_1 = require("../modules/Warehouses/warehouse.routes");
 const product_routes_1 = require("../modules/Products/product.routes");
+const website_routes_1 = require("../modules/Website/website.routes");
 const sale_routes_1 = require("../modules/Sales/sale.routes");
 const saleperson_routes_1 = require("../modules/Salepersons/saleperson.routes");
 const expense_routes_1 = require("../modules/Expenses/expense.routes");
@@ -17,6 +18,7 @@ function createRoutes() {
     router.use("/shop", (0, shop_routes_1.ShopRouter)());
     router.use("/warehouse", (0, warehouse_routes_1.WarehouseRouter)());
     router.use("/product", (0, product_routes_1.ProductRouter)());
+    router.use("/web-product", (0, website_routes_1.WebProductRouter)());
     router.use("/sale", (0, sale_routes_1.SaleRouter)());
     router.use("/salesperson", (0, saleperson_routes_1.SalespersonRouter)());
     router.use("/expense", (0, expense_routes_1.ExpenseRouter)());

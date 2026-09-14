@@ -46,6 +46,7 @@ const LogSchema = new mongoose_1.default.Schema({
             "customer",
             "transfer",
             "salesperson",
+            "webproduct",
         ],
     },
     actor: {

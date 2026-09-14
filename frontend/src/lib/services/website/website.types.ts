@@ -9,7 +9,7 @@ export type WebProduct = {
 	colours: string[];
 	inStock?: boolean;
 	isBestSeller?: boolean;
-    isNewArrival?: boolean;
+	isNewArrival?: boolean;
 };
 
 export type CreateWebProductInput = {
@@ -32,9 +32,7 @@ export type WebProductCategory =
 	| 'Second-Hand Items'
 	| 'Bedroom Furniture';
 
-
-// 	isBestSeller: { type: Boolean, default: false, index: true },
-// isNewArrival: { type: Boolean, default: false, index: true }
+export type WebProductStatus = 'In Stock' | 'Out of Stock';
 
 // Storefront endpoint
 // const bestSellers = await WebProduct.find({ isBestSeller: true }).limit(8);
