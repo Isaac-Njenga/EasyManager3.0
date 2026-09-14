@@ -16,11 +16,13 @@ export type CreateWebProductInput = {
 	name: string;
 	image: string[];
 	price: number;
-	discount: number;
-	category?: string;
-	description?: string;
+	discount?: number;
+	category: string;
+	description: string;
 	colours: string[];
 	inStock?: boolean;
+	isBestSeller?: boolean;
+	isNewArrival?: boolean;
 };
 
 export type WebProductCategory =
@@ -32,7 +34,15 @@ export type WebProductCategory =
 	| 'Second-Hand Items'
 	| 'Bedroom Furniture';
 
-export type WebProductStatus = 'In Stock' | 'Out of Stock';
+// export type WebProductStatus = 'In Stock' | 'Out of Stock';
+
+export type WebProductListResponse = {
+  webProducts: WebProduct[];
+  totalWebProducts: number;
+  currentPage: number;
+  totalPages: number;
+};
+
 
 // Storefront endpoint
 // const bestSellers = await WebProduct.find({ isBestSeller: true }).limit(8);

@@ -4,30 +4,32 @@
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 	import { resolve } from '$app/paths';
-	// import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import type { CreateWebProductInput } from '$lib/services/website/website.types';
 	import { goto } from '$app/navigation';
+	import { webProductService } from '$lib/services/website/website.service';
 
 	let { data }: PageProps = $props();
 
-	const selectedWebProduct = $derived(data.webProduct);
-	// const error = $derived(data.error);
+	const webProduct = $derived(data.webProduct);
+	const error = $derived(data.error);
 
 	let isSubmitting = $state(false);
 
-	// $effect(() => {
-	// 	if (error) {
-	// 		toast.error('Failed to load item', { description: error });
-	// 	}
-	// });
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load item', { description: error });
+		}
+	});
 
 	async function handleUpdate(payload: CreateWebProductInput) {
-		if (!selectedWebProduct?._id) return;
+		const product = await webProduct;
+		if (!product?._id) return;
 		isSubmitting = true;
 
 		try {
-			// await warehouseService.update(getBrowserServiceContext(), selectedWebProduct._id, payload);
-			console.log(payload);
+			await webProductService.update(getBrowserServiceContext(), product._id, payload);
+			// console.log(payload);
 
 			toast.success('Product updated');
 			goto(resolve('/website'));
@@ -49,12 +51,11 @@
 		actionHref="/website"
 	/>
 
-	<!-- {#if error}
+	{#if error}
 		<div class="flex items-center justify-center py-10">
 			<p class="text-destructive">Failed to load details: {error}</p>
 		</div>
-	{:else} -->
-
-	<WebProductForm webProduct={selectedWebProduct} onSubmit={handleUpdate} {isSubmitting} />
-	<!-- {/if} -->
+	{:else}
+		<WebProductForm {webProduct} onSubmit={handleUpdate} {isSubmitting} />
+	{/if}
 </div>

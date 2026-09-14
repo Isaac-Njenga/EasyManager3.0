@@ -1,18 +1,16 @@
-<!-- <script lang="ts">
+<script lang="ts">
 	import type { WebProduct } from '$lib/services/website/website.types';
 	import { formatCurrency } from '$lib/utils';
-	import { Check, Truck, ShieldCheck, ChevronLeft, ChevronRight } from '@lucide/svelte';
+	import { Check, ChevronLeft, ChevronRight } from '@lucide/svelte';
 
 	type Props = {
 		product: WebProduct | null;
 		isOpen: boolean;
 	};
 
-	//eslint-disable-next-line
 	let { product, isOpen }: Props = $props();
 
 	let selectedImgIndex = $state(0);
-	let quantity = $state(1);
 
 	const images = $derived(
 		product ? (Array.isArray(product.image) ? product.image : [product.image]) : []
@@ -25,13 +23,12 @@
 	$effect(() => {
 		if (product) {
 			selectedImgIndex = 0;
-			quantity = 1;
 		}
 	});
 </script>
 
 {#if isOpen && product}
-	<div class="relative grid grid-cols-1 gap-6 p-4 sm:gap-8 sm:p-8 md:grid-cols-2">
+	<div class="relative grid grid-cols-1 gap-4 p-4 sm:gap-8 sm:p-4 md:grid-cols-2">
 		<div class="flex min-w-0 flex-col gap-3">
 			<div
 				class="group relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100 shadow-inner dark:bg-slate-800"
@@ -97,6 +94,7 @@
 					{product.name}
 				</h2>
 
+				<!-- Price -->
 				<div class="mt-3 flex flex-wrap items-baseline gap-x-3 gap-y-1">
 					<span class="text-2xl font-black text-foreground sm:text-3xl">
 						{formatCurrency(discountedPrice)}
@@ -108,6 +106,7 @@
 					{/if}
 				</div>
 
+				<!-- Description & Specs -->
 				<p class="mt-4 text-sm leading-relaxed text-muted-foreground">
 					{product.description ||
 						'Elevate your living space with this expertly crafted piece from EasyDeal Furniture. Modern design meets durable ergonomics.'}
@@ -119,36 +118,6 @@
 					</p>
 				</div>
 			</div>
-
-			<div class="mt-6 border-t border-border pt-5 sm:pt-6">
-				<div class="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
-					<div class="flex h-10 w-fit items-center rounded-md border border-border">
-						<button
-							type="button"
-							onclick={() => (quantity = Math.max(1, quantity - 1))}
-							class="flex h-full w-10 items-center justify-center text-sm font-bold text-muted-foreground hover:text-foreground"
-							>-</button
-						>
-						<span class="min-w-10 text-center text-sm font-bold">{quantity}</span>
-						<button
-							type="button"
-							onclick={() => (quantity = quantity + 1)}
-							class="flex h-full w-10 items-center justify-center text-sm font-bold text-muted-foreground hover:text-foreground"
-							>+</button
-						>
-					</div>
-
-				</div>
-
-				<div class="mt-4 grid grid-cols-1 gap-2 text-xs text-muted-foreground sm:grid-cols-2">
-					<span class="flex items-center gap-1"
-						><Truck class="size-3.5 shrink-0 text-primary" /> Fast Delivery</span
-					>
-					<span class="flex items-center gap-1"
-						><ShieldCheck class="size-3.5 shrink-0 text-primary" /> Quality Guarantee</span
-					>
-				</div>
-			</div>
 		</div>
 	</div>
-{/if} -->
+{/if}

@@ -93,6 +93,7 @@
 
 		if (!name.trim()) newErrors.name = 'Product name is required';
 		if (!category.trim()) newErrors.category = 'Category is required';
+		if (!description.trim()) newErrors.description = 'A description is required';
 		if (!price || Number(price) <= 0) newErrors.price = 'Valid selling price is required';
 		if (image.length === 0) newErrors.image = 'At least one product image is required';
 
@@ -113,7 +114,7 @@
 			name: name.trim(),
 			colours: [...colours],
 			image: [...image],
-			description: description.trim() || undefined,
+			description: description.trim(),
 			category,
 			price: Number(price),
 			discount: Number(discount),
@@ -151,12 +152,7 @@
 				<CardContent class="grid gap-6 sm:grid-cols-2">
 					<div class="space-y-2 sm:col-span-2">
 						<Label for="name">Product Name <span class="text-destructive">*</span></Label>
-						<Input
-							id="name"
-							bind:value={name}
-							placeholder="e.g. Ergonomic Executive Mesh Chair"
-							aria-invalid={!!errors.name}
-						/>
+						<Input id="name" bind:value={name} aria-invalid={!!errors.name} />
 						{#if errors.name}
 							<p class="text-xs text-destructive">{errors.name}</p>
 						{/if}
@@ -223,8 +219,11 @@
 							id="description"
 							bind:value={description}
 							placeholder="Describe dimensions, materials, and features..."
+							aria-invalid={!!errors.description}
 							rows={4}
-						/>
+						/>{#if errors.name}
+							<p class="text-xs text-destructive">{errors.description}</p>
+						{/if}
 					</div>
 				</CardContent>
 			</Card>
@@ -266,7 +265,6 @@
 								placeholder="0"
 								aria-invalid={!!errors.discount}
 							/>
-							<span class="absolute top-2.5 right-3 text-xs text-muted-foreground">%</span>
 						</div>
 						{#if errors.discount}
 							<p class="text-xs text-destructive">{errors.discount}</p>

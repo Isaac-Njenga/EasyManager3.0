@@ -14,8 +14,20 @@
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import WebsiteTable from '$lib/components/modules/website/website.table.svelte';
-	import { webProductsData } from '$lib/data/website.data';
 	import { formatCurrency } from '$lib/utils';
+	import { toast } from 'svelte-sonner';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+
+	const webProducts = $derived(data.webProducts ?? []);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load shops', { description: error });
+		}
+	});
 
 	let searchTerm = $state('');
 	let isSearching = $state(false);
@@ -34,18 +46,16 @@
 	];
 
 	// Calculated Metrics
-	const totalProducts = $derived(webProductsData.length);
-	const outOfStockCount = $derived(webProductsData.filter((p) => p.inStock === false).length);
+	const totalProducts = $derived(webProducts.length);
+	const outOfStockCount = $derived(webProducts.filter((p) => p.inStock === false).length);
 	const avgDiscount = $derived(
-		Math.round(
-			webProductsData.reduce((acc, p) => acc + (p.discount || 0), 0) / (totalProducts || 1)
-		)
+		Math.round(webProducts.reduce((acc, p) => acc + (p.discount || 0), 0) / (totalProducts || 1))
 	);
-	const totalCatalogValue = $derived(webProductsData.reduce((acc, p) => acc + (p.price || 0), 0));
+	const totalCatalogValue = $derived(webProducts.reduce((acc, p) => acc + (p.price || 0), 0));
 
 	// Filtering Logic
 	let filteredContent = $derived(
-		webProductsData.filter((item) => {
+		webProducts.filter((item) => {
 			const normalizedSearch = searchTerm.trim().toLowerCase();
 
 			const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;

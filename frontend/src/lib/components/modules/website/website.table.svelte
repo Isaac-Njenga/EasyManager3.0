@@ -1,6 +1,5 @@
 <script lang="ts">
 	import DataTable from '$lib/components/common/DataTable.svelte';
-
 	import { Button } from '$lib/components/ui/button';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import {
@@ -21,6 +20,8 @@
 	import { invalidateAll } from '$app/navigation';
 	import { toast } from 'svelte-sonner';
 	import { formatCurrency } from '$lib/utils';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import ProductDetails from '../../../../routes/(app)/website/WebProductDetail.svelte';
 
 	type Props = {
 		filteredContent: WebProduct[];
@@ -28,12 +29,14 @@
 
 	let { filteredContent }: Props = $props();
 
-	let isDeleteWarehouseOpen = $state(false);
+	let isDeleteWebProductOpen = $state(false);
+	let isDetailModalOpen = $state(false);
 	let selectedWebProduct = $state<WebProduct | null>(null);
 
 	function viewWebProduct(webProduct: WebProduct) {
 		selectedWebProduct = webProduct;
-		goto(resolve(`/website/${webProduct._id}`));
+		isDetailModalOpen = true;
+		// goto(resolve(`/website/${webProduct._id}`));
 	}
 
 	function editWebProduct(webProduct: WebProduct) {
@@ -42,13 +45,13 @@
 
 	function openDeleteModal(webProduct: WebProduct) {
 		selectedWebProduct = webProduct;
-		isDeleteWarehouseOpen = true;
+		isDeleteWebProductOpen = true;
 	}
 
 	async function deleteItem(webProduct: WebProduct) {
 		try {
 			toast.success(`Item ${webProduct.name} deleted`);
-			isDeleteWarehouseOpen = false;
+			isDeleteWebProductOpen = false;
 			selectedWebProduct = null;
 			await invalidateAll();
 		} catch (error) {
@@ -161,7 +164,41 @@
 	pageSizeOptions={[5, 10, 20, 50]}
 />
 
+<Modal bind:open={isDetailModalOpen}>
+	{#if selectedWebProduct}
+		<div class="no-scrollbar min-h-0 overflow-y-auto">
+			<ProductDetails product={selectedWebProduct} isOpen={isDetailModalOpen} />
+		</div>
+	{/if}
+	{#snippet footer()}
+		<div class="flex w-full flex-row items-center justify-end gap-2">
+			<Button
+				size="xs"
+				variant="default"
+				onclick={() => {
+					if (selectedWebProduct) {
+						editWebProduct(selectedWebProduct);
+					}
+				}}
+			>
+				Edit
+			</Button>
+			<Button
+				size="xs"
+				variant="destructive"
+				onclick={() => {
+					if (selectedWebProduct) {
+						openDeleteModal(selectedWebProduct);
+					}
+				}}
+			>
+				Delete
+			</Button>
+		</div>
+	{/snippet}
+</Modal>
+
 <DeleteDialog
-	bind:open={isDeleteWarehouseOpen}
+	bind:open={isDeleteWebProductOpen}
 	handleDelete={() => selectedWebProduct && deleteItem(selectedWebProduct)}
 />

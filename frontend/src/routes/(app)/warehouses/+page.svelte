@@ -6,7 +6,6 @@
 	import Search from '$lib/components/common/Search.svelte';
 	import { formatCurrency } from '$lib/utils';
 
-	// Icons for analytic cards
 	import WarehouseIcon from '@lucide/svelte/icons/warehouse';
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import Package from '@lucide/svelte/icons/package';
