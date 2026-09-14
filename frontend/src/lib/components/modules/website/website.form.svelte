@@ -118,7 +118,9 @@
 			category,
 			price: Number(price),
 			discount: Number(discount),
-			inStock
+			inStock,
+			isBestSeller,
+			isNewArrival
 		};
 
 		await onSubmit(payload);
