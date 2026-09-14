@@ -65,7 +65,7 @@
 	});
 
 	const categoryTriggerContent = $derived(
-		categoryOptions.find((s) => s.value === category)?.label ?? 'Select status'
+		categoryOptions.find((s) => s.value === category)?.label ?? 'Select category'
 	);
 
 	function validate(): boolean {

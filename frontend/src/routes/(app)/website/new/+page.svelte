@@ -37,5 +37,5 @@
 		actionHref="/website"
 	/>
 
-	<!-- <WebProductForm onSubmit={handleCreate} {isSubmitting} /> -->
+	<WebProductForm onSubmit={handleCreate} {isSubmitting} />
 </div>
