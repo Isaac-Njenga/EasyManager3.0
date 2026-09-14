@@ -56,6 +56,8 @@
 			<p class="text-destructive">Failed to load details: {error}</p>
 		</div>
 	{:else}
-		<WebProductForm {webProduct} onSubmit={handleUpdate} {isSubmitting} />
+		{#await webProduct then product}
+			<WebProductForm webProduct={product} onSubmit={handleUpdate} {isSubmitting} />
+		{/await}
 	{/if}
 </div>
