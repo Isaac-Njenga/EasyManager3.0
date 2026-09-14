@@ -8,6 +8,8 @@ export type WebProduct = {
 	description?: string;
 	colours: string[];
 	inStock?: boolean;
+	isBestSeller?: boolean;
+    isNewArrival?: boolean;
 };
 
 export type CreateWebProductInput = {
@@ -29,3 +31,10 @@ export type WebProductCategory =
 	| 'Second-hand Furniture'
 	| 'Second-Hand Items'
 	| 'Bedroom Furniture';
+
+
+// 	isBestSeller: { type: Boolean, default: false, index: true },
+// isNewArrival: { type: Boolean, default: false, index: true }
+
+// Storefront endpoint
+// const bestSellers = await WebProduct.find({ isBestSeller: true }).limit(8);
