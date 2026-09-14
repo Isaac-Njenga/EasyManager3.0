@@ -17,6 +17,7 @@ const envSchema = z.object({
   EMAIL_PASS: z.string().min(1),
   REDIS_URL: z.string().min(1),
   FRONTEND_URL: z.string().min(1),
+  WEBSITE_URL: z.string().min(1),
 });
 
 // This will throw an error if process.env.variable is missing
