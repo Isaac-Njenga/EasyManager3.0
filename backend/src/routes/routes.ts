@@ -8,6 +8,7 @@ import { SaleRouter } from "../modules/Sales/sale.routes";
 import { SalespersonRouter } from "../modules/Salepersons/saleperson.routes";
 import { ExpenseRouter } from "../modules/Expenses/expense.routes";
 import { TransferRouter } from "../modules/Transfers/transfer.routes";
+import { ModelRouter } from "../modules/Gemini/gemini.routes";
 
 export function createRoutes(): Router {
   const router = Router();
@@ -21,6 +22,7 @@ export function createRoutes(): Router {
   router.use("/salesperson", SalespersonRouter());
   router.use("/expense", ExpenseRouter());
   router.use("/transfer", TransferRouter());
+  router.use("/model", ModelRouter());
 
   return router;
 }

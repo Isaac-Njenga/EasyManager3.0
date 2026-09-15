@@ -9,7 +9,11 @@ const routes_1 = require("./routes/routes");
 const env_1 = require("./config/env");
 const app = (0, express_1.default)();
 const normalizeOrigin = (origin) => origin.trim().replace(/\/$/, "");
-const allowedOrigins = ["http://localhost:5173", ...env_1.env.FRONTEND_URL.split(",")]
+const allowedOrigins = [
+    "http://localhost:5173",
+    ...env_1.env.FRONTEND_URL.split(","),
+    ...env_1.env.WEBSITE_URL.split(","),
+]
     .map(normalizeOrigin)
     .filter(Boolean);
 app.use((0, cors_1.default)({

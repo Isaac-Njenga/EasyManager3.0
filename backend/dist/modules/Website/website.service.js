@@ -104,6 +104,30 @@ class WebProductService {
         productCache.set(cacheKey, result);
         return result;
     }
+    static async fetchBestSellingProducts() {
+        const cacheKey = `best_selling_products`;
+        const cachedProducts = productCache.get(cacheKey);
+        if (cachedProducts)
+            return cachedProducts;
+        const products = await website_model_1.WebsiteModel.find({ isBestSeller: true })
+            .limit(8)
+            .lean();
+        const result = toProduct(products);
+        productCache.set(cacheKey, result);
+        return result;
+    }
+    static async fetchNewArrivalProducts() {
+        const cacheKey = `new_arrival_products`;
+        const cachedProducts = productCache.get(cacheKey);
+        if (cachedProducts)
+            return cachedProducts;
+        const products = await website_model_1.WebsiteModel.find({ isNewArrival: true })
+            .limit(8)
+            .lean();
+        const result = toProduct(products);
+        productCache.set(cacheKey, result);
+        return result;
+    }
     static async updateProduct(productId, data, requesterId, requesterRole) {
         assertProductId(productId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);

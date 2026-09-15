@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.updateProduct = exports.fetchProductById = exports.fetchProducts = exports.createProduct = void 0;
+exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.fetchProductById = exports.fetchProducts = exports.createProduct = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
@@ -57,6 +57,22 @@ exports.fetchProductById = (0, catchAsync_1.catchAsync)(async (req, res) => {
         success: true,
         data: product,
         message: "WebProduct retrieved successfully",
+    });
+});
+exports.fetchBestSellingProducts = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const products = await website_service_1.WebProductService.fetchBestSellingProducts();
+    res.status(200).json({
+        success: true,
+        data: products,
+        message: "WebProducts fetched successfully",
+    });
+});
+exports.fetchNewArrivalProducts = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const products = await website_service_1.WebProductService.fetchNewArrivalProducts();
+    res.status(200).json({
+        success: true,
+        data: products,
+        message: "WebProducts fetched successfully",
     });
 });
 exports.updateProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {

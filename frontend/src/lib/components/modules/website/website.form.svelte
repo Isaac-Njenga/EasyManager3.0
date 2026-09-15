@@ -16,6 +16,7 @@
 	import * as Select from '$lib/components/ui/select/index.js';
 	import X from '@lucide/svelte/icons/x';
 	import Plus from '@lucide/svelte/icons/plus';
+	import PencilSparkles from '@lucide/svelte/icons/pencil-sparkles';
 
 	type Props = {
 		webProduct?: WebProduct;
@@ -216,7 +217,12 @@
 					</div>
 
 					<div class="space-y-2 sm:col-span-2">
-						<Label for="description">Description</Label>
+						<div class="flex flex-row justify-between">
+							<Label for="description">Description</Label>
+							<Button variant="outline" onclick={() => console.log('Njeri')}
+								><PencilSparkles class="size-4" /></Button
+							>
+						</div>
 						<Textarea
 							id="description"
 							bind:value={description}
