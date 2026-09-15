@@ -66,6 +66,10 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Expenses | EasyManager</title>
+</svelte:head>
+
 <div class="space-y-6">
 	<PageHeader
 		title="Expenses"

@@ -6,6 +6,9 @@
 	import ExpenseReport from './expense-reports/+page.svelte';
 	import LocationReport from './location-reports/+page.svelte';
 </script>
+<svelte:head>
+	<title>Reports | EasyManager</title>
+</svelte:head>
 
 <div class="space-y-6">
 	<PageHeader title="Reports" description="View all your reports and data." />

@@ -35,6 +35,9 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Salepersons | EasyManager</title>
+</svelte:head>
 <div class="space-y-6">
 	<PageHeader
 		title="Salepersons"

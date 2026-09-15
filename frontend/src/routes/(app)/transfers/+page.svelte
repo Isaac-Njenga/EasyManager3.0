@@ -53,6 +53,9 @@
 	);
 </script>
 
+<svelte:head>
+	<title>Transfers | EasyManager</title>
+</svelte:head>
 <div class="space-y-6">
 	<PageHeader
 		title="Transfer Logs"

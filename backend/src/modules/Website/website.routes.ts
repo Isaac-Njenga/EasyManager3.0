@@ -6,7 +6,9 @@ import {
   fetchProducts,
   fetchProductById,
   updateProduct,
+  fetchNewArrivalProducts,
   deleteProduct,
+  fetchBestSellingProducts,
 } from "./website.controller";
 
 export function WebProductRouter(): Router {
@@ -20,6 +22,8 @@ export function WebProductRouter(): Router {
     adminRoute,
     fetchProductById,
   );
+  router.get("/get-best-selling-product", fetchBestSellingProducts);
+  router.get("/get-new-arrival-product", fetchNewArrivalProducts);
   router.put(
     "/update-web-product/:id",
     protectRoute,

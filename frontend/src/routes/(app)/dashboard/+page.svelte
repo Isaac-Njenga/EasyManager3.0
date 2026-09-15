@@ -115,6 +115,10 @@
 	let profitMargin = $derived(revenue ? (netProfit / revenue) * 100 : 0);
 </script>
 
+<svelte:head>
+	<title>Dashboard | EasyManager</title>
+</svelte:head>
+
 <div class="space-y-6">
 	<PageHeader
 		title="Dashboard"

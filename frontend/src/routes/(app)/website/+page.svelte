@@ -81,6 +81,9 @@
 	}
 </script>
 
+<svelte:head>
+	<title>Website | EasyManager</title>
+</svelte:head>
 <div class="space-y-6">
 	<PageHeader
 		title="Website Catalog Management"

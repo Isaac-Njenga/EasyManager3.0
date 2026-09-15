@@ -141,6 +141,34 @@ export class WebProductService {
     return result;
   }
 
+  static async fetchBestSellingProducts(): Promise<WebProduct[]> {
+    const cacheKey = `best_selling_products`;
+    const cachedProducts = productCache.get<WebProduct[]>(cacheKey);
+    if (cachedProducts) return cachedProducts;
+
+    const products = await WebsiteModel.find({ isBestSeller: true })
+      .limit(8)
+      .lean();
+
+    const result = toProduct(products) as unknown as WebProduct[];
+    productCache.set(cacheKey, result);
+    return result;
+  }
+
+  static async fetchNewArrivalProducts(): Promise<WebProduct[]> {
+    const cacheKey = `new_arrival_products`;
+    const cachedProducts = productCache.get<WebProduct[]>(cacheKey);
+    if (cachedProducts) return cachedProducts;
+
+    const products = await WebsiteModel.find({ isNewArrival: true })
+      .limit(8)
+      .lean();
+
+    const result = toProduct(products) as unknown as WebProduct[];
+    productCache.set(cacheKey, result);
+    return result;
+  }
+
   static async updateProduct(
     productId: string,
     data: UpdateWebProductDTO,

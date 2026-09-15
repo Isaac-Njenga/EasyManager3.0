@@ -88,6 +88,30 @@ export const fetchProductById = catchAsync(
   },
 );
 
+export const fetchBestSellingProducts = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const products = await WebProductService.fetchBestSellingProducts();
+
+    res.status(200).json({
+      success: true,
+      data: products,
+      message: "WebProducts fetched successfully",
+    });
+  },
+);
+
+export const fetchNewArrivalProducts = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const products = await WebProductService.fetchNewArrivalProducts();
+
+    res.status(200).json({
+      success: true,
+      data: products,
+      message: "WebProducts fetched successfully",
+    });
+  },
+);
+
 export const updateProduct = catchAsync(
   async (req: AuthenticatedRequest, res: Response) => {
     const id = getProductIdParam(req.params.id);
