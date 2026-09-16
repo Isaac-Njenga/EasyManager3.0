@@ -1,6 +1,8 @@
-
 <script lang="ts">
-	import type { Salesperson, SalespersonStatus } from '$lib/services/salesperson/salesperson.types';
+	import type {
+		SalespersonStatus,
+		SalespersonAccountPayload
+	} from '$lib/services/salesperson/salesperson.types';
 	import type { Shop } from '$lib/services/shop/shop.types';
 
 	import { Button } from '$lib/components/ui/button';
@@ -15,53 +17,43 @@
 	import KeyRound from '@lucide/svelte/icons/key-round';
 	import Eye from '@lucide/svelte/icons/eye';
 	import EyeOff from '@lucide/svelte/icons/eye-off';
-	import { shopsData } from '$lib/data/shop.data';
-
-	export type SalespersonAccountPayload = Partial<Salesperson> & {
-		email?: string;
-		password?: string;
-		role?: 'salesperson' | 'manager';
-	};
 
 	type Props = {
-		salesperson?: Salesperson;
-		isEditMode?: boolean;
+		shops: Shop[];
+		onSubmit: (payload: SalespersonAccountPayload) => Promise<void> | void;
+		isSubmitting?: boolean;
 	};
 
-	let { salesperson, isEditMode = false }: Props = $props();
+	let { shops, onSubmit, isSubmitting = false }: Props = $props();
 
 	// Mapped shop options
-	const shopOptions = shopsData.map((s: Shop) => ({
-		value: s._id,
-		label: `${s.name} - ${s.address.town}`
-	}));
+	$effect(() => {
+		if (!shops || shops.length === 0) {
+			console.warn('No shops provided to SalepersonForm component.');
+		}
+	});
 
-	let isSubmitting = $state(false);
+	const shopOptions = $derived(
+		shops?.map((s: Shop) => ({
+			value: s._id,
+			label: `${s.name} - ${s.address.town}`
+		}))
+	);
 
 	// Form reactive state - Salesperson Domain
 	let firstName = $state('');
 	let lastName = $state('');
 	let status = $state<SalespersonStatus>('Active');
-	let assignedShopId = $state<string>('');
+	let assignedShop = $state<string>('');
 	let hireDate = $state<string>(new Date().toISOString().split('T')[0]);
 
 	// Form reactive state - Account & Auth Domain (Backend only)
-	let email = $state('');
+	let userId = $state('');
 	let password = $state('');
+	let isActivated = $state(true);
 	let confirmPassword = $state('');
-	let role = $state<'salesperson' | 'manager'>('salesperson');
+	let role = $state<'SALESPERSON' | 'SUPER_ADMIN'>('SALESPERSON');
 	let showPassword = $state(false);
-
-	// Sync state when editing an existing record
-	$effect(() => {
-		firstName = salesperson?.firstName ?? '';
-		lastName = salesperson?.lastName ?? '';
-		status = salesperson?.status ?? 'Active';
-		assignedShopId = salesperson?.assignedShop?._id ?? '';
-		hireDate = salesperson?.hireDate
-			? new Date(salesperson.hireDate).toISOString().split('T')[0]
-			: new Date().toISOString().split('T')[0];
-	});
 
 	let errors = $state<Record<string, string>>({});
 
@@ -70,26 +62,18 @@
 
 		if (!firstName.trim()) newErrors.firstName = 'First name is required';
 		if (!lastName.trim()) newErrors.lastName = 'Last name is required';
-		if (!assignedShopId) newErrors.assignedShopId = 'Please select an assigned shop';
+		if (!assignedShop) newErrors.assignedShop = 'Please select an assigned shop';
 		if (!hireDate) newErrors.hireDate = 'Hire date is required';
+		if (!userId) newErrors.hireDate = 'User ID is required';
 
-		// Account fields are only part of the create workflow.
-		if (!isEditMode) {
-			if (!email.trim()) {
-				newErrors.email = 'Account email is required';
-			} else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())) {
-				newErrors.email = 'Enter a valid email address';
-			}
+		if (!password) {
+			newErrors.password = 'Initial password is required';
+		} else if (password.length < 8) {
+			newErrors.password = 'Password must be at least 8 characters';
+		}
 
-			if (!password) {
-				newErrors.password = 'Initial password is required';
-			} else if (password.length < 8) {
-				newErrors.password = 'Password must be at least 8 characters';
-			}
-
-			if (password !== confirmPassword) {
-				newErrors.confirmPassword = 'Passwords do not match';
-			}
+		if (password !== confirmPassword) {
+			newErrors.confirmPassword = 'Passwords do not match';
 		}
 
 		errors = newErrors;
@@ -97,34 +81,28 @@
 	}
 
 	const shopTriggerContent = $derived(
-		shopOptions.find((shop) => shop.value === assignedShopId)?.label ?? 'Select a shop...'
+		shopOptions.find((shop) => shop.value === assignedShop)?.label ?? 'Select a shop...'
 	);
 
 	async function handleSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		if (!validate()) return;
 
-		isSubmitting = true;
-
-		const selectedShop = shopsData.find((s) => s._id === assignedShopId);
+		const selectedShop = shops.find((s) => s._id === assignedShop);
 
 		const payload: SalespersonAccountPayload = {
-			...(salesperson?._id ? { _id: salesperson._id } : {}),
 			firstName: firstName.trim(),
 			lastName: lastName.trim(),
 			status,
-			assignedShop: selectedShop!,
+			assignedShop: selectedShop ? selectedShop._id : '',
 			hireDate,
-			...(!isEditMode
-				? {
-						email: email.trim(),
-						role,
-						password
-					}
-				: {})
+			userId,
+			role,
+			password,
+			isActivated
 		};
 
-		console.log('Submitted Salesperson & Account Payload:', payload);
+		await onSubmit(payload);
 	}
 </script>
 
@@ -170,89 +148,82 @@
 			</div>
 		</div>
 
-		{#if !isEditMode}
-			<Separator />
+		<Separator />
 
-			<!-- Section 2: User Account & Authentication Credentials -->
-			<div class="space-y-4">
-				<div class="flex items-center gap-2 text-sm font-semibold text-foreground">
-					<KeyRound class="size-4 text-primary" />
-					<span>Account Credentials</span>
+		<!-- Section 2: User Account & Authentication Credentials -->
+		<div class="space-y-4">
+			<div class="flex items-center gap-2 text-sm font-semibold text-foreground">
+				<KeyRound class="size-4 text-primary" />
+				<span>Account Credentials</span>
+			</div>
+
+			<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
+				<!-- System Email -->
+				<div class="space-y-2">
+					<Label for="email">User ID</Label>
+					<Input
+						id="userId"
+						type="text"
+						// placeholder="sales.john@store.co.ke"
+						bind:value={userId}
+						aria-invalid={!!errors.userId}
+					/>
+					{#if errors.userId}
+						<p class="text-xs text-destructive">{errors.userId}</p>
+					{/if}
 				</div>
 
-				<div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-					<!-- System Email -->
-					<div class="space-y-2">
-						<Label for="email">
-							Login Email {!isEditMode ? '*' : ''}
-						</Label>
+				<!-- System Role -->
+				<div class="space-y-2">
+					<Label for="role">System Role</Label>
+					<Input value="salesperson" disabled />
+				</div>
+
+				<!-- Password -->
+				<div class="space-y-2">
+					<Label for="password">Account Password</Label>
+					<div class="relative">
 						<Input
-							id="email"
-							type="email"
-							placeholder="sales.john@store.co.ke"
-							bind:value={email}
-							disabled={isEditMode}
-							aria-invalid={!!errors.email}
-						/>
-						{#if errors.email}
-							<p class="text-xs text-destructive">{errors.email}</p>
-						{/if}
-					</div>
-
-					<!-- System Role -->
-					<div class="space-y-2">
-						<Label for="role">System Role</Label>
-						<Input value="salesperson" disabled />
-					</div>
-
-					<!-- Password -->
-					<div class="space-y-2">
-						<Label for="password">
-							{isEditMode ? 'New Password (Optional)' : 'Account Password *'}
-						</Label>
-						<div class="relative">
-							<Input
-								id="password"
-								type={showPassword ? 'text' : 'password'}
-								placeholder={isEditMode ? 'Leave blank to keep current' : '••••••••'}
-								bind:value={password}
-								aria-invalid={!!errors.password}
-								class="pr-10"
-							/>
-							<button
-								type="button"
-								class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
-								onclick={() => (showPassword = !showPassword)}
-							>
-								{#if showPassword}
-									<EyeOff class="size-4" />
-								{:else}
-									<Eye class="size-4" />
-								{/if}
-							</button>
-						</div>
-						{#if errors.password}
-							<p class="text-xs text-destructive">{errors.password}</p>
-						{/if}
-					</div>
-
-					<!-- Confirm Password -->
-					<div class="space-y-2">
-						<Label for="confirmPassword">Confirm Password</Label>
-						<Input
-							id="confirmPassword"
+							id="password"
 							type={showPassword ? 'text' : 'password'}
 							placeholder="••••••••"
-							bind:value={confirmPassword}
-							aria-invalid={!!errors.confirmPassword}
+							bind:value={password}
+							aria-invalid={!!errors.password}
+							class="pr-10"
 						/>
-						{#if errors.confirmPassword}
-							<p class="text-xs text-destructive">{errors.confirmPassword}</p>
-						{/if}
+						<button
+							type="button"
+							class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+							onclick={() => (showPassword = !showPassword)}
+						>
+							{#if showPassword}
+								<EyeOff class="size-4" />
+							{:else}
+								<Eye class="size-4" />
+							{/if}
+						</button>
 					</div>
+					{#if errors.password}
+						<p class="text-xs text-destructive">{errors.password}</p>
+					{/if}
+				</div>
+
+				<!-- Confirm Password -->
+				<div class="space-y-2">
+					<Label for="confirmPassword">Confirm Password</Label>
+					<Input
+						id="confirmPassword"
+						type={showPassword ? 'text' : 'password'}
+						placeholder="••••••••"
+						bind:value={confirmPassword}
+						aria-invalid={!!errors.confirmPassword}
+					/>
+					{#if errors.confirmPassword}
+						<p class="text-xs text-destructive">{errors.confirmPassword}</p>
+					{/if}
 				</div>
 			</div>
-		{/if}
+		</div>
 
 		<Separator />
 
@@ -269,8 +240,8 @@
 					<Label for="assignedShop">Assigned Shop <span class="text-destructive">*</span></Label>
 					<Select.Root
 						type="single"
-						value={assignedShopId}
-						onValueChange={(val) => (assignedShopId = val)}
+						value={assignedShop}
+						onValueChange={(val) => (assignedShop = val)}
 					>
 						<Select.Trigger id="assignedShop" class="w-full">
 							{shopTriggerContent}
@@ -337,7 +308,7 @@
 			</Button>
 
 			<Button type="submit" disabled={isSubmitting}>
-				{isSubmitting ? 'Saving...' : isEditMode ? 'Update Salesperson' : 'Create Salesperson'}
+				{isSubmitting ? 'Saving...' : 'Create Salesperson'}
 			</Button>
 		</div>
 	</form>

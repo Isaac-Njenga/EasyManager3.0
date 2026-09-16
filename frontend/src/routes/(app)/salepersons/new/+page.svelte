@@ -1,13 +1,13 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import SalepersonForm from '$lib/components/modules/salepersons/saleperson.form.svelte';
+	import SalepersonForm from '$lib/components/modules/salepersons/saleperson-sign-up.form.svelte';
 	import { toast } from 'svelte-sonner';
 	import type { PageProps } from './$types';
 	import { goto } from '$app/navigation';
 	import type { CreateSalespersonInput } from '$lib/services/salesperson/salesperson.types';
 	import { resolve } from '$app/paths';
-	import { salespersonService } from '$lib/services/salesperson/salesperson.service';
-	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	// import { salespersonService } from '$lib/services/salesperson/salesperson.service';
+	// import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let { data }: PageProps = $props();
 
@@ -22,13 +22,12 @@
 		}
 	});
 
-	// --- Form Submission ---
 	async function handleCreate(payload: CreateSalespersonInput) {
 		isSubmitting = true;
 
 		try {
-			await salespersonService.create(getBrowserServiceContext(), payload);
-
+			// await salespersonService.create(getBrowserServiceContext(), payload);
+			console.log(payload);
 			toast.success('Sales member created!');
 			goto(resolve('/salepersons'));
 		} catch (error) {

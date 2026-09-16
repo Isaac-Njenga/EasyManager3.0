@@ -35,3 +35,15 @@ export type SalespersonListResponse = {
 	currentPage: number;
 	totalPages: number;
 };
+
+export type SalespersonAccountPayload =  {
+	firstName: string;
+	lastName: string;
+	status: SalespersonStatus;
+	assignedShop: string;
+	hireDate: string;
+	userId: string;
+	password: string;
+	role: 'SALESPERSON' | 'SUPER_ADMIN';
+	isActivated: boolean;
+};
