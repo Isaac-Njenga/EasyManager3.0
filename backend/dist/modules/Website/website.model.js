@@ -28,6 +28,11 @@ const websiteSchema = new mongoose_1.default.Schema({
         trim: true,
         default: [],
     },
+    tags: {
+        type: [String],
+        trim: true,
+        default: [],
+    },
     price: {
         type: Number,
         required: true,

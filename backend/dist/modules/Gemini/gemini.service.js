@@ -6,7 +6,7 @@ const env_1 = require("../../config/env");
 const ai = new genai_1.GoogleGenAI({ apiKey: env_1.env.GEMINI_API_KEY });
 async function generateProductDescription(input) {
     const { name, category, colours = [], price } = input;
-    const prompt = `Generate a compelling, high-converting product description for an e-commerce listing:
+    const prompt = `Generate a compelling, high-converting product description and relevant search tags for an e-commerce listing:
 - Product Name: ${name}
 - Category: ${category}
 - Colors Available: ${colours.length > 0 ? colours.join(", ") : "Standard"}
@@ -15,10 +15,9 @@ async function generateProductDescription(input) {
         model: "gemini-3.6-flash",
         contents: prompt,
         config: {
-            // Low temperature ensures faster and more deterministic responses
             temperature: 0.3,
             systemInstruction: `You are an expert e-commerce copywriter for EasyDeal Furniture.
-Your goal is to write concise, professional, and appealing product descriptions tailored to modern online shoppers.
+Your goal is to write concise, professional, and appealing product descriptions tailored to modern online shoppers, as well as relevant tags.
 Focus on material quality, aesthetic appeal, and functionality without fluff.`,
             responseMimeType: "application/json",
             responseSchema: {
@@ -33,8 +32,13 @@ Focus on material quality, aesthetic appeal, and functionality without fluff.`,
                         items: { type: genai_1.Type.STRING },
                         description: "3 bullet points summarizing main features or materials.",
                     },
+                    tags: {
+                        type: genai_1.Type.ARRAY,
+                        items: { type: genai_1.Type.STRING },
+                        description: "3 to 5 relevant search tags (e.g., Ergonomic, Modern Wood, Waterproof).",
+                    },
                 },
-                required: ["description", "keyFeatures"],
+                required: ["description", "keyFeatures", "tags"],
             },
         },
     });

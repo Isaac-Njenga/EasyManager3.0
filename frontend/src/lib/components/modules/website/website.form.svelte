@@ -2,7 +2,9 @@
 	import type {
 		WebProduct,
 		CreateWebProductInput,
-		WebProductCategory
+		WebProductCategory,
+		CreateDescriptionInput,
+		GeneratedDescriptionResponse
 	} from '$lib/services/website/website.types';
 	import { Button } from '$lib/components/ui/button';
 	import { Input } from '$lib/components/ui/input';
@@ -17,14 +19,26 @@
 	import X from '@lucide/svelte/icons/x';
 	import Plus from '@lucide/svelte/icons/plus';
 	import PencilSparkles from '@lucide/svelte/icons/pencil-sparkles';
+	import LoaderCircle from '@lucide/svelte/icons/loader-circle';
+	import { toast } from 'svelte-sonner';
 
 	type Props = {
 		webProduct?: WebProduct;
 		onSubmit: (payload: CreateWebProductInput) => Promise<void> | void;
+		onDescriptionSubmit: (
+			payload: CreateDescriptionInput
+		) => Promise<GeneratedDescriptionResponse | undefined> | void;
 		isSubmitting?: boolean;
+		isGenerating?: boolean;
 	};
 
-	let { webProduct, onSubmit, isSubmitting = false }: Props = $props();
+	let {
+		webProduct,
+		onSubmit,
+		onDescriptionSubmit,
+		isSubmitting = false,
+		isGenerating = false
+	}: Props = $props();
 
 	const categoryOptions: { value: WebProductCategory; label: string }[] = [
 		{ value: 'Office Furniture', label: 'Office Furniture' },
@@ -37,7 +51,9 @@
 
 	let name = $state('');
 	let colours = $state<string[]>([]);
+	let tags = $state<string[]>([]);
 	let colourInput = $state('');
+	let tagInput = $state('');
 	let image = $state<string[]>([]);
 
 	let price = $state('');
@@ -54,6 +70,7 @@
 		if (webProduct) {
 			name = webProduct.name ?? '';
 			colours = webProduct.colours ? [...webProduct.colours] : [];
+			tags = webProduct.tags ? [...webProduct.tags] : [];
 			image = webProduct.image ? [...webProduct.image] : [];
 			description = webProduct.description ?? '';
 			category = webProduct.category ?? 'Office Furniture';
@@ -88,6 +105,24 @@
 			addColour();
 		}
 	}
+	function addTag() {
+		const trimmed = tagInput.trim();
+		if (trimmed && !tags.includes(trimmed)) {
+			tags = [...tags, trimmed];
+			tagInput = '';
+		}
+	}
+
+	function removeTag(tagToRemove: string) {
+		tags = tags.filter((c) => c !== tagToRemove);
+	}
+
+	function handleTagKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ',') {
+			event.preventDefault();
+			addTag();
+		}
+	}
 
 	function validate(): boolean {
 		const newErrors: Record<string, string> = {};
@@ -97,6 +132,8 @@
 		if (!description.trim()) newErrors.description = 'A description is required';
 		if (!price || Number(price) <= 0) newErrors.price = 'Valid selling price is required';
 		if (image.length === 0) newErrors.image = 'At least one product image is required';
+		if (colours.length === 0) newErrors.colours = 'At least one colour is required';
+		if (tags.length === 0) newErrors.tags = 'At least one tag is required';
 
 		const numDiscount = Number(discount);
 		if (isNaN(numDiscount) || numDiscount < 0 || numDiscount > 100) {
@@ -107,6 +144,55 @@
 		return Object.keys(newErrors).length === 0;
 	}
 
+	const requiredFieldsConfig = [
+		{ label: 'Product Name', getValue: () => name },
+		{ label: 'Category', getValue: () => category },
+		{ label: 'Price', getValue: () => price }
+	];
+
+	async function handleGenerateDescription() {
+		// event.preventDefault();
+
+		const missingFields = requiredFieldsConfig
+			.filter((field) => !field.getValue()?.toString().trim())
+			.map((field) => field.label);
+
+		if (missingFields.length > 0) {
+			toast.error('Please fill in required fields to generate', {
+				description: `Missing: ${missingFields.join(', ')}`
+			});
+			return;
+		} else if (colours.length === 0) {
+			toast.error('Please fill in at least one colour');
+			return;
+		}
+
+		const payload: CreateDescriptionInput = {
+			name: name.trim(),
+			colours: [...colours],
+			category,
+			price: Number(price)
+		};
+
+		const result = await onDescriptionSubmit(payload);
+
+		if (result) {
+			if (result.description) {
+				// Formats key features into bullet points if desired, or sets description directly
+				const featuresText = result.keyFeatures?.length
+					? `\n\nKey Features:\n• ` + result.keyFeatures.join('\n• ')
+					: '';
+				description = `${result.description}${featuresText}`;
+			}
+
+			if (result.tags && result.tags.length > 0) {
+				// Merge new unique tags with existing ones
+				const combinedTags = new Set([...tags, ...result.tags]);
+				tags = Array.from(combinedTags);
+			}
+		}
+	}
+
 	async function handleFormSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		if (!validate()) return;
@@ -114,6 +200,7 @@
 		const payload: CreateWebProductInput = {
 			name: name.trim(),
 			colours: [...colours],
+			tags: [...tags],
 			image: [...image],
 			description: description.trim(),
 			category,
@@ -190,6 +277,8 @@
 									</Badge>
 								{/each}
 							</div>
+						{/if}{#if errors.colours}
+							<p class="text-xs text-destructive">{errors.colours}</p>
 						{/if}
 					</div>
 
@@ -219,9 +308,13 @@
 					<div class="space-y-2 sm:col-span-2">
 						<div class="flex flex-row justify-between">
 							<Label for="description">Description</Label>
-							<Button variant="outline" onclick={() => console.log('Njeri')}
-								><PencilSparkles class="size-4" /></Button
-							>
+							<Button variant="outline" onclick={handleGenerateDescription}>
+								{#if isGenerating}
+									<LoaderCircle class="size-4 animate-spin" />
+								{:else}
+									<PencilSparkles class="size-4" />
+								{/if}
+							</Button>
 						</div>
 						<Textarea
 							id="description"
@@ -229,8 +322,40 @@
 							placeholder="Describe dimensions, materials, and features..."
 							aria-invalid={!!errors.description}
 							rows={4}
-						/>{#if errors.name}
-							<p class="text-xs text-destructive">{errors.description}</p>
+						/>
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<Label for="colour">Tags</Label>
+						<div class="flex gap-2">
+							<Input
+								id="tag"
+								bind:value={tagInput}
+								onkeydown={handleTagKeydown}
+								placeholder="Type a tag (e.g. Brand New) and press Enter"
+							/>
+							<Button type="button" variant="secondary" onclick={addTag}>
+								<Plus class="size-4" />
+							</Button>
+						</div>
+						{#if tags.length > 0}
+							<div class="mt-2 flex flex-wrap gap-1.5">
+								{#each tags as tag (tag)}
+									<Badge variant="outline" class="flex items-center gap-1.5 px-2.5 py-1">
+										{tag}
+										<button
+											type="button"
+											class="rounded-full hover:bg-muted"
+											onclick={() => removeTag(tag)}
+										>
+											<X class="size-3" />
+										</button>
+									</Badge>
+								{/each}
+							</div>
+						{/if}
+						{#if errors.tags}
+							<p class="text-xs text-destructive">{errors.tags}</p>
 						{/if}
 					</div>
 				</CardContent>

@@ -3,19 +3,23 @@
 	import WebProductForm from '$lib/components/modules/website/website.form.svelte';
 	import { toast } from 'svelte-sonner';
 	import { goto } from '$app/navigation';
-	import type { CreateWebProductInput } from '$lib/services/website/website.types';
+	import type {
+		CreateWebProductInput,
+		CreateDescriptionInput,
+		GeneratedDescriptionResponse
+	} from '$lib/services/website/website.types';
 	import { resolve } from '$app/paths';
 	import { webProductService } from '$lib/services/website/website.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let isSubmitting = $state(false);
+	let isGenerating = $state(false);
 
 	async function handleCreate(payload: CreateWebProductInput) {
 		isSubmitting = true;
 
 		try {
 			await webProductService.create(getBrowserServiceContext(), payload);
-			console.log(payload);
 			toast.success('Item created!');
 			goto(resolve('/website'));
 		} catch (error) {
@@ -24,6 +28,25 @@
 			toast.error('Item creation failed', { description });
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function handleDescGeneration(
+		payload: CreateDescriptionInput
+	): Promise<GeneratedDescriptionResponse | undefined> {
+		isGenerating = true;
+
+		try {
+			// console.log(payload);
+			const res = await webProductService.description(getBrowserServiceContext(), payload);
+			toast.success('Description generated');
+			return res;
+		} catch (error) {
+			const description =
+				error instanceof Error ? error.message : 'Something went wrong. Please try again.';
+			toast.error('Description generation failed', { description });
+		} finally {
+			isGenerating = false;
 		}
 	}
 </script>
@@ -36,5 +59,10 @@
 		actionHref="/website"
 	/>
 
-	<WebProductForm onSubmit={handleCreate} {isSubmitting} />
+	<WebProductForm
+		onSubmit={handleCreate}
+		onDescriptionSubmit={handleDescGeneration}
+		{isSubmitting}
+		{isGenerating}
+	/>
 </div>

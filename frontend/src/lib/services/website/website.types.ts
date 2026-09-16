@@ -7,6 +7,7 @@ export type WebProduct = {
 	category?: string;
 	description?: string;
 	colours: string[];
+	tags: string[];
 	inStock?: boolean;
 	isBestSeller?: boolean;
 	isNewArrival?: boolean;
@@ -20,9 +21,23 @@ export type CreateWebProductInput = {
 	category: string;
 	description: string;
 	colours: string[];
+	tags: string[];
 	inStock?: boolean;
 	isBestSeller?: boolean;
 	isNewArrival?: boolean;
+};
+
+export type CreateDescriptionInput = {
+	name: string;
+	// image: string[];
+	price: number;
+	// discount?: number;
+	category: string;
+	// description: string;
+	colours: string[];
+	// inStock?: boolean;
+	// isBestSeller?: boolean;
+	// isNewArrival?: boolean;
 };
 
 export type WebProductCategory =
@@ -37,12 +52,17 @@ export type WebProductCategory =
 // export type WebProductStatus = 'In Stock' | 'Out of Stock';
 
 export type WebProductListResponse = {
-  webProducts: WebProduct[];
-  totalWebProducts: number;
-  currentPage: number;
-  totalPages: number;
+	webProducts: WebProduct[];
+	totalWebProducts: number;
+	currentPage: number;
+	totalPages: number;
 };
 
+export type GeneratedDescriptionResponse = {
+	description: string;
+	keyFeatures: string[];
+	tags: string[];
+};
 
 // Storefront endpoint
 // const bestSellers = await WebProduct.find({ isBestSeller: true }).limit(8);

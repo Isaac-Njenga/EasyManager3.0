@@ -1,5 +1,11 @@
 import { apiClient } from '$lib/services/api/client';
-import type { CreateWebProductInput, WebProduct, WebProductListResponse } from './website.types';
+import type {
+	CreateWebProductInput,
+	WebProduct,
+	WebProductListResponse,
+	CreateDescriptionInput,
+	GeneratedDescriptionResponse
+} from './website.types';
 import type { ServiceContext } from '../api/types';
 
 export const webProductService = {
@@ -26,5 +32,15 @@ export const webProductService = {
 
 	async delete(context: ServiceContext, id: string): Promise<void> {
 		return apiClient.delete<void>(`/web-product/delete-web-product/${id}`, undefined, context);
+	},
+	async description(
+		context: ServiceContext,
+		input: CreateDescriptionInput
+	): Promise<GeneratedDescriptionResponse> {
+		return apiClient.post<GeneratedDescriptionResponse>(
+			'/model/generate-description',
+			input,
+			context
+		);
 	}
 };
