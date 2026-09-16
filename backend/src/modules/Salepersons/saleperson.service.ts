@@ -9,7 +9,12 @@ import {
   Salesperson,
   SalepersonListResponse,
 } from "./saleperson.types";
+import { CreateUserDTO } from "../Users/user.types";
+import { UserModel } from "../Users/user.model";
 import { flattenObject } from "../../utils/flattenObject";
+import bcrypt from "bcryptjs";
+
+export type CreateSalespersonInput = CreateUserDTO & CreateSalespersonDTO;
 
 const salespersonCache = new NodeCache({ stdTTL: 300 });
 
@@ -31,6 +36,15 @@ const SALE_PROFILE_POPULATE = [
   },
 ];
 
+const USER_PROFILE_POPULATE = [
+  {
+    path: "user",
+    model: "User",
+    select:
+      "firstname lastname userId avatar role isActivated createdAt updatedAt",
+  },
+];
+
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set<string>(["firstName", "lastName", "status"]);
 const BLOCKED_UPDATE_FIELDS = new Set<string>([
@@ -39,6 +53,29 @@ const BLOCKED_UPDATE_FIELDS = new Set<string>([
   "createdAt",
   "updatedAt",
 ]);
+
+export async function splitSalespersonPayload(input: CreateSalespersonInput) {
+  const passwordHash = await bcrypt.hash(input.password, 10);
+  const userDTO: CreateUserDTO = {
+    firstname: input.firstName ?? input.firstname,
+    lastname: input.lastName ?? input.lastname,
+    userId: input.userId,
+    password: passwordHash,
+    avatar: `https://api.dicebear.com/7.x/avataaars/png?seed=${input.userId}`,
+    role: input.role,
+    isActivated: input.isActivated ?? true,
+  };
+
+  const salespersonDTO: CreateSalespersonDTO = {
+    firstName: input.firstName ?? input.firstname,
+    lastName: input.lastName ?? input.lastname,
+    status: input.status,
+    assignedShop: input.assignedShop ?? (input as any).assignedShop,
+    hireDate: input.hireDate,
+  };
+
+  return { userDTO, salespersonDTO };
+}
 
 const assertSalespersonId = (salespersonId: string): void => {
   if (!salespersonId) {
@@ -92,24 +129,48 @@ export interface FetchSalespersonsQuery {
 
 export class SalespersonService {
   static async createSalesperson(
-    data: CreateSalespersonDTO,
+    data: CreateSalespersonInput,
     requesterRole: string,
   ): Promise<Salesperson> {
-    const createData = sanitizeCreateData(data, requesterRole);
-    const salespersonDoc = new SalespersonModel(createData);
+    const { userDTO, salespersonDTO } = await splitSalespersonPayload(data);
 
-    await salespersonDoc.save();
+    // 1. Pre-generate shared ObjectIDs
+    const userId = new mongoose.Types.ObjectId();
+    const salespersonId = new mongoose.Types.ObjectId();
 
-    const savedSalesperson = await SalespersonModel.findById(
-      salespersonDoc._id,
-    ).lean();
-    invalidateSalespersonCache();
+    const createData = sanitizeCreateData(salespersonDTO, requesterRole);
 
-    return toSalesperson(savedSalesperson ?? salespersonDoc.toObject());
+    // 2. Instantiate documents
+    const userDoc = new UserModel({
+      ...userDTO,
+      _id: userId,
+    });
+
+    const salespersonDoc = new SalespersonModel({
+      ...createData,
+      _id: salespersonId,
+      user: userId,
+    });
+
+    try {
+      // Save documents sequentially
+      await userDoc.save();
+      await salespersonDoc.save();
+
+      invalidateSalespersonCache();
+
+      return toSalesperson(salespersonDoc.toObject());
+    } catch (error) {
+      // Manual Cleanup Rollback if any write fails
+      await Promise.allSettled([
+        UserModel.findByIdAndDelete(userId),
+        SalespersonModel.findByIdAndDelete(salespersonId),
+      ]);
+
+      throw error;
+    }
   }
 
-  
-  
   // Pure service method decoupled from Express Request
   static async fetchSalespersons(
     queryParams: FetchSalespersonsQuery,
@@ -133,6 +194,7 @@ export class SalespersonService {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
+        .populate(USER_PROFILE_POPULATE)
         .populate(SHOP_PROFILE_POPULATE)
         .populate(SALE_PROFILE_POPULATE)
         .lean(),
@@ -162,6 +224,7 @@ export class SalespersonService {
     if (cachedSalesperson) return cachedSalesperson;
 
     const sale = await SalespersonModel.findById(salespersonId)
+      .populate(USER_PROFILE_POPULATE)
       .populate(SHOP_PROFILE_POPULATE)
       .lean();
     if (!sale) {
@@ -188,6 +251,7 @@ export class SalespersonService {
       { $set: flattenedUpdateData },
       { new: true, runValidators: true },
     )
+      .populate(USER_PROFILE_POPULATE)
       .populate(SALE_PROFILE_POPULATE)
       .populate(SHOP_PROFILE_POPULATE)
       .lean();

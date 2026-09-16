@@ -9,12 +9,15 @@
 	import { authCookies, type LoginResult } from '$lib/config/auth';
 	import { toast } from 'svelte-sonner';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
+	import Eye from '@lucide/svelte/icons/eye';
+	import EyeOff from '@lucide/svelte/icons/eye-off';
 
 	import { authService } from '$lib/services/auth/auth.service';
 
 	let userId = $state('');
 	let password = $state('');
 	let isLoading = $state(false);
+	let showPassword = $state(false);
 	// eslint-disable-next-line
 	let errorMessage = $state('');
 
@@ -118,15 +121,28 @@
 					</a>
 				</div>
 
+				
+					<div class="relative">
 				<Input
 					id="password"
 					name="password"
-					type="password"
+					type={showPassword ? 'text' : 'password'}
 					placeholder="Your password"
 					bind:value={password}
 					autocomplete="current-password"
 					required
-				/>
+				/><button
+					type="button"
+					class="absolute top-1/2 right-3 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+					onclick={() => (showPassword = !showPassword)}
+				>
+					{#if showPassword}
+						<EyeOff class="size-4" />
+					{:else}
+						<Eye class="size-4" />
+					{/if}
+				</button>
+			</div>
 			</div>
 
 			<!-- {#if errorMessage}
@@ -134,7 +150,6 @@
 			{/if} -->
 
 			<Button type="submit" class="w-full" disabled={isLoading}>
-
 				{#if isLoading}
 					<Loader2Icon class="size-4 animate-spin" /> Signing in...
 				{:else}Sign in

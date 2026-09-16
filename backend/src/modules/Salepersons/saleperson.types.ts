@@ -1,4 +1,5 @@
 import { Shop } from "../Shops";
+import { User } from "../Users/user.types";
 
 export type SalespersonStatus = "Active" | "Inactive" | "Terminated";
 
@@ -11,6 +12,7 @@ export interface SalepersonListResponse {
 
 export interface Salesperson {
   _id: string;
+  user: User;
   firstName: string;
   lastName: string;
   status: SalespersonStatus;
@@ -34,7 +36,7 @@ export interface CreateSalespersonDTO {
   firstName: string;
   lastName: string;
   status: SalespersonStatus;
-  assignedShopId: string;
+  assignedShop: string;
   hireDate: string;
 }
 

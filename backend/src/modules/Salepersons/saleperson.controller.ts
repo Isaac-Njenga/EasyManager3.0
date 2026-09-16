@@ -3,7 +3,7 @@ import { BadRequestError } from "../../common/errors/BadRequestError";
 import { catchAsync } from "../../common/utils/catchAsync";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { createLog } from "../Logs/logs.service";
-import { SalespersonService } from "./saleperson.service";
+import { SalespersonService,CreateSalespersonInput } from "./saleperson.service";
 import { CreateSalespersonDTO, UpdateSalespersonDTO } from "./saleperson.types";
 
 const getSalespersonIdParam = (id: string | string[] | undefined): string => {
@@ -21,7 +21,7 @@ export const createSalesperson = catchAsync(
     }
 
     const salesperson = await SalespersonService.createSalesperson(
-      req.body as CreateSalespersonDTO,
+      req.body as CreateSalespersonInput,
       req.user!.role,
     );
 

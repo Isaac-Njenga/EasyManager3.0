@@ -12,6 +12,11 @@ const performanceSchema = new mongoose_1.default.Schema({
     totalUnitsSold: { type: Number, default: 0 },
 }, { _id: false });
 const salepersonSchema = new mongoose_1.default.Schema({
+    user: {
+        type: mongoose_1.default.Schema.Types.ObjectId,
+        ref: "User",
+        required: true,
+    },
     firstName: { type: String, required: true },
     lastName: { type: String, required: true },
     status: {

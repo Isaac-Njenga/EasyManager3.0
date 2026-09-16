@@ -4,12 +4,15 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.SalespersonService = exports.invalidateSalespersonCache = void 0;
+exports.splitSalespersonPayload = splitSalespersonPayload;
 const mongoose_1 = __importDefault(require("mongoose"));
 const node_cache_1 = __importDefault(require("node-cache"));
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const NotFoundError_1 = require("../../common/errors/NotFoundError");
 const saleperson_model_1 = require("./saleperson.model");
+const user_model_1 = require("../Users/user.model");
 const flattenObject_1 = require("../../utils/flattenObject");
+const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const salespersonCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateSalespersonCache = () => {
     salespersonCache.flushAll();
@@ -27,6 +30,13 @@ const SALE_PROFILE_POPULATE = [
         model: "Sale",
     },
 ];
+const USER_PROFILE_POPULATE = [
+    {
+        path: "user",
+        model: "User",
+        select: "firstname lastname userId avatar role isActivated createdAt updatedAt",
+    },
+];
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set(["firstName", "lastName", "status"]);
 const BLOCKED_UPDATE_FIELDS = new Set([
@@ -35,6 +45,26 @@ const BLOCKED_UPDATE_FIELDS = new Set([
     "createdAt",
     "updatedAt",
 ]);
+async function splitSalespersonPayload(input) {
+    const passwordHash = await bcryptjs_1.default.hash(input.password, 10);
+    const userDTO = {
+        firstname: input.firstName ?? input.firstname,
+        lastname: input.lastName ?? input.lastname,
+        userId: input.userId,
+        password: passwordHash,
+        avatar: `https://api.dicebear.com/7.x/avataaars/png?seed=${input.userId}`,
+        role: input.role,
+        isActivated: input.isActivated ?? true,
+    };
+    const salespersonDTO = {
+        firstName: input.firstName ?? input.firstname,
+        lastName: input.lastName ?? input.lastname,
+        status: input.status,
+        assignedShop: input.assignedShop ?? input.assignedShop,
+        hireDate: input.hireDate,
+    };
+    return { userDTO, salespersonDTO };
+}
 const assertSalespersonId = (salespersonId) => {
     if (!salespersonId) {
         throw new BadRequestError_1.BadRequestError("Salesperson ID is required");
@@ -67,12 +97,36 @@ const sanitizeUpdateData = (data, requesterRole) => {
 };
 class SalespersonService {
     static async createSalesperson(data, requesterRole) {
-        const createData = sanitizeCreateData(data, requesterRole);
-        const salespersonDoc = new saleperson_model_1.SalespersonModel(createData);
-        await salespersonDoc.save();
-        const savedSalesperson = await saleperson_model_1.SalespersonModel.findById(salespersonDoc._id).lean();
-        (0, exports.invalidateSalespersonCache)();
-        return toSalesperson(savedSalesperson ?? salespersonDoc.toObject());
+        const { userDTO, salespersonDTO } = await splitSalespersonPayload(data);
+        // 1. Pre-generate shared ObjectIDs
+        const userId = new mongoose_1.default.Types.ObjectId();
+        const salespersonId = new mongoose_1.default.Types.ObjectId();
+        const createData = sanitizeCreateData(salespersonDTO, requesterRole);
+        // 2. Instantiate documents
+        const userDoc = new user_model_1.UserModel({
+            ...userDTO,
+            _id: userId,
+        });
+        const salespersonDoc = new saleperson_model_1.SalespersonModel({
+            ...createData,
+            _id: salespersonId,
+            user: userId,
+        });
+        try {
+            // Save documents sequentially
+            await userDoc.save();
+            await salespersonDoc.save();
+            (0, exports.invalidateSalespersonCache)();
+            return toSalesperson(salespersonDoc.toObject());
+        }
+        catch (error) {
+            // Manual Cleanup Rollback if any write fails
+            await Promise.allSettled([
+                user_model_1.UserModel.findByIdAndDelete(userId),
+                saleperson_model_1.SalespersonModel.findByIdAndDelete(salespersonId),
+            ]);
+            throw error;
+        }
     }
     // Pure service method decoupled from Express Request
     static async fetchSalespersons(queryParams) {
@@ -91,6 +145,7 @@ class SalespersonService {
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
+                .populate(USER_PROFILE_POPULATE)
                 .populate(SHOP_PROFILE_POPULATE)
                 .populate(SALE_PROFILE_POPULATE)
                 .lean(),
@@ -112,6 +167,7 @@ class SalespersonService {
         if (cachedSalesperson)
             return cachedSalesperson;
         const sale = await saleperson_model_1.SalespersonModel.findById(salespersonId)
+            .populate(USER_PROFILE_POPULATE)
             .populate(SHOP_PROFILE_POPULATE)
             .lean();
         if (!sale) {
@@ -125,6 +181,7 @@ class SalespersonService {
         assertSalespersonId(salespersonId);
         const flattenedUpdateData = sanitizeUpdateData(data, requesterRole);
         const sale = await saleperson_model_1.SalespersonModel.findByIdAndUpdate(salespersonId, { $set: flattenedUpdateData }, { new: true, runValidators: true })
+            .populate(USER_PROFILE_POPULATE)
             .populate(SALE_PROFILE_POPULATE)
             .populate(SHOP_PROFILE_POPULATE)
             .lean();

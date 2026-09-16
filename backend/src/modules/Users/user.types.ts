@@ -19,6 +19,7 @@ export interface CreateUserDTO {
   password: string;
   avatar: string;
   role: UserRole;
+  isActivated?:boolean
 }
 
 export interface UpdateUserDTO {

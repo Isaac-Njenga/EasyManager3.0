@@ -6,8 +6,8 @@
 	import { goto } from '$app/navigation';
 	import type { CreateSalespersonInput } from '$lib/services/salesperson/salesperson.types';
 	import { resolve } from '$app/paths';
-	// import { salespersonService } from '$lib/services/salesperson/salesperson.service';
-	// import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import { salespersonService } from '$lib/services/salesperson/salesperson.service';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
 	let { data }: PageProps = $props();
 
@@ -26,7 +26,7 @@
 		isSubmitting = true;
 
 		try {
-			// await salespersonService.create(getBrowserServiceContext(), payload);
+			await salespersonService.create(getBrowserServiceContext(), payload);
 			console.log(payload);
 			toast.success('Sales member created!');
 			goto(resolve('/salepersons'));
