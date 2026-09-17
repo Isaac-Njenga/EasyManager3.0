@@ -65,20 +65,20 @@ export const fetchProductById = catchAsync(
 
     const product = await WebProductService.fetchProductById(
       id,
-      req.user!._id.toString(),
-      req.user!.role,
+      // req.user!._id.toString(),
+      // req.user!.role,
     );
 
     // Create Audit Log
-    await createLog({
-      type: "webproduct",
-      refId: id,
-      action: "received",
-      title: "WebProduct profile retrieved",
-      description: `Fetched profile for webproduct ${id}`,
-      refModel: "webproduct",
-      actor: req.user?._id,
-    });
+    // await createLog({
+    //   type: "webproduct",
+    //   refId: id,
+    //   action: "received",
+    //   title: "WebProduct profile retrieved",
+    //   description: `Fetched profile for webproduct ${id}`,
+    //   refModel: "webproduct",
+    //   actor: req.user?._id,
+    // });
 
     res.status(200).json({
       success: true,

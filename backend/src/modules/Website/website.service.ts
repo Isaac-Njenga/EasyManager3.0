@@ -122,8 +122,8 @@ export class WebProductService {
 
   static async fetchProductById(
     productId: string,
-    requesterId?: string,
-    requesterRole?: string,
+    // requesterId?: string,
+    // requesterRole?: string,
   ): Promise<WebProduct> {
     assertProductId(productId);
 
