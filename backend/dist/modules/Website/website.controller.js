@@ -42,17 +42,17 @@ exports.fetchProducts = (0, catchAsync_1.catchAsync)(async (req, res) => {
 });
 exports.fetchProductById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const id = getProductIdParam(req.params.id);
-    const product = await website_service_1.WebProductService.fetchProductById(id, req.user._id.toString(), req.user.role);
+    const product = await website_service_1.WebProductService.fetchProductById(id);
     // Create Audit Log
-    await (0, logs_service_1.createLog)({
-        type: "webproduct",
-        refId: id,
-        action: "received",
-        title: "WebProduct profile retrieved",
-        description: `Fetched profile for webproduct ${id}`,
-        refModel: "webproduct",
-        actor: req.user?._id,
-    });
+    // await createLog({
+    //   type: "webproduct",
+    //   refId: id,
+    //   action: "received",
+    //   title: "WebProduct profile retrieved",
+    //   description: `Fetched profile for webproduct ${id}`,
+    //   refModel: "webproduct",
+    //   actor: req.user?._id,
+    // });
     res.status(200).json({
         success: true,
         data: product,

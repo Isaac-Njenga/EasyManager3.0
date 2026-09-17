@@ -90,7 +90,7 @@ class WebProductService {
         productCache.set(cacheKey, responseData);
         return responseData;
     }
-    static async fetchProductById(productId, requesterId, requesterRole) {
+    static async fetchProductById(productId) {
         assertProductId(productId);
         const cacheKey = `web_product_detail_${productId}`;
         const cachedProduct = productCache.get(cacheKey);
