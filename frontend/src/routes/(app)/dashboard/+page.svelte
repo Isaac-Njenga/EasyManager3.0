@@ -20,12 +20,10 @@
 
 	let { data }: PageProps = $props();
 
-	// Reactive derivations from server load
 	const sales = $derived<Sale[]>(data.sales ?? []);
 	const expenses = $derived<Expense[]>(data.expenses ?? []);
 	const error = $derived(data.error);
 
-	// Toast error alert if server load failed
 	$effect(() => {
 		if (error) {
 			toast.error('Failed to load shops', { description: error });
@@ -37,7 +35,6 @@
 
 	const dateTags = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 Days'];
 
-	// Dynamic label for current scope
 	let activeFilterLabel = $derived(
 		customDate
 			? `Showing metrics for

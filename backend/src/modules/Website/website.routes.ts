@@ -16,12 +16,7 @@ export function WebProductRouter(): Router {
 
   router.post("/create-web-product", protectRoute, adminRoute, createProduct);
   router.get("/get-web-products", fetchProducts);
-  router.get(
-    "/get-web-product/:id",
-    protectRoute,
-    adminRoute,
-    fetchProductById,
-  );
+  router.get("/get-web-product/:id", fetchProductById);
   router.get("/get-best-selling-product", fetchBestSellingProducts);
   router.get("/get-new-arrival-product", fetchNewArrivalProducts);
   router.put(
