@@ -9,12 +9,14 @@ import {
   fetchNewArrivalProducts,
   deleteProduct,
   fetchBestSellingProducts,
+  searchProduct,
 } from "./website.controller";
 
 export function WebProductRouter(): Router {
   const router = Router();
 
   router.post("/create-web-product", protectRoute, adminRoute, createProduct);
+  router.get("/search", searchProduct);
   router.get("/get-web-products", fetchProducts);
   router.get("/get-web-product/:id", fetchProductById);
   router.get("/get-best-selling-product", fetchBestSellingProducts);

@@ -104,6 +104,34 @@ class WebProductService {
         productCache.set(cacheKey, result);
         return result;
     }
+    static async searchProduct(queryParams) {
+        const { query, tag, category, minPrice, maxPrice } = queryParams;
+        const filter = {};
+        // 1. Full-text search across indexed fields
+        if (query) {
+            filter.$text = { $search: query };
+        }
+        // 2. Exact/Case-insensitive secondary filters
+        if (tag) {
+            filter.tags = { $in: [new RegExp(`^${tag}$`, 'i')] };
+        }
+        if (category) {
+            filter.category = { $regex: new RegExp(`^${category}$`, 'i') };
+        }
+        // 3. Price range filtering
+        if (minPrice !== undefined || maxPrice !== undefined) {
+            filter.price = {};
+            if (minPrice !== undefined)
+                filter.price.$gte = minPrice;
+            if (maxPrice !== undefined)
+                filter.price.$lte = maxPrice;
+        }
+        const products = await website_model_1.WebsiteModel.find(filter)
+            .select(query ? { score: { $meta: 'textScore' } } : {})
+            .sort(query ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
+            .lean();
+        return toProduct(products);
+    }
     static async fetchBestSellingProducts() {
         const cacheKey = `best_selling_products`;
         const cachedProducts = productCache.get(cacheKey);

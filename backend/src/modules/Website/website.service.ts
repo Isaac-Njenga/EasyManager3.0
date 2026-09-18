@@ -7,7 +7,7 @@ import {
   CreateWebProductDTO,
   UpdateWebProductDTO,
   WebProduct,
-  WebProductListResponse,
+  WebProductListResponse,SearchQuery
 } from "./website.types";
 import { flattenObject } from "../../utils/flattenObject";
 
@@ -69,6 +69,8 @@ const sanitizeUpdateData = (
 
   return flattenObject(updateData);
 };
+
+
 
 export class WebProductService {
   static async createProduct(
@@ -140,6 +142,40 @@ export class WebProductService {
     productCache.set(cacheKey, result);
     return result;
   }
+
+  static async searchProduct(queryParams: SearchQuery): Promise<WebProduct[]> {
+    const { query, tag, category, minPrice, maxPrice } = queryParams;
+
+    const filter: Record<string, any> = {};
+
+    // 1. Full-text search across indexed fields
+    if (query) {
+        filter.$text = {$search: query };
+    }
+
+    // 2. Exact/Case-insensitive secondary filters
+    if (tag) {
+        filter.tags = { $in: [new RegExp(`^${tag}$`, 'i')] };
+    }
+
+    if (category) {
+        filter.category = { $regex: new RegExp(`^${category}$`, 'i') };
+    }
+
+    // 3. Price range filtering
+    if (minPrice !== undefined || maxPrice !== undefined) {
+        filter.price = {};
+        if (minPrice !== undefined) filter.price.$gte = minPrice;
+        if (maxPrice !== undefined) filter.price.$lte = maxPrice;
+    }
+
+    const products = await WebsiteModel.find(filter)
+        .select(query ? { score: { $meta: 'textScore' } } : {})
+        .sort(query ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
+        .lean();
+
+    return toProduct(products) as unknown as WebProduct[];
+}
 
   static async fetchBestSellingProducts(): Promise<WebProduct[]> {
     const cacheKey = `best_selling_products`;

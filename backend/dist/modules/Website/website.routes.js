@@ -8,6 +8,7 @@ const website_controller_1 = require("./website.controller");
 function WebProductRouter() {
     const router = (0, express_1.Router)();
     router.post("/create-web-product", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, website_controller_1.createProduct);
+    router.get("/search", website_controller_1.searchProduct);
     router.get("/get-web-products", website_controller_1.fetchProducts);
     router.get("/get-web-product/:id", website_controller_1.fetchProductById);
     router.get("/get-best-selling-product", website_controller_1.fetchBestSellingProducts);

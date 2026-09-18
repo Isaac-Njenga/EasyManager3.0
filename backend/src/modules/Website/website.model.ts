@@ -26,7 +26,7 @@ const websiteSchema = new mongoose.Schema(
       trim: true,
       default: [],
     },
-   tags: {
+    tags: {
       type: [String],
       trim: true,
       default: [],
@@ -62,5 +62,11 @@ const websiteSchema = new mongoose.Schema(
   },
   { collection: "website", timestamps: true },
 );
+
+websiteSchema.index({
+  name: "text",
+  category: "text",
+  tags: "text",
+});
 
 export const WebsiteModel = mongoose.model("Website", websiteSchema);

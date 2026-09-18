@@ -62,5 +62,10 @@ const websiteSchema = new mongoose_1.default.Schema({
         default: false,
     },
 }, { collection: "website", timestamps: true });
+websiteSchema.index({
+    name: "text",
+    category: "text",
+    tags: "text",
+});
 exports.WebsiteModel = mongoose_1.default.model("Website", websiteSchema);
 //# sourceMappingURL=website.model.js.map

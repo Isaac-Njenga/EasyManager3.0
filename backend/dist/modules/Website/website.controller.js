@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.fetchProductById = exports.fetchProducts = exports.createProduct = void 0;
+exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.searchProduct = exports.fetchProductById = exports.fetchProducts = exports.createProduct = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
@@ -59,6 +59,25 @@ exports.fetchProductById = (0, catchAsync_1.catchAsync)(async (req, res) => {
         message: "WebProduct retrieved successfully",
     });
 });
+const searchProduct = async (req, res, next) => {
+    try {
+        const { query, tag, category } = req.query;
+        const results = await website_service_1.WebProductService.searchProduct({
+            query: query ? String(query) : undefined,
+            tag: tag ? String(tag) : undefined,
+            category: category ? String(category) : undefined,
+        });
+        return res.status(200).json({
+            success: true,
+            count: results.length,
+            data: results,
+        });
+    }
+    catch (error) {
+        next(error);
+    }
+};
+exports.searchProduct = searchProduct;
 exports.fetchBestSellingProducts = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const products = await website_service_1.WebProductService.fetchBestSellingProducts();
     res.status(200).json({

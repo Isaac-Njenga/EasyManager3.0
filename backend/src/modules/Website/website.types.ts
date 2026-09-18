@@ -47,3 +47,11 @@ export interface UpdateWebProductDTO {
   isBestSeller?: boolean;
   isNewArrival?: boolean;
 }
+
+export interface SearchQuery {
+    query?: string;     // General keyword search across name, category, and tags
+    tag?: string;       // Strict tag filter
+    category?: string;  // Strict category filter
+    minPrice?: number;
+    maxPrice?: number;
+}

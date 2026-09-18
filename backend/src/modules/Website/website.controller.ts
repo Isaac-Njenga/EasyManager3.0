@@ -1,4 +1,4 @@
-import { Response } from "express";
+import { Response, NextFunction, Request } from "express";
 import { BadRequestError } from "../../common/errors/BadRequestError";
 import { catchAsync } from "../../common/utils/catchAsync";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
@@ -7,6 +7,7 @@ import { WebProductService } from "./website.service";
 import {
   CreateWebProductDTO as CreateProductDTO,
   UpdateWebProductDTO as UpdateProductDTO,
+  SearchQuery,
 } from "./website.types";
 
 const getProductIdParam = (id: string | string[] | undefined): string => {
@@ -87,6 +88,30 @@ export const fetchProductById = catchAsync(
     });
   },
 );
+
+export const searchProduct = async (
+  req: Request<{}, {}, {}, SearchQuery>,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const { query, tag, category } = req.query;
+
+    const results = await WebProductService.searchProduct({
+      query: query ? String(query) : undefined,
+      tag: tag ? String(tag) : undefined,
+      category: category ? String(category) : undefined,
+    });
+
+    return res.status(200).json({
+      success: true,
+      count: results.length,
+      data: results,
+    });
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const fetchBestSellingProducts = catchAsync(
   async (req: AuthenticatedRequest, res: Response) => {
