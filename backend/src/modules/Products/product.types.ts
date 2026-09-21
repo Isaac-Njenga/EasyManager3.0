@@ -3,8 +3,15 @@ export type LocationType = "Shop" | "Warehouse";
 
 export interface LocationStock {
   locationType: LocationType;
-  locationId: string;
+  locationId: string | LocationProfile;
   quantity: number;
+}
+
+export interface LocationProfile {
+  _id: string;
+  name: string;
+  status: string;
+  [key: string]: unknown;
 }
 
 export type ProductListResponse = {

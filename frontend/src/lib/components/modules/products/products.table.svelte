@@ -25,6 +25,7 @@
 	import { toast } from 'svelte-sonner';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { productService } from '$lib/services/product/product.service';
+	import Package from '@lucide/svelte/icons/package';
 
 	type Props = {
 		filteredProducts: Product[];
@@ -70,10 +71,10 @@
 <!-- eslint-disable-next-line -->
 {#snippet imageCell(_value: unknown, product: Product)}
 	{#if product.image && product.image.length > 0}
-		<img src={product.image[0]} alt={product.name} class="size-16 rounded-md object-contain" />
+		<img src={product.image[0]} alt={product.name} class="size-16 rounded-xs object-contain" />
 	{:else}
 		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
-			<span class="text-xs text-muted-foreground">No image</span>
+			<span class="text-xs text-muted-foreground"><Package /></span>
 		</div>
 	{/if}
 {/snippet}
@@ -81,7 +82,7 @@
 <!-- eslint-disable-next-line -->
 {#snippet nameCell(_value: unknown, product: Product)}
 	<div class="w-full">
-		<div class="truncate font-medium">{product.name}</div>
+		<div class="truncate font-medium uppercase">{product.name}</div>
 
 		{#if product.category}
 			<div class="truncate text-xs text-muted-foreground">
@@ -94,8 +95,8 @@
 <!-- eslint-disable-next-line -->
 {#snippet codeCell(_value: unknown, product: Product)}
 	<div class="w-full">
-		<p class="text-xs">Code: {product.code ?? ''}</p>
-		<p class="text-xs text-muted-foreground">SKU: {product.sku ?? ''}</p>
+		<p class="text-xs uppercase">Code: {product.code ?? ''}</p>
+		<p class="text-xs text-muted-foreground uppercase">SKU: {product.sku ?? ''}</p>
 	</div>
 {/snippet}
 

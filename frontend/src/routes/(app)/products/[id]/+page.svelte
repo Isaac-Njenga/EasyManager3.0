@@ -30,7 +30,8 @@
 	let activeImageIndex = $state(0);
 
 	let images = $derived(selectedProduct?.image ?? []);
-	let inventory = $derived(selectedProduct?.inventory ?? []);
+	let inventory = $derived(selectedProduct?.inventoryDistribution ?? []);
+
 
 	// Safety check to reset carousel index when switching products
 	$effect(() => {
@@ -171,7 +172,7 @@
 		<div class="space-y-2 rounded-xl border bg-muted/20 p-3">
 			<div class="flex items-center justify-between">
 				<p class="text-xs font-semibold text-foreground">Stock Breakdown by Location</p>
-				<span class="text-[11px] text-muted-foreground">{inventory.length} Locations</span>
+				<span class="text-[11px] text-muted-foreground">Locations: {inventory.length}</span>
 			</div>
 
 			<div class="space-y-1.5 pt-1">

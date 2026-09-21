@@ -17,11 +17,25 @@ export const invalidateProductCache = (): void => {
   productCache.flushAll();
 };
 
-const LOCATION_PROFILE_POPULATE = [
-  {
-    path: "inventoryDistribution.locationId",
-  },
-];
+const hydrateLocationRefs = async (product: any): Promise<any> => {
+  if (!Array.isArray(product.inventoryDistribution)) return product;
+  const distributions: any[] = product.inventoryDistribution;
+
+  await Promise.all(
+    distributions.map(async (distribution) => {
+      if (!distribution.locationId || distribution.locationId._id) return;
+
+      const LocationModel = mongoose.model(
+        distribution.locationType === "Warehouse" ? "Warehouse" : "Shop",
+      );
+      distribution.locationId = await LocationModel.findById(
+        distribution.locationId,
+      ).lean();
+    }),
+  );
+
+  return product;
+};
 
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set<string>([
@@ -103,7 +117,9 @@ export class ProductService {
 
     const savedProduct = await ProductModel.findById(productDoc._id).lean();
     invalidateProductCache();
-    return toProduct(savedProduct ?? productDoc.toObject());
+    return toProduct(
+      await hydrateLocationRefs(savedProduct ?? productDoc.toObject()),
+    );
   }
 
   static async fetchProducts(
@@ -118,7 +134,10 @@ export class ProductService {
 
     const cachedData = productCache.get<ProductListResponse>(cacheKey);
     if (cachedData) {
-      return cachedData;
+      const hydratedProducts = await Promise.all(
+        cachedData.products.map((product) => hydrateLocationRefs(product)),
+      );
+      return { ...cachedData, products: hydratedProducts as Product[] };
     }
 
     const filter: Record<string, any> = {};
@@ -137,13 +156,16 @@ export class ProductService {
         .skip(skip)
         .limit(limit)
         .sort({ createdAt: -1 })
-        .populate(LOCATION_PROFILE_POPULATE)
         .lean(),
       ProductModel.countDocuments(filter),
     ]);
 
+    const hydratedProducts = await Promise.all(
+      products.map((product) => hydrateLocationRefs(product)),
+    );
+
     const responseData: ProductListResponse = {
-      products: products as unknown as Product[],
+      products: hydratedProducts as unknown as Product[],
       totalProducts: totalProducts,
       currentPage: page,
       totalPages: Math.ceil(totalProducts / limit),
@@ -163,16 +185,16 @@ export class ProductService {
 
     const cacheKey = `product_detail_${productId}`;
     const cachedProduct = productCache.get<Product>(cacheKey);
-    if (cachedProduct) return cachedProduct;
+    if (cachedProduct) {
+      return toProduct(await hydrateLocationRefs(cachedProduct));
+    }
 
-    const product = await ProductModel.findById(productId)
-      .populate(LOCATION_PROFILE_POPULATE)
-      .lean();
+    const product = await ProductModel.findById(productId).lean();
     if (!product) {
       throw new NotFoundError("Product not found!");
     }
 
-    const result = toProduct(product);
+    const result = toProduct(await hydrateLocationRefs(product));
     productCache.set(cacheKey, result);
     return result;
   }
@@ -191,16 +213,14 @@ export class ProductService {
       productId,
       { $set: flattenedUpdateData },
       { new: true, runValidators: true },
-    )
-      .populate(LOCATION_PROFILE_POPULATE)
-      .lean();
+    ).lean();
 
     if (!product) {
       throw new NotFoundError("Product not found!");
     }
 
     invalidateProductCache();
-    return toProduct(product);
+    return toProduct(await hydrateLocationRefs(product));
   }
 
   static async deleteProduct(
