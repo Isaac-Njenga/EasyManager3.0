@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Product } from '$lib/services/product/product.types';
+	import { getLocationId, type Product } from '$lib/services/product/product.types';
 	import type {
 		Sale,
 		SaleItem,
@@ -146,7 +146,7 @@
 
 	function getShopStock(product: Product, shopId: string) {
 		const directStock = (product.inventoryDistribution ?? product.inventory ?? []).filter(
-			(stock) => stock.locationType === 'Shop' && stock.locationId === shopId
+			(stock) => stock.locationType === 'Shop' && getLocationId(stock.locationId) === shopId
 		);
 		if (directStock.length > 0) {
 			return directStock.reduce((total, stock) => total + stock.quantity, 0);

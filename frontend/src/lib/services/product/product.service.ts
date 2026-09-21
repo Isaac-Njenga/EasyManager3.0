@@ -4,8 +4,29 @@ import type { ServiceContext } from '../api/types';
 
 export const productService = {
 	async fetch(context: ServiceContext): Promise<Product[]> {
-		const response = await apiClient.get<ProductListResponse>('/product/get-products', context);
-		return response.products ?? [];
+		const pageSize = 100;
+		const firstPage = await apiClient.get<ProductListResponse>(
+			`/product/get-products?page=1&limit=${pageSize}`,
+			context
+		);
+
+		if (firstPage.totalPages <= 1) {
+			return firstPage.products ?? [];
+		}
+
+		const remainingPages = await Promise.all(
+			Array.from({ length: firstPage.totalPages - 1 }, (_, index) =>
+				apiClient.get<ProductListResponse>(
+					`/product/get-products?page=${index + 2}&limit=${pageSize}`,
+					context
+				)
+			)
+		);
+
+		return [
+			...(firstPage.products ?? []),
+			...remainingPages.flatMap((page) => page.products ?? [])
+		];
 	},
 
 	async get(context: ServiceContext, id: string): Promise<Product> {

@@ -1,5 +1,5 @@
 <script lang="ts">
-	import type { Product } from '$lib/services/product/product.types';
+	import { getLocationId, type Product } from '$lib/services/product/product.types';
 	import type { Shop, ShopDistributionInput } from '$lib/services/shop/shop.types';
 	import type {
 		Warehouse,
@@ -89,7 +89,7 @@
 	function getStockAtLocation(product: Product): number {
 		if (!selectedLocation) return 0;
 		const record = product.inventoryDistribution?.find(
-			(dist) => dist.locationId === selectedLocation._id
+			(dist) => getLocationId(dist.locationId) === selectedLocation._id
 		);
 		return record?.quantity ?? 0;
 	}

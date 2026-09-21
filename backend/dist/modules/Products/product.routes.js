@@ -8,10 +8,8 @@ const product_controller_1 = require("./product.controller");
 function ProductRouter() {
     const router = (0, express_1.Router)();
     router.post("/create-product", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, product_controller_1.createProduct);
-    // router.get("/get-products", protectRoute, adminRoute, fetchProducts);
-    router.get("/get-products", product_controller_1.fetchProducts);
+    router.get("/get-products", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, product_controller_1.fetchProducts);
     router.get("/get-product/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, product_controller_1.fetchProductById);
-    // router.get("/get-product/:id",  fetchProductById);
     router.put("/update-product/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, product_controller_1.updateProduct);
     router.delete("/delete-product/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, product_controller_1.deleteProduct);
     return router;

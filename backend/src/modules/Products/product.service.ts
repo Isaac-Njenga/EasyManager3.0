@@ -3,6 +3,8 @@ import NodeCache from "node-cache";
 import { BadRequestError } from "../../common/errors/BadRequestError";
 import { NotFoundError } from "../../common/errors/NotFoundError";
 import { ProductModel } from "./product.model";
+import { ShopModel } from "../Shops/shop.model";
+import { WarehouseModel } from "../Warehouses/warehouse.model";
 import {
   CreateProductDTO,
   UpdateProductDTO,
@@ -17,22 +19,69 @@ export const invalidateProductCache = (): void => {
   productCache.flushAll();
 };
 
-const hydrateLocationRefs = async (product: any): Promise<any> => {
-  if (!Array.isArray(product.inventoryDistribution)) return product;
-  const distributions: any[] = product.inventoryDistribution;
+const LOCATION_PROFILE_SELECT = "_id name status type address warehouseCode shopCode";
 
-  await Promise.all(
-    distributions.map(async (distribution) => {
-      if (!distribution.locationId || distribution.locationId._id) return;
+const getLocationId = (value: unknown): string => {
+  if (value && typeof value === "object" && "_id" in value) {
+    return String((value as { _id: unknown })._id);
+  }
+  return String(value);
+};
 
-      const LocationModel = mongoose.model(
-        distribution.locationType === "Warehouse" ? "Warehouse" : "Shop",
-      );
-      distribution.locationId = await LocationModel.findById(
-        distribution.locationId,
-      ).lean();
-    }),
+const isPopulatedLocation = (value: unknown): boolean =>
+  Boolean(
+    value &&
+      typeof value === "object" &&
+      "name" in value &&
+      typeof (value as { name?: unknown }).name === "string",
   );
+
+/**
+ * Resolves dynamic Shop/Warehouse references without relying on refPath
+ * population. This also works for legacy documents saved before refPath was
+ * introduced.
+ */
+const hydrateLocationRefs = async (product: any): Promise<any> => {
+  const distributions = product?.inventoryDistribution;
+  if (!Array.isArray(distributions) || distributions.length === 0) {
+    return product;
+  }
+
+  const warehouseIds = distributions
+    .filter(
+      (entry) =>
+        entry.locationType === "Warehouse" &&
+        !isPopulatedLocation(entry.locationId),
+    )
+    .map((entry) => getLocationId(entry.locationId));
+  const shopIds = distributions
+    .filter(
+      (entry) =>
+        entry.locationType === "Shop" && !isPopulatedLocation(entry.locationId),
+    )
+    .map((entry) => getLocationId(entry.locationId));
+
+  const [warehouses, shops] = await Promise.all([
+    warehouseIds.length
+      ? WarehouseModel.find({ _id: { $in: warehouseIds } })
+          .select(LOCATION_PROFILE_SELECT)
+          .lean()
+      : [],
+    shopIds.length
+      ? ShopModel.find({ _id: { $in: shopIds } })
+          .select(LOCATION_PROFILE_SELECT)
+          .lean()
+      : [],
+  ]);
+  const locations = new Map(
+    [...warehouses, ...shops].map((location) => [String(location._id), location]),
+  );
+
+  for (const distribution of distributions) {
+    if (isPopulatedLocation(distribution.locationId)) continue;
+    const location = locations.get(getLocationId(distribution.locationId));
+    if (location) distribution.locationId = location;
+  }
 
   return product;
 };
@@ -134,10 +183,12 @@ export class ProductService {
 
     const cachedData = productCache.get<ProductListResponse>(cacheKey);
     if (cachedData) {
-      const hydratedProducts = await Promise.all(
-        cachedData.products.map((product) => hydrateLocationRefs(product)),
-      );
-      return { ...cachedData, products: hydratedProducts as Product[] };
+      return {
+        ...cachedData,
+        products: (await Promise.all(
+          cachedData.products.map(hydrateLocationRefs),
+        )) as Product[],
+      };
     }
 
     const filter: Record<string, any> = {};
@@ -160,12 +211,8 @@ export class ProductService {
       ProductModel.countDocuments(filter),
     ]);
 
-    const hydratedProducts = await Promise.all(
-      products.map((product) => hydrateLocationRefs(product)),
-    );
-
     const responseData: ProductListResponse = {
-      products: hydratedProducts as unknown as Product[],
+      products: (await Promise.all(products.map(hydrateLocationRefs))) as Product[],
       totalProducts: totalProducts,
       currentPage: page,
       totalPages: Math.ceil(totalProducts / limit),
@@ -236,6 +283,6 @@ export class ProductService {
     }
 
     invalidateProductCache();
-    return toProduct(product);
+    return toProduct(await hydrateLocationRefs(product));
   }
 }

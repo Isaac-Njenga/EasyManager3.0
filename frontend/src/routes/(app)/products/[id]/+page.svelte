@@ -35,6 +35,7 @@
 
 	// Safety check to reset carousel index when switching products
 	$effect(() => {
+		console.log(selectedProduct)
 		if (activeImageIndex >= images.length) {
 			activeImageIndex = 0;
 		}
@@ -187,7 +188,11 @@
 								<Store class="size-3.5 text-muted-foreground" />
 							{/if}
 							<div>
-								<span class="font-medium">{loc.locationId}</span>
+								<span class="font-medium"
+									>{typeof loc.locationId === 'string'
+										? loc.locationId
+										: loc.locationId.name}</span
+								>
 								<span class="ml-1 text-[10px] text-muted-foreground">({loc.locationType})</span>
 							</div>
 						</div>

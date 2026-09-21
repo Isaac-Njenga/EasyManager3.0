@@ -1,10 +1,22 @@
 export type ProductStatus = 'Active' | 'Inactive';
 
+export type ProductLocation = {
+	_id: string;
+	name: string;
+	status: string;
+	warehouseCode?: string;
+	shopCode?: string;
+	type?: string;
+};
+
 export interface LocationStock {
-	locationId: string; // Mongo ID referencing Warehouse or Shop
+	locationId: string | ProductLocation; // Populated Warehouse or Shop, or an ID before population
 	locationType: 'Warehouse' | 'Shop';
 	quantity: number;
 }
+
+export const getLocationId = (location: LocationStock['locationId']): string =>
+	typeof location === 'string' ? location : location._id;
 
 export type Product = {
 	_id: string;
