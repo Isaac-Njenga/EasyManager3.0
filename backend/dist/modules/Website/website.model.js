@@ -28,6 +28,11 @@ const websiteSchema = new mongoose_1.default.Schema({
         trim: true,
         default: [],
     },
+    keyFeatures: {
+        type: [String],
+        trim: true,
+        default: [],
+    },
     tags: {
         type: [String],
         trim: true,

@@ -7,6 +7,7 @@ export type WebProduct = {
 	category?: string;
 	description?: string;
 	colours: string[];
+	keyFeatures: string[];
 	tags: string[];
 	inStock?: boolean;
 	isBestSeller?: boolean;
@@ -21,6 +22,7 @@ export type CreateWebProductInput = {
 	category: string;
 	description: string;
 	colours: string[];
+	keyFeatures: string[];
 	tags: string[];
 	inStock?: boolean;
 	isBestSeller?: boolean;
@@ -29,15 +31,9 @@ export type CreateWebProductInput = {
 
 export type CreateDescriptionInput = {
 	name: string;
-	// image: string[];
 	price: number;
-	// discount?: number;
 	category: string;
-	// description: string;
 	colours: string[];
-	// inStock?: boolean;
-	// isBestSeller?: boolean;
-	// isNewArrival?: boolean;
 };
 
 export type WebProductCategory =
@@ -64,5 +60,3 @@ export type GeneratedDescriptionResponse = {
 	tags: string[];
 };
 
-// Storefront endpoint
-// const bestSellers = await WebProduct.find({ isBestSeller: true }).limit(8);

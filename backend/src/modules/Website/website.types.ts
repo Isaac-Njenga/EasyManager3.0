@@ -15,6 +15,7 @@ export type WebProduct = {
   description: string;
   colours: string[];
   tags: string[];
+  keyFeatures: string[];
   inStock: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
@@ -28,6 +29,7 @@ export interface CreateWebProductDTO {
   category: string;
   description: string;
   colours: string[];
+  keyFeatures: string[];
   tags: string[];
   inStock?: boolean;
   isBestSeller?: boolean;
@@ -41,6 +43,7 @@ export interface UpdateWebProductDTO {
   discount?: number;
   category?: string;
   description?: string;
+  keyFeatures?: string[];
   colours?: string[];
   tags?: string[];
   inStock?: boolean;

@@ -51,9 +51,11 @@
 
 	let name = $state('');
 	let colours = $state<string[]>([]);
+	let keyFeatures = $state<string[]>([]);
 	let tags = $state<string[]>([]);
 	let colourInput = $state('');
 	let tagInput = $state('');
+	let keyFeaturesInput = $state('');
 	let image = $state<string[]>([]);
 
 	let price = $state('');
@@ -70,6 +72,7 @@
 		if (webProduct) {
 			name = webProduct.name ?? '';
 			colours = webProduct.colours ? [...webProduct.colours] : [];
+			keyFeatures = webProduct.keyFeatures ? [...webProduct.keyFeatures] : [];
 			tags = webProduct.tags ? [...webProduct.tags] : [];
 			image = webProduct.image ? [...webProduct.image] : [];
 			description = webProduct.description ?? '';
@@ -105,6 +108,26 @@
 			addColour();
 		}
 	}
+
+	function addFeature() {
+		const trimmed = keyFeaturesInput.trim();
+		if (trimmed && !keyFeatures.includes(trimmed)) {
+			keyFeatures = [...keyFeatures, trimmed];
+			keyFeaturesInput = '';
+		}
+	}
+
+	function removeFeature(featureToRemove: string) {
+		keyFeatures = keyFeatures.filter((c) => c !== featureToRemove);
+	}
+
+	function handleFeatureKeydown(event: KeyboardEvent) {
+		if (event.key === 'Enter' || event.key === ',') {
+			event.preventDefault();
+			addFeature();
+		}
+	}
+
 	function addTag() {
 		const trimmed = tagInput.trim();
 		if (trimmed && !tags.includes(trimmed)) {
@@ -133,6 +156,7 @@
 		if (!price || Number(price) <= 0) newErrors.price = 'Valid selling price is required';
 		if (image.length === 0) newErrors.image = 'At least one product image is required';
 		if (colours.length === 0) newErrors.colours = 'At least one colour is required';
+		if (keyFeatures.length === 0) newErrors.keyFeatures = 'At least one feature is required';
 		if (tags.length === 0) newErrors.tags = 'At least one tag is required';
 
 		const numDiscount = Number(discount);
@@ -178,15 +202,18 @@
 
 		if (result) {
 			if (result.description) {
-				// Formats key features into bullet points if desired, or sets description directly
-				const featuresText = result.keyFeatures?.length
-					? `\n\nKey Features:\n• ` + result.keyFeatures.join('\n• ')
-					: '';
-				description = `${result.description}${featuresText}`;
+				// const featuresText = result.keyFeatures?.length
+				// 	? `\n\nKey Features:\n• ` + result.keyFeatures.join('\n• ')
+				// 	: '';
+				description = `${result.description}`;
+			}
+
+			if (result.keyFeatures && result.keyFeatures.length > 0) {
+				const combinedFeatures = new Set([...keyFeatures, ...result.keyFeatures]);
+				keyFeatures = Array.from(combinedFeatures);
 			}
 
 			if (result.tags && result.tags.length > 0) {
-				// Merge new unique tags with existing ones
 				const combinedTags = new Set([...tags, ...result.tags]);
 				tags = Array.from(combinedTags);
 			}
@@ -201,6 +228,7 @@
 			name: name.trim(),
 			colours: [...colours],
 			tags: [...tags],
+			keyFeatures: [...keyFeatures],
 			image: [...image],
 			description: description.trim(),
 			category,
@@ -323,6 +351,40 @@
 							aria-invalid={!!errors.description}
 							rows={4}
 						/>
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<Label for="colour">Key Features</Label>
+						<div class="flex gap-2">
+							<Input
+								id="feature"
+								bind:value={keyFeaturesInput}
+								onkeydown={handleFeatureKeydown}
+								placeholder="Type a unique feature (e.g. Water Resistant) and press Enter"
+							/>
+							<Button type="button" variant="secondary" onclick={addFeature}>
+								<Plus class="size-4" />
+							</Button>
+						</div>
+						{#if keyFeatures.length > 0}
+							<div class="mt-2 flex flex-wrap gap-1.5">
+								{#each keyFeatures as feature (feature)}
+									<Badge variant="outline" class="flex items-center gap-1.5 px-2.5 py-1">
+										{feature}
+										<button
+											type="button"
+											class="rounded-full hover:bg-muted"
+											onclick={() => removeFeature(feature)}
+										>
+											<X class="size-3" />
+										</button>
+									</Badge>
+								{/each}
+							</div>
+						{/if}
+						{#if errors.keyFeatures}
+							<p class="text-xs text-destructive">{errors.keyFeatures}</p>
+						{/if}
 					</div>
 
 					<div class="space-y-2 sm:col-span-2">
