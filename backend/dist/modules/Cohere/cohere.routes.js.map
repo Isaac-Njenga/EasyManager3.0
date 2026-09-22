@@ -1,0 +1,1 @@
+{"version":3,"file":"cohere.routes.js","sourceRoot":"","sources":["../../../src/modules/Cohere/cohere.routes.ts"],"names":[],"mappings":";;AAKA,8CAUC;AAfD,qCAAiC;AACjC,2DAAgE;AAChE,mEAAmE;AACnE,kEAAkE;AAElE,SAAgB,iBAAiB;IAC/B,MAAM,MAAM,GAAG,IAAA,gBAAM,GAAE,CAAC;IAExB,MAAM,CAAC,IAAI,CACT,uBAAuB;IACvB,gBAAgB;IAChB,cAAc;IACd,6CAAyB,CAC1B,CAAC;IACF,OAAO,MAAM,CAAC;AAChB,CAAC"}

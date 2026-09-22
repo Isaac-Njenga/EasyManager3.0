@@ -38,7 +38,7 @@ export const webProductService = {
 		input: CreateDescriptionInput
 	): Promise<GeneratedDescriptionResponse> {
 		return apiClient.post<GeneratedDescriptionResponse>(
-			'/model/generate-description',
+			'/cohere-model/generate-description',
 			input,
 			context
 		);

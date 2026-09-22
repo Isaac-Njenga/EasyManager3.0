@@ -26,6 +26,7 @@ const envSchema = zod_1.z.object({
     PROJECT_NUMBER: zod_1.z.string().min(1),
     PROJECT_NAME: zod_1.z.string().min(1),
     NAME: zod_1.z.string().min(1),
+    COHERE_API_KEY: zod_1.z.string().min(1),
 });
 // This will throw an error if process.env.variable is missing
 // REDIS_HOST: z.string().min(1),

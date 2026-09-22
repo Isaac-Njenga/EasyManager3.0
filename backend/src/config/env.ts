@@ -22,6 +22,8 @@ const envSchema = z.object({
   PROJECT_NUMBER: z.string().min(1),
   PROJECT_NAME: z.string().min(1),
   NAME: z.string().min(1),
+  COHERE_API_KEY: z.string().min(1),
+  
 });
 
 // This will throw an error if process.env.variable is missing

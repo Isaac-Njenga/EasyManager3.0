@@ -13,6 +13,7 @@ const saleperson_routes_1 = require("../modules/Salepersons/saleperson.routes");
 const expense_routes_1 = require("../modules/Expenses/expense.routes");
 const transfer_routes_1 = require("../modules/Transfers/transfer.routes");
 const gemini_routes_1 = require("../modules/Gemini/gemini.routes");
+const cohere_routes_1 = require("../modules/Cohere/cohere.routes");
 function createRoutes() {
     const router = (0, express_1.Router)();
     router.use("/auth", (0, auth_routes_1.AuthRouter)());
@@ -24,7 +25,8 @@ function createRoutes() {
     router.use("/salesperson", (0, saleperson_routes_1.SalespersonRouter)());
     router.use("/expense", (0, expense_routes_1.ExpenseRouter)());
     router.use("/transfer", (0, transfer_routes_1.TransferRouter)());
-    router.use("/model", (0, gemini_routes_1.ModelRouter)());
+    router.use("/gemini-model", (0, gemini_routes_1.GeminiModelRouter)());
+    router.use("/cohere-model", (0, cohere_routes_1.CohereModelRouter)());
     return router;
 }
 exports.appRouter = createRoutes();
