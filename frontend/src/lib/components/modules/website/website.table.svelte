@@ -14,6 +14,7 @@
 
 	import { websiteColumns } from '$lib/components/modules/website/website.columns';
 	import type { WebProduct } from '$lib/services/website/website.types';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
@@ -22,6 +23,8 @@
 	import { formatCurrency } from '$lib/utils';
 	import Modal from '$lib/components/common/Modal.svelte';
 	import ProductDetails from '../../../../routes/(app)/website/WebProductDetail.svelte';
+	import Package from '@lucide/svelte/icons/package';
+	import { webProductService } from '$lib/services/website/website.service';
 
 	type Props = {
 		filteredContent: WebProduct[];
@@ -45,11 +48,12 @@
 
 	function openDeleteModal(webProduct: WebProduct) {
 		selectedWebProduct = webProduct;
-		isDeleteWebProductOpen = true;
+		isDeleteWebProductOpen = false;
 	}
 
 	async function deleteItem(webProduct: WebProduct) {
 		try {
+			await webProductService.delete(getBrowserServiceContext(), webProduct._id);
 			toast.success(`Item ${webProduct.name} deleted`);
 			isDeleteWebProductOpen = false;
 			selectedWebProduct = null;
@@ -72,7 +76,7 @@
 		/>
 	{:else}
 		<div class="flex size-12 items-center justify-center rounded-md border bg-muted">
-			<span class="text-xs text-muted-foreground">No image</span>
+			<span class="text-xs text-muted-foreground"><Package /></span>
 		</div>
 	{/if}
 {/snippet}
@@ -80,7 +84,7 @@
 <!-- eslint-disable-next-line -->
 {#snippet nameCell(_value: unknown, webProduct: WebProduct)}
 	<div class="w-full">
-		<div class="truncate font-medium">{webProduct.name}</div>
+		<div class="truncate font-medium uppercase">{webProduct.name}</div>
 
 		{#if webProduct.category}
 			<div class="truncate text-xs text-muted-foreground">

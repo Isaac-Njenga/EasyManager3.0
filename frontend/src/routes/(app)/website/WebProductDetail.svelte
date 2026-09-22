@@ -1,7 +1,8 @@
 <script lang="ts">
 	import type { WebProduct } from '$lib/services/website/website.types';
 	import { formatCurrency } from '$lib/utils';
-	import { Check, ChevronLeft, ChevronRight } from '@lucide/svelte';
+	import { ChevronLeft, ChevronRight, Tag } from '@lucide/svelte';
+	import { Badge } from '$lib/components/ui/badge/index.js';
 
 	type Props = {
 		product: WebProduct | null;
@@ -28,15 +29,15 @@
 </script>
 
 {#if isOpen && product}
-	<div class="relative grid grid-cols-1 gap-4 p-4 sm:gap-8 sm:p-4 md:grid-cols-2">
-		<div class="flex min-w-0 flex-col gap-3">
+	<div class="relative grid grid-cols-1 gap-2 p-1 sm:gap-8 sm:p-2 md:grid-cols-2">
+		<div class="flex h-full min-w-0 flex-col gap-3">
 			<div
-				class="group relative aspect-4/3 w-full overflow-hidden rounded-xl bg-slate-100 shadow-inner dark:bg-slate-800"
+				class="group relative aspect-4/3 h-full w-full overflow-hidden rounded-none bg-muted shadow-inner"
 			>
 				<img
 					src={images[selectedImgIndex]}
 					alt={product.name}
-					class="h-full w-full rounded-none object-cover transition-transform duration-500 group-hover:scale-105 motion-reduce:transition-none"
+					class="h-full w-full rounded-none object-cover transition-transform duration-600 group-hover:scale-105 motion-reduce:transition-none"
 				/>
 				{#if hasDiscount}
 					<span
@@ -67,13 +68,13 @@
 			</div>
 
 			{#if images.length > 1}
-				<div class="flex gap-2 overflow-x-auto pb-1" aria-label="Product images">
+				<div class="overflow-x-none flex gap-2 pb-1" aria-label="Product images">
 					{#each images as img, i (img)}
 						<button
 							type="button"
 							onclick={() => (selectedImgIndex = i)}
 							aria-label={`Show image ${i + 1}`}
-							class="size-14 shrink-0 overflow-hidden rounded-none border-2 transition-all sm:size-16 {selectedImgIndex ===
+							class="size-12 shrink-0 overflow-hidden rounded-none border-2 transition-all sm:size-12 {selectedImgIndex ===
 							i
 								? 'border-primary'
 								: 'border-transparent opacity-60 hover:opacity-100'}"
@@ -100,7 +101,7 @@
 						{formatCurrency(discountedPrice)}
 					</span>
 					{#if hasDiscount}
-						<span class="text-base text-muted-foreground line-through">
+						<span class="text-base text-red-400 line-through">
 							{formatCurrency(product.price)}
 						</span>
 					{/if}
@@ -112,11 +113,27 @@
 						'Elevate your living space with this expertly crafted piece from EasyDeal Furniture. Modern design meets durable ergonomics.'}
 				</p>
 
-				<div class="mt-4 space-y-2 text-xs text-foreground/80">
-					<p class="flex items-center gap-1.5 font-semibold text-emerald-600">
-						<Check class="h-4 w-4" /> In Stock & Ready for delivery
-					</p>
+				<div class="mt-4 flex flex-wrap items-center gap-2">
+					<div class="flex items-center gap-1.5 text-sm font-medium text-foreground">
+						<Tag class="size-3.5 shrink-0 text-primary" />
+					</div>
+
+					<div class=" flex flex-wrap items-center gap-2 text-xs">
+						{#each product.tags as tag (tag)}
+							<Badge variant="outline" class="cursor-pointer whitespace-nowrap">
+								{tag}
+							</Badge>
+						{/each}
+					</div>
 				</div>
+
+				<p class="mt-4 text-xs leading-relaxed text-muted-foreground">
+					Available Colours:
+					<span class="capitalize"
+						>{#each product.colours as color, i (color)}{color}{#if i < product.colours.length - 1},
+							{/if}{/each}</span
+					>
+				</p>
 			</div>
 		</div>
 	</div>

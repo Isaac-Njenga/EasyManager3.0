@@ -35,7 +35,7 @@
 
 	// Safety check to reset carousel index when switching products
 	$effect(() => {
-		console.log(selectedProduct)
+		// console.log(selectedProduct)
 		if (activeImageIndex >= images.length) {
 			activeImageIndex = 0;
 		}

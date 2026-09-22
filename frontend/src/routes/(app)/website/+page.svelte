@@ -11,12 +11,21 @@
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
 	import Tag from '@lucide/svelte/icons/tag';
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
+	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import WebsiteTable from '$lib/components/modules/website/website.table.svelte';
 	import { formatCurrency } from '$lib/utils';
+	import Modal from '$lib/components/common/Modal.svelte';
+	import ProductDetails from './WebProductDetail.svelte';
 	import { toast } from 'svelte-sonner';
+	import type { WebProduct } from '$lib/services/website/website.types';
 	import type { PageProps } from './$types';
+	import { invalidateAll } from '$app/navigation';
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
+	import { webProductService } from '$lib/services/website/website.service';
 
 	let { data }: PageProps = $props();
 
@@ -29,6 +38,37 @@
 		}
 	});
 
+	let selectedItem = $state({} as WebProduct);
+	let isDetailModalOpen = $state(false);
+	let isDeleteWebProductOpen = $state(false);
+
+	function viewItem(item: WebProduct) {
+		selectedItem = item;
+		isDetailModalOpen = true;
+	}
+
+	function editWebProduct(item: WebProduct) {
+		goto(resolve(`/website/${item._id}/edit`));
+	}
+
+	function openDeleteModal(item: WebProduct) {
+		selectedItem = item;
+		isDeleteWebProductOpen = false;
+	}
+
+	async function deleteItem(item: WebProduct) {
+		try {
+			await webProductService.delete(getBrowserServiceContext(), item._id);
+			toast.success(`Item ${item.name} deleted`);
+			isDeleteWebProductOpen = false;
+			selectedItem = {} as WebProduct;
+			await invalidateAll();
+		} catch (error) {
+			const description = error instanceof Error ? error.message : 'Failed to delete item.';
+			toast.error('Product deletion failed', { description });
+		}
+	}
+
 	let searchTerm = $state('');
 	let isSearching = $state(false);
 	let selectedCategory = $state('All');
@@ -37,12 +77,12 @@
 
 	const categoryTags = [
 		'All',
-		'Office Items',
-		'Living Room Items',
-		'Kitchen Items',
-		'Outdoor Items',
-		'Bedroom Items',
-		'Second-Hand Items'
+		'Office',
+		'Living Room',
+		'Kitchen',
+		'Outdoor',
+		'Bedroom',
+		'Second-Hand'
 	];
 
 	// Calculated Metrics
@@ -58,7 +98,8 @@
 		webProducts.filter((item) => {
 			const normalizedSearch = searchTerm.trim().toLowerCase();
 
-			const matchesCategory = selectedCategory === 'All' || item.category === selectedCategory;
+			const matchesCategory =
+				selectedCategory === 'All' || item.category === `${selectedCategory} Furniture`;
 
 			const matchesStock =
 				stockFilter === 'all' ||
@@ -94,45 +135,45 @@
 
 	<!-- KPI Metric Cards -->
 	<div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-		<Card>
-			<CardHeader class="flex flex-row items-center justify-between pb-2">
+		<Card class="py-auto px-0">
+			<CardHeader class="flex flex-row items-center justify-between">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Total Listings</CardTitle>
 				<Package class="size-4 text-muted-foreground" />
 			</CardHeader>
-			<CardContent>
+			<CardContent class="py-0">
 				<div class="text-2xl font-bold">{totalProducts}</div>
 				<p class="text-xs text-muted-foreground">Active website items</p>
 			</CardContent>
 		</Card>
 
-		<Card>
-			<CardHeader class="flex flex-row items-center justify-between pb-2">
+		<Card class="py-auto px-0">
+			<CardHeader class="flex flex-row items-center justify-between">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Inventory Alerts</CardTitle>
 				<AlertTriangle class="size-4 text-amber-500" />
 			</CardHeader>
-			<CardContent>
+			<CardContent class="py-0">
 				<div class="text-2xl font-bold text-amber-600">{outOfStockCount}</div>
 				<p class="text-xs text-muted-foreground">Currently out of stock</p>
 			</CardContent>
 		</Card>
 
-		<Card>
-			<CardHeader class="flex flex-row items-center justify-between pb-2">
+		<Card class="py-auto px-0">
+			<CardHeader class="flex flex-row items-center justify-between">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Avg. Discount</CardTitle>
 				<Tag class="size-4 text-muted-foreground" />
 			</CardHeader>
-			<CardContent>
+			<CardContent class="py-0">
 				<div class="text-2xl font-bold">{avgDiscount}%</div>
 				<p class="text-xs text-muted-foreground">Across promotional items</p>
 			</CardContent>
 		</Card>
 
-		<Card>
-			<CardHeader class="flex flex-row items-center justify-between pb-2">
+		<Card class="py-auto px-0">
+			<CardHeader class="flex flex-row items-center justify-between">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Catalog Value</CardTitle>
 				<DollarSign class="size-4 text-muted-foreground" />
 			</CardHeader>
-			<CardContent>
+			<CardContent class="py-0">
 				<div class="text-2xl font-bold">{formatCurrency(totalCatalogValue)}</div>
 				<p class="text-xs text-muted-foreground">Sum of listed retail prices</p>
 			</CardContent>
@@ -246,9 +287,9 @@
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
 						{#each filteredContent as item (item._id)}
 							<div
-								class="group overflow-hidden rounded-lg border bg-card p-3 transition-all hover:shadow-md"
+								class="group overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md"
 							>
-								<div class="relative mb-3 aspect-square overflow-hidden rounded-md bg-muted">
+								<div class="relative mb-1 aspect-square overflow-hidden rounded-none bg-muted">
 									{#if item.image?.[0]}
 										<img
 											src={item.image[0]}
@@ -268,16 +309,25 @@
 										</Badge>
 									{/if}
 								</div>
-								<h3 class="line-clamp-1 font-medium text-foreground">{item.name}</h3>
-								<p class="text-xs text-muted-foreground">{item.category}</p>
-								<div class="mt-2 flex items-center justify-between">
-									<span class="font-bold text-foreground">{formatCurrency(item.price)}</span>
-									<Badge
-										variant={item.inStock !== false ? 'outline' : 'destructive'}
-										class="text-[10px]"
-									>
-										{item.inStock !== false ? 'In Stock' : 'Out of Stock'}
-									</Badge>
+								<div class="p-2">
+									<h3 class="line-clamp-1 font-medium text-foreground">{item.name}</h3>
+									<p class="text-xs text-muted-foreground">{item.category}</p>
+									<div class="mt-2 flex items-center justify-between">
+										<span class="font-bold text-foreground">{formatCurrency(item.price)}</span>
+										<div>
+											<Badge class="cursor-pointer text-[10px]" onclick={() => viewItem(item)}
+												>View</Badge
+											>
+											<Badge
+												variant={item.inStock !== false ? 'outline' : 'destructive'}
+												class="text-[10px] {item.inStock !== false
+													? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
+													: 'border-destructive/30 bg-destructive/10 text-destructive'}"
+											>
+												{item.inStock !== false ? 'In Stock' : 'Out of Stock'}
+											</Badge>
+										</div>
+									</div>
 								</div>
 							</div>
 						{:else}
@@ -291,3 +341,42 @@
 		</div>
 	</div>
 </div>
+
+<Modal bind:open={isDetailModalOpen}>
+	{#if selectedItem}
+		<div class="no-scrollbar min-h-0 overflow-y-auto">
+			<ProductDetails product={selectedItem} isOpen={isDetailModalOpen} />
+		</div>
+	{/if}
+	{#snippet footer()}
+		<div class="flex w-full flex-row items-center justify-end gap-2">
+			<Button
+				size="xs"
+				variant="default"
+				onclick={() => {
+					if (selectedItem) {
+						editWebProduct(selectedItem);
+					}
+				}}
+			>
+				Edit
+			</Button>
+			<Button
+				size="xs"
+				variant="destructive"
+				onclick={() => {
+					if (selectedItem) {
+						openDeleteModal(selectedItem);
+					}
+				}}
+			>
+				Delete
+			</Button>
+		</div>
+	{/snippet}
+</Modal>
+
+<DeleteDialog
+	bind:open={isDeleteWebProductOpen}
+	handleDelete={() => selectedItem && deleteItem(selectedItem)}
+/>
