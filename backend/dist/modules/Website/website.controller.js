@@ -5,6 +5,7 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
 const website_service_1 = require("./website.service");
+const socket_1 = require("../../ws/socket");
 const getProductIdParam = (id) => {
     if (!id) {
         throw new BadRequestError_1.BadRequestError("WebProduct ID is required");
@@ -26,6 +27,7 @@ exports.createProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "webproduct",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "website", action: "created" });
     res.status(201).json({
         success: true,
         data: product,
@@ -107,6 +109,7 @@ exports.updateProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "webproduct",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "website", action: "updated" });
     res.status(200).json({
         success: true,
         data: product,
@@ -126,6 +129,7 @@ exports.deleteProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "webproduct",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "website", action: "deleted" });
     res.status(200).json({
         success: true,
         data: product,

@@ -5,6 +5,7 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
 const expense_service_1 = require("./expense.service");
+const socket_1 = require("../../ws/socket");
 const getExpenseIdParam = (id) => {
     if (!id) {
         throw new BadRequestError_1.BadRequestError("Expense ID is required");
@@ -26,6 +27,7 @@ exports.createExpense = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "expense",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "expense", action: "created" });
     res.status(201).json({
         success: true,
         data: expense,
@@ -75,6 +77,7 @@ exports.updateExpense = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "expense",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "expense", action: "updated" });
     res.status(200).json({
         success: true,
         data: expense,
@@ -94,6 +97,7 @@ exports.deleteExpense = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "expense",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "expense", action: "deleted" });
     res.status(200).json({
         success: true,
         data: expense,

@@ -9,6 +9,7 @@ import {
   UpdateWebProductDTO as UpdateProductDTO,
   SearchQuery,
 } from "./website.types";
+import { broadcastEvent } from "../../ws/socket";
 
 const getProductIdParam = (id: string | string[] | undefined): string => {
   if (!id) {
@@ -40,6 +41,7 @@ export const createProduct = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "website", action: "created" });
     res.status(201).json({
       success: true,
       data: product,
@@ -159,6 +161,7 @@ export const updateProduct = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "website", action: "updated" });
     res.status(200).json({
       success: true,
       data: product,
@@ -188,6 +191,7 @@ export const deleteProduct = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "website", action: "deleted" });
     res.status(200).json({
       success: true,
       data: product,

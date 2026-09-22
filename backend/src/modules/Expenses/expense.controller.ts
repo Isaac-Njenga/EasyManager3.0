@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { createLog } from "../Logs/logs.service";
 import { ExpenseService } from "./expense.service";
 import { CreateExpenseDTO, UpdateExpenseDTO } from "./expense.types";
+import { broadcastEvent } from "../../ws/socket";
 
 const getExpenseIdParam = (id: string | string[] | undefined): string => {
   if (!id) {
@@ -36,6 +37,7 @@ export const createExpense = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "expense", action: "created" });
     res.status(201).json({
       success: true,
       data: expense,
@@ -110,6 +112,7 @@ export const updateExpense = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "expense", action: "updated" });
     res.status(200).json({
       success: true,
       data: expense,
@@ -139,6 +142,7 @@ export const deleteExpense = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "expense", action: "deleted" });
     res.status(200).json({
       success: true,
       data: expense,

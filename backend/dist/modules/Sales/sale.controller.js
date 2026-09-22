@@ -5,6 +5,7 @@ const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
 const sale_service_1 = require("./sale.service");
+const socket_1 = require("../../ws/socket");
 const getSaleIdParam = (id) => {
     if (!id) {
         throw new BadRequestError_1.BadRequestError("Sale ID is required");
@@ -26,6 +27,7 @@ exports.createSale = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "sale",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "sale", action: "created" });
     res.status(201).json({
         success: true,
         data: sale,
@@ -75,6 +77,7 @@ exports.updateSale = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "sale",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "sale", action: "updated" });
     res.status(200).json({
         success: true,
         data: sale,
@@ -94,6 +97,7 @@ exports.deleteSale = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "sale",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "sale", action: "deleted" });
     res.status(200).json({
         success: true,
         data: sale,

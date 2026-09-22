@@ -5,6 +5,7 @@ import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { createLog } from "../Logs/logs.service";
 import { SaleService } from "./sale.service";
 import { CreateSaleDTO, UpdateSaleDTO } from "./sale.types";
+import { broadcastEvent } from "../../ws/socket";
 
 const getSaleIdParam = (id: string | string[] | undefined): string => {
   if (!id) {
@@ -36,6 +37,7 @@ export const createSale = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "sale", action: "created" });
     res.status(201).json({
       success: true,
       data: sale,
@@ -110,6 +112,7 @@ export const updateSale = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "sale", action: "updated" });
     res.status(200).json({
       success: true,
       data: sale,
@@ -139,6 +142,7 @@ export const deleteSale = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent("dashboard:refresh", { resource: "sale", action: "deleted" });
     res.status(200).json({
       success: true,
       data: sale,

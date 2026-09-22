@@ -52,6 +52,11 @@
 		isDeleteSaleOpen = true;
 	}
 
+	function getProductName(item: Sale['items'][number]): string {
+		if (item.product && typeof item.product === 'object') return item.product.name;
+		return 'Product unavailable';
+	}
+
 	async function deleteSale(sale: Sale) {
 		try {
 			await saleService.delete(getBrowserServiceContext(), sale._id);
@@ -85,7 +90,7 @@
 	<div class="w-full space-y-0.5">
 		{#if sale.items.length > 0}
 			<div class="truncate text-xs font-medium">
-				{sale.items[0].product.name}
+				{getProductName(sale.items[0])}
 			</div>
 			{#if sale.items.length > 1}
 				<p class="text-[11px] text-muted-foreground">

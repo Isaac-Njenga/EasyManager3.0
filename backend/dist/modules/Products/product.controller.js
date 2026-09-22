@@ -4,6 +4,7 @@ exports.deleteProduct = exports.updateProduct = exports.fetchProductById = expor
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
+const socket_1 = require("../../ws/socket");
 const product_service_1 = require("./product.service");
 const getProductIdParam = (id) => {
     if (!id) {
@@ -26,6 +27,7 @@ exports.createProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "product",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)('dashboard:refresh', { resource: 'product', action: 'created' });
     res.status(201).json({
         success: true,
         data: product,
@@ -68,6 +70,14 @@ exports.fetchProductById = (0, catchAsync_1.catchAsync)(async (req, res) => {
 exports.updateProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const id = getProductIdParam(req.params.id);
     const product = await product_service_1.ProductService.updateProduct(id, req.body, req.user._id.toString(), req.user.role);
+    (0, socket_1.broadcastEvent)('product:updated', {
+        id: product._id,
+        status: product.status,
+        totalQuantity: product.totalQuantity,
+        costPrice: product.costPrice,
+        sellingPrice: product.sellingPrice,
+    });
+    (0, socket_1.broadcastEvent)('dashboard:refresh', { resource: 'product', action: 'updated' });
     // Create Audit Log
     await (0, logs_service_1.createLog)({
         type: "product",
@@ -97,6 +107,7 @@ exports.deleteProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "product",
         actor: req.user?._id,
     });
+    (0, socket_1.broadcastEvent)('dashboard:refresh', { resource: 'product', action: 'deleted' });
     res.status(200).json({
         success: true,
         data: product,

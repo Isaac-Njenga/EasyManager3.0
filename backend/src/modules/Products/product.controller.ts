@@ -3,6 +3,7 @@ import { BadRequestError } from "../../common/errors/BadRequestError";
 import { catchAsync } from "../../common/utils/catchAsync";
 import { AuthenticatedRequest } from "../../middleware/auth.middleware";
 import { createLog } from "../Logs/logs.service";
+import {broadcastEvent} from '../../ws/socket'
 import { ProductService } from "./product.service";
 import { CreateProductDTO, UpdateProductDTO } from "./product.types";
 
@@ -36,6 +37,7 @@ export const createProduct = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent('dashboard:refresh', { resource: 'product', action: 'created' });
     res.status(201).json({
       success: true,
       data: product,
@@ -102,6 +104,15 @@ export const updateProduct = catchAsync(
       req.user!.role,
     );
 
+  broadcastEvent('product:updated', {
+    id: product._id,
+    status: product.status,
+    totalQuantity: product.totalQuantity,
+    costPrice: product.costPrice,
+    sellingPrice: product.sellingPrice,
+  });
+  broadcastEvent('dashboard:refresh', { resource: 'product', action: 'updated' });
+
     // Create Audit Log
     await createLog({
       type: "product",
@@ -142,6 +153,7 @@ export const deleteProduct = catchAsync(
       actor: req.user?._id,
     });
 
+    broadcastEvent('dashboard:refresh', { resource: 'product', action: 'deleted' });
     res.status(200).json({
       success: true,
       data: product,

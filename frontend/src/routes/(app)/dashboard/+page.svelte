@@ -9,12 +9,19 @@
 	import SalesExpenseProgression from '$lib/components/modules/dashboard/SalesExpenseProgression.svelte';
 	import { formatCurrency } from '$lib/utils';
 	import { format, subDays } from 'date-fns';
+	import { invalidateAll } from '$app/navigation';
+	import { onMount } from 'svelte';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
 	import TrendingDownIcon from '@lucide/svelte/icons/trending-down';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
-	import AwardIcon from '@lucide/svelte/icons/award';
+	import PackageIcon from '@lucide/svelte/icons/package';
+	import Globe2Icon from '@lucide/svelte/icons/globe-2';
+	import AlertTriangleIcon from '@lucide/svelte/icons/alert-triangle';
+	import RadioIcon from '@lucide/svelte/icons/radio';
 	import type { Sale } from '$lib/services/sales/sales.types';
 	import type { Expense } from '$lib/services/expenses/expense.types';
+	import type { Product } from '$lib/services/product/product.types';
+	import type { WebProduct } from '$lib/services/website/website.types';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 
@@ -22,6 +29,8 @@
 
 	const sales = $derived<Sale[]>(data.sales ?? []);
 	const expenses = $derived<Expense[]>(data.expenses ?? []);
+	const products = $derived<Product[]>(data.products ?? []);
+	const webProducts = $derived<WebProduct[]>(data.webProducts ?? []);
 	const error = $derived(data.error);
 
 	$effect(() => {
@@ -30,26 +39,38 @@
 		}
 	});
 
-	let selectedTag = $state('Today');
-	let customDate = $state('');
+	let selectedTag = $state('All time');
+	let customStartDate = $state('');
+	let customEndDate = $state('');
+	let isLive = $state(false);
+	let lastUpdated = $state(new Date());
 
-	const dateTags = ['Today', 'Yesterday', 'Last 7 days', 'Last 30 Days'];
+	const dateTags = ['All time', 'Today', 'Yesterday', 'Last 7 days', 'Last 30 days'];
+
+	function numericValue(value: unknown): number {
+		const number = Number(value);
+		return Number.isFinite(number) ? number : 0;
+	}
 
 	let activeFilterLabel = $derived(
-		customDate
-			? `Showing metrics for
-		: ${customDate}`
-			: `Showing metrics for: ${selectedTag}`
+		customStartDate || customEndDate
+			? `Showing metrics from ${customStartDate || 'the beginning'} to ${customEndDate || 'today'}`
+			: selectedTag === 'All time'
+				? 'Showing all recorded data'
+				: `Showing metrics for: ${selectedTag}`
 	);
 
 	function selectTag(tag: string) {
 		selectedTag = tag;
-		customDate = ''; // Clear explicit date picker override
+		customStartDate = '';
+		customEndDate = '';
 	}
 
-	function handleCustomDate(e: Event) {
-		const input = e.target as HTMLInputElement;
-		customDate = input.value;
+	function handleCustomDate(event: Event, boundary: 'start' | 'end') {
+		const value = (event.target as HTMLInputElement).value;
+		if (boundary === 'start') customStartDate = value;
+		else customEndDate = value;
+		if (value) selectedTag = '';
 	}
 
 	function dateKey(date: Date) {
@@ -57,7 +78,11 @@
 	}
 
 	function getRange() {
-		if (customDate) return { start: customDate, end: customDate };
+		if (customStartDate || customEndDate) {
+			return { start: customStartDate || '0000-01-01', end: customEndDate || '9999-12-31' };
+		}
+
+		if (selectedTag === 'All time') return { start: '0000-01-01', end: '9999-12-31' };
 
 		let end = new Date();
 		const days =
@@ -65,7 +90,7 @@
 				? 1
 				: selectedTag === 'Last 7 days'
 					? 7
-					: selectedTag === 'Last 30 Days'
+					: selectedTag === 'Last 30 days'
 						? 30
 						: 1;
 
@@ -88,12 +113,12 @@
 	let revenue = $derived(
 		filteredSales
 			.filter((sale) => sale.status === 'Completed' || sale.status === 'Processing')
-			.reduce((total, sale) => total + sale.grandTotal, 0)
+			.reduce((total, sale) => total + numericValue(sale.grandTotal), 0)
 	);
 	let allExpenses = $derived(
 		filteredExpenses
 			.filter((expense) => expense.paymentStatus !== 'Cancelled')
-			.reduce((total, expense) => total + expense.amount, 0)
+			.reduce((total, expense) => total + numericValue(expense.amount), 0)
 	);
 	let costOfSales = $derived(
 		filteredSales
@@ -102,7 +127,12 @@
 				(total, sale) =>
 					total +
 					sale.items.reduce(
-						(itemTotal, item) => itemTotal + item.product.costPrice * item.quantity,
+						(itemTotal, item) =>
+							itemTotal +
+							numericValue(
+								item.product && typeof item.product === 'object' ? item.product.costPrice : 0
+							) *
+								numericValue(item.quantity),
 						0
 					),
 				0
@@ -110,6 +140,56 @@
 	);
 	let netProfit = $derived(revenue - costOfSales - allExpenses);
 	let profitMargin = $derived(revenue ? (netProfit / revenue) * 100 : 0);
+	let inventoryValue = $derived(
+		products
+			.filter((product) => product.status === 'Active')
+			.reduce(
+				(total, product) =>
+					total + numericValue(product.costPrice) * numericValue(product.totalQuantity),
+				0
+			)
+	);
+	let lowStockCount = $derived(
+		products.filter((product) => product.status === 'Active' && product.totalQuantity <= 5).length
+	);
+	let publishedProducts = $derived(
+		webProducts.filter((product) => product.inStock !== false).length
+	);
+
+	onMount(() => {
+		const protocol = window.location.protocol === 'https:' ? 'wss:' : 'ws:';
+		let socket: WebSocket | undefined;
+		let reconnectTimer: ReturnType<typeof setTimeout> | undefined;
+		let refreshTimer: ReturnType<typeof setTimeout> | undefined;
+		let destroyed = false;
+
+		const refresh = () => {
+			clearTimeout(refreshTimer);
+			refreshTimer = setTimeout(async () => {
+				await invalidateAll();
+				lastUpdated = new Date();
+			}, 250);
+		};
+		const connect = () => {
+			socket = new WebSocket(`${protocol}//${window.location.host}/ws`);
+			socket.onopen = () => (isLive = true);
+			socket.onmessage = refresh;
+			socket.onclose = () => {
+				isLive = false;
+				if (!destroyed) reconnectTimer = setTimeout(connect, 3000);
+			};
+		};
+		connect();
+		const polling = setInterval(refresh, 60000);
+
+		return () => {
+			destroyed = true;
+			clearInterval(polling);
+			clearTimeout(reconnectTimer);
+			clearTimeout(refreshTimer);
+			socket?.close();
+		};
+	});
 </script>
 
 <svelte:head>
@@ -119,7 +199,7 @@
 <div class="space-y-6">
 	<PageHeader
 		title="Dashboard"
-		description="Overview of revenue, expenses, and operational performance."
+		description="Live view of sales, spending, inventory, and your website catalogue."
 	/>
 
 	<!-- Control Bar: Date Range Selectors -->
@@ -129,7 +209,7 @@
 		<div class="flex flex-wrap items-center gap-2">
 			{#each dateTags as tag (tag)}
 				<Badge
-					variant={selectedTag === tag && !customDate ? 'default' : 'outline'}
+					variant={selectedTag === tag && !customEndDate ? 'default' : 'outline'}
 					onclick={() => selectTag(tag)}
 					class="cursor-pointer transition-colors"
 				>
@@ -138,22 +218,40 @@
 			{/each}
 		</div>
 
-		<div class="flex items-center gap-2">
+		<div class="flex flex-wrap items-center gap-2">
 			<Input
-				id="date-select"
+				id="date-start"
 				type="date"
-				value={customDate}
-				onchange={handleCustomDate}
+				value={customStartDate}
+				onchange={(event) => handleCustomDate(event, 'start')}
 				class="h-9 w-full text-xs sm:w-auto"
+				aria-label="Start date"
+			/>
+			<Input
+				id="date-end"
+				type="date"
+				value={customEndDate}
+				onchange={(event) => handleCustomDate(event, 'end')}
+				class="h-9 w-full text-xs sm:w-auto"
+				aria-label="End date"
 			/>
 		</div>
 	</div>
 
-	<p class="text-xs font-medium text-muted-foreground">{activeFilterLabel}</p>
+	<div
+		class="flex flex-wrap items-center justify-between gap-2 text-xs font-medium text-muted-foreground"
+	>
+		<p>{activeFilterLabel}</p>
+		<p class="flex items-center gap-1.5">
+			<RadioIcon class="size-3 animate-pulse text-emerald-500" />{isLive
+				? 'Live updates connected'
+				: `Last synced ${format(lastUpdated, 'p')}`}
+		</p>
+	</div>
 
 	<!-- Top KPI Grid -->
-	<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-4">
-		<Card class="transition-all hover:shadow-md">
+	<div class="grid gap-3 sm:grid-cols-2 xl:grid-cols-3">
+		<Card size="sm" class="border-rose-500/10 transition-all hover:shadow-md">
 			<CardHeader class="flex flex-row items-center justify-between ">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Revenue</CardTitle>
 				<div class="rounded-lg bg-emerald-500/10 p-2 text-emerald-600">
@@ -169,7 +267,7 @@
 			</CardContent>
 		</Card>
 
-		<Card class="transition-all hover:shadow-md">
+		<Card size="sm" class="transition-all hover:shadow-md">
 			<CardHeader class="flex flex-row items-center justify-between ">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Expenses</CardTitle>
 				<div class="rounded-lg bg-rose-500/10 p-2 text-rose-600">
@@ -186,32 +284,62 @@
 			</CardContent>
 		</Card>
 
-		<Card class="transition-all hover:shadow-md">
-			<CardHeader class="flex flex-row items-center justify-between ">
-				<CardTitle class="text-sm font-medium text-muted-foreground">Commissions Paid</CardTitle>
-				<div class="rounded-lg bg-amber-500/10 p-2 text-amber-600">
-					<AwardIcon class="size-4" />
-				</div>
-			</CardHeader>
-			<CardContent>
-				<div class="text-2xl font-bold text-amber-600">KES 0.00</div>
-				<div class="mt-1 flex items-center text-xs text-muted-foreground">
-					<span>0 salepersons payouts</span>
-				</div>
-			</CardContent>
-		</Card>
-
-		<Card class="transition-all hover:shadow-md">
+		<Card size="sm" class="border-primary/10 transition-all hover:shadow-md">
 			<CardHeader class="flex flex-row items-center justify-between ">
 				<CardTitle class="text-sm font-medium text-muted-foreground">Net Profit</CardTitle>
-				<div class="rounded-lg bg-primary/10 p-2 text-blue-400">
+				<div class="rounded-lg bg-primary/10 p-2 text-primary">
 					<TrendingUpIcon class="size-4" />
 				</div>
 			</CardHeader>
 			<CardContent>
-				<div class="text-2xl font-bold text-blue-400">{formatCurrency(netProfit)}</div>
+				<div class="text-2xl font-bold text-primary">{formatCurrency(netProfit)}</div>
 				<div class="mt-1 flex items-center text-xs text-muted-foreground">
 					<span>Margin: {profitMargin.toFixed(1)}%</span>
+				</div>
+			</CardContent>
+		</Card>
+
+		<Card size="sm" class="transition-all hover:shadow-md">
+			<CardHeader class="flex flex-row items-center justify-between ">
+				<CardTitle class="text-sm font-medium text-muted-foreground">Inventory Value</CardTitle>
+				<div class="rounded-lg bg-violet-500/10 p-2 text-violet-600 dark:text-violet-400">
+					<PackageIcon class="size-4" />
+				</div>
+			</CardHeader>
+			<CardContent>
+				<div class="text-2xl font-bold text-violet-600 dark:text-violet-400">
+					{formatCurrency(inventoryValue)}
+				</div>
+				<div class="mt-1 flex items-center text-xs text-muted-foreground">
+					<span>{products.length} product{products.length === 1 ? '' : 's'} tracked</span>
+				</div>
+			</CardContent>
+		</Card>
+
+		<Card size="sm" class="transition-all hover:shadow-md">
+			<CardHeader class="flex flex-row items-center justify-between ">
+				<CardTitle class="text-sm font-medium text-muted-foreground">Low Stock</CardTitle>
+				<div class="rounded-lg bg-amber-500/10 p-2 text-amber-600 dark:text-amber-400">
+					<AlertTriangleIcon class="size-4" />
+				</div>
+			</CardHeader>
+			<CardContent>
+				<div class="text-2xl font-bold">{lowStockCount}</div>
+				<div class="mt-1 text-xs text-muted-foreground">Active products with 5 units or fewer</div>
+			</CardContent>
+		</Card>
+
+		<Card size="sm" class="transition-all hover:shadow-md">
+			<CardHeader class="flex flex-row items-center justify-between ">
+				<CardTitle class="text-sm font-medium text-muted-foreground">Website Catalogue</CardTitle>
+				<div class="rounded-lg bg-sky-500/10 p-2 text-sky-600 dark:text-sky-400">
+					<Globe2Icon class="size-4" />
+				</div>
+			</CardHeader>
+			<CardContent>
+				<div class="text-2xl font-bold text-sky-600 dark:text-sky-400">{publishedProducts}</div>
+				<div class="mt-1 text-xs text-muted-foreground">
+					of {webProducts.length} products available online
 				</div>
 			</CardContent>
 		</Card>
@@ -222,7 +350,7 @@
 	<!-- Main Detail Tabs -->
 	<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
 		<div>
-			<SalesExpenseProgression {sales} {expenses} />
+			<SalesExpenseProgression sales={filteredSales} expenses={filteredExpenses} />
 		</div>
 		<div class="rounded-xl border bg-card p-4 shadow-sm">
 			<Tabs.Root value="sales" class="w-full">

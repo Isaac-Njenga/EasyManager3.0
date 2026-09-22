@@ -3,6 +3,7 @@
 		addDays,
 		addMonths,
 		addWeeks,
+		eachMonthOfInterval,
 		endOfMonth,
 		endOfWeek,
 		format,
@@ -17,7 +18,7 @@
 	import type { Expense } from '$lib/services/expenses/expense.types';
 	import type { Sale } from '$lib/services/sales/sales.types';
 
-	type ChartView = 'week' | 'month';
+	type ChartView = 'week' | 'month' | 'all';
 	type ProgressionPoint = {
 		date: Date;
 		label: string;
@@ -38,8 +39,17 @@
 		return format(date, 'yyyy-MM-dd');
 	}
 
+	let earliestRecordDate = $derived.by(() => {
+		const dates = [...sales.map((sale) => sale.dateOfSale), ...expenses.map((expense) => expense.dateOfExpense)]
+			.filter(Boolean)
+			.sort();
+		return dates[0] ? new Date(`${dates[0]}T00:00:00`) : new Date();
+	});
+
 	let chartRange = $derived(
-		chartView === 'week'
+		chartView === 'all'
+			? { start: startOfMonth(earliestRecordDate), end: endOfMonth(new Date()) }
+			: chartView === 'week'
 			? {
 					start: startOfWeek(chartPeriod, { weekStartsOn: 1 }),
 					end: endOfWeek(chartPeriod, { weekStartsOn: 1 })
@@ -49,6 +59,17 @@
 
 	let chartData = $derived.by<ProgressionPoint[]>(() => {
 		const points: ProgressionPoint[] = [];
+		if (chartView === 'all') {
+			return eachMonthOfInterval({ start: chartRange.start, end: chartRange.end }).map((date) => {
+				const key = format(date, 'yyyy-MM');
+				return {
+					date,
+					label: format(date, 'MMM yy'),
+					sales: sales.filter((sale) => sale.dateOfSale.startsWith(key) && (sale.status === 'Completed' || sale.status === 'Processing')).reduce((total, sale) => total + sale.grandTotal, 0),
+					expenses: expenses.filter((expense) => expense.dateOfExpense.startsWith(key) && expense.paymentStatus !== 'Cancelled').reduce((total, expense) => total + expense.amount, 0)
+				};
+			});
+		}
 
 		for (let date = chartRange.start; date <= chartRange.end; date = addDays(date, 1)) {
 			const key = dateKey(date);
@@ -74,7 +95,9 @@
 	});
 
 	let periodLabel = $derived(
-		chartView === 'week'
+		chartView === 'all'
+			? `${format(chartRange.start, 'MMM yyyy')} - ${format(chartRange.end, 'MMM yyyy')}`
+			: chartView === 'week'
 			? `${format(chartRange.start, 'MMM d')} - ${format(chartRange.end, 'MMM d, yyyy')}`
 			: format(chartPeriod, 'MMMM yyyy')
 	);
@@ -86,7 +109,7 @@
 
 	function setView(view: ChartView) {
 		chartView = view;
-		chartPeriod = new Date();
+		if (view !== 'all') chartPeriod = new Date();
 	}
 </script>
 
@@ -116,8 +139,18 @@
 				>
 					Monthly
 				</button>
+				<button
+					type="button"
+					class="rounded-md px-3 py-1.5 text-xs font-medium transition-colors {chartView === 'all'
+						? 'bg-background text-foreground shadow-sm'
+						: 'text-muted-foreground hover:text-foreground'}"
+					onclick={() => setView('all')}
+				>
+					All time
+				</button>
 			</div>
-			<div class="flex items-center rounded-lg border">
+			{#if chartView !== 'all'}
+				<div class="flex items-center rounded-lg border">
 				<button
 					type="button"
 					class="p-2 text-muted-foreground transition-colors hover:text-foreground"
@@ -135,7 +168,8 @@
 				>
 					<ChevronRightIcon class="size-4" />
 				</button>
-			</div>
+				</div>
+			{/if}
 		</div>
 	</CardHeader>
 	<CardContent>
