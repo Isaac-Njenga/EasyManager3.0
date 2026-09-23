@@ -30,7 +30,7 @@
 </script>
 
 <div class="space-y-6">
-	<PageHeader
+	<PageHeader 
 		title="Add Product"
 		description="Create a new product and add it to your inventory."
 		actionLabel="Back to Products"

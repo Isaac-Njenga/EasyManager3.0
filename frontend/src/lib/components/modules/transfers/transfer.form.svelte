@@ -74,8 +74,23 @@
 		}
 	});
 
+	const selectedSource = $derived(
+		locations.find((location) => location.locationId === transferStore.sourceId)
+	);
+
+	const sourceProducts = $derived.by(() => {
+		const sourceInventory = selectedSource?.inventoryItems ?? [];
+
+		return sourceInventory.flatMap((entry) => {
+			if (typeof entry.product === 'object') return [entry.product];
+
+			const product = products.find((item) => item._id === entry.product);
+			return product ? [product] : [];
+		});
+	});
+
 	let filteredProducts = $derived(
-		products.filter((p) => {
+		sourceProducts.filter((p) => {
 			const isActive = p.status === 'Active';
 			if (!isActive) return false;
 			if (!searchQuery.trim()) return true;
