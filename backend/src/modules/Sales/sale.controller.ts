@@ -24,6 +24,7 @@ export const createSale = catchAsync(
     const sale = await SaleService.createSale(
       req.body as CreateSaleDTO,
       req.user!.role,
+      req.user!._id.toString(),
     );
 
     // Create Audit Log
@@ -42,6 +43,26 @@ export const createSale = catchAsync(
       success: true,
       data: sale,
       message: "Sale created successfully",
+    });
+  },
+);
+
+/**
+ * Supplies only the data needed to record a sale.  This keeps a salesperson
+ * out of the Products, Shops and Salespersons modules while still allowing
+ * the sale form to work.
+ */
+export const getSaleCreationContext = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const context = await SaleService.getCreationContext(
+      req.user!._id.toString(),
+      req.user!.role,
+    );
+
+    res.status(200).json({
+      success: true,
+      data: context,
+      message: "Sale creation context retrieved successfully",
     });
   },
 );

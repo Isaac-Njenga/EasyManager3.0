@@ -18,6 +18,8 @@ import { invalidateProductCache } from "../Products/product.service";
 import { invalidateShopCache } from "../Shops/shop.service";
 import { SalespersonModel } from "../Salepersons/saleperson.model";
 import { invalidateSalespersonCache } from "../Salepersons/saleperson.service";
+import { ProductService } from "../Products/product.service";
+import { ShopService } from "../Shops/shop.service";
 
 const saleCache = new NodeCache({ stdTTL: 300 });
 
@@ -111,8 +113,25 @@ export class SaleService {
   static async createSale(
     data: CreateSaleDTO,
     requesterRole: string,
+    requesterId: string,
   ): Promise<Sale> {
     const createData = sanitizeCreateData(data, requesterRole);
+
+    // A salesperson is always the salesperson profile linked to their user
+    // account. Never trust a salesperson id submitted by the browser.
+    if (requesterRole === "SALESPERSON") {
+      const ownProfile = await SalespersonModel.findOne({ user: requesterId })
+        .select("_id status")
+        .lean();
+      if (!ownProfile || ownProfile.status !== "Active") {
+        throw new BadRequestError(
+          "An active salesperson profile is required to record a sale",
+        );
+      }
+      createData.saleperson = ownProfile._id as any;
+    } else if (requesterRole !== "SUPER_ADMIN") {
+      throw new BadRequestError("You do not have permission to create sales");
+    }
 
     if (!createData.items?.length) {
       throw new BadRequestError("A sale must contain at least one item");
@@ -183,6 +202,40 @@ export class SaleService {
     invalidateSaleCache();
 
     return toSale(savedSale ?? saleDoc.toObject());
+  }
+
+  static async getCreationContext(requesterId: string, requesterRole: string) {
+    const [products, shops] = await Promise.all([
+      ProductService.fetchProducts({ page: 1, limit: 100 }),
+      ShopService.fetchShops({ page: 1, limit: 100 }),
+    ]);
+
+    if (requesterRole === "SUPER_ADMIN") {
+      const salespersons = await SalespersonModel.find()
+        .sort({ createdAt: -1 })
+        .populate("assignedShop")
+        .lean();
+      return { products: products.products, shops: shops.shops, salespersons };
+    }
+
+    if (requesterRole !== "SALESPERSON") {
+      throw new BadRequestError("You do not have permission to record sales");
+    }
+
+    const salesperson = await SalespersonModel.findOne({ user: requesterId })
+      .populate("assignedShop")
+      .lean();
+    if (!salesperson || salesperson.status !== "Active") {
+      throw new BadRequestError(
+        "An active salesperson profile is required to record a sale",
+      );
+    }
+
+    return {
+      products: products.products,
+      shops: shops.shops,
+      salespersons: [salesperson],
+    };
   }
 
   // Pure service method decoupled from Express Request

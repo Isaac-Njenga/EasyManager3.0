@@ -1,8 +1,21 @@
 import { apiClient } from '$lib/services/api/client';
 import type { CreateSaleInput, Sale, SaleListResponse } from '$lib/services/sales/sales.types';
 import type { ServiceContext } from '../api/types';
+import type { Product } from '$lib/services/product/product.types';
+import type { Shop } from '$lib/services/shop/shop.types';
+import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
+
+export type SaleCreationContext = {
+	products: Product[];
+	shops: Shop[];
+	salespersons: Salesperson[];
+};
 
 export const saleService = {
+	async getCreationContext(context: ServiceContext): Promise<SaleCreationContext> {
+		return apiClient.get<SaleCreationContext>('/sale/creation-context', context);
+	},
+
 	async fetch(context: ServiceContext): Promise<Sale[]> {
 		const pageSize = 100;
 		const firstPage = await apiClient.get<SaleListResponse>(

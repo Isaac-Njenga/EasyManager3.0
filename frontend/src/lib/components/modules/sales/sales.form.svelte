@@ -25,7 +25,6 @@
 	import Package from '@lucide/svelte/icons/package';
 	import Loader2 from '@lucide/svelte/icons/loader-2';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	// import { shopsData } from '$lib/data/shop.data';
 	import { formatCurrency } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
@@ -35,14 +34,24 @@
 		sale?: Sale;
 		shops?: Shop[];
 		salespersons?: Salesperson[];
+		lockedSalesperson?: boolean;
+		resetKey?: number;
 		onSubmit: (payload: CreateSaleInput) => Promise<void> | void;
 		isSubmitting?: boolean;
 	};
 
-	let { products, sale, shops, salespersons, onSubmit, isSubmitting = false }: Props = $props();
+	let {
+		products,
+		sale,
+		shops,
+		salespersons,
+		lockedSalesperson = false,
+		resetKey = 0,
+		onSubmit,
+		isSubmitting = false
+	}: Props = $props();
 
 	$effect(() => {
-		console.log(products);
 		if (!products || products.length === 0 || !salespersons || salespersons.length === 0) {
 			console.warn('No shops provided to SalepersonForm component.');
 		}
@@ -69,8 +78,11 @@
 	];
 
 	let searchQuery = $state('');
+	let appliedSearchQuery = $state('');
+	let isProductFiltering = $state(false);
 	let isProductSearchOpen = $state(false);
 	let selectedItems = $state<SaleItem[]>([]);
+	const maxProductResults = 50;
 
 	let customerName = $state('');
 	let customerPhone = $state('');
@@ -87,6 +99,18 @@
 	let errors = $state<Record<string, string>>({});
 
 	$effect(() => {
+		const query = searchQuery.trim().toLowerCase();
+		isProductFiltering = query !== appliedSearchQuery;
+		const timeout = setTimeout(() => {
+			appliedSearchQuery = query;
+			isProductFiltering = false;
+		}, 120);
+
+		return () => clearTimeout(timeout);
+	});
+
+	$effect(() => {
+		void resetKey;
 		selectedItems = sale?.items ?? [];
 		customerName = sale?.customer?.name ?? '';
 		customerPhone = sale?.customer?.phone ?? '';
@@ -95,7 +119,7 @@
 		paymentMethod = sale?.paymentMethod ?? 'Cash';
 		paymentStatus = sale?.paymentStatus ?? 'Paid';
 		saleStatus = sale?.status ?? 'Completed';
-		saleperson = sale?.saleperson?._id ?? '';
+		saleperson = sale?.saleperson?._id ?? (lockedSalesperson ? salespersons?.[0]?._id ?? '' : '');
 		dateOfSale = sale?.dateOfSale ?? new Date().toISOString().split('T')[0];
 		notes = sale?.notes ?? '';
 	});
@@ -115,18 +139,33 @@
 	);
 
 	// --- Derived Calculations ---
-	// All products loaded, filtered dynamically if search text is typed
-	let filteredProducts = $derived(
-		products?.filter((p) => {
-			if (!searchQuery.trim()) return true;
+	const searchableProducts = $derived(
+		(products ?? [])
+			.filter((product) => product.status === 'Active')
+			.map((product) => ({
+				product,
+				searchText: [product.name, product.sku, product.code]
+					.filter(Boolean)
+					.join(' ')
+					.toLowerCase()
+			}))
+	);
 
-			const q = searchQuery.toLowerCase();
-			return (
-				p.name.toLowerCase().includes(q) ||
-				p.sku.toLowerCase().includes(q) ||
-				p.code.toLowerCase().includes(q)
-			);
-		})
+	let filteredProducts = $derived.by(() => {
+		const query = appliedSearchQuery;
+		const matches = query
+			? searchableProducts
+					.filter(({ searchText }) => searchText.includes(query))
+					.map(({ product }) => product)
+			: searchableProducts.map(({ product }) => product);
+
+		return matches.slice(0, maxProductResults);
+	});
+
+	const hasMoreProductResults = $derived(
+		searchableProducts.filter(
+			({ searchText }) => !appliedSearchQuery || searchText.includes(appliedSearchQuery)
+		).length > maxProductResults
 	);
 
 	let subTotal = $derived(
@@ -155,9 +194,7 @@
 		const shopProduct = shops
 			?.find((shop) => shop._id === shopId)
 			?.inventoryItems?.find((item) => item._id === product._id);
-		return (shopProduct?.inventory ?? [])
-			.filter((stock) => stock.locationType === 'Shop')
-			.reduce((total, stock) => total + stock.quantity, 0);
+		return shopProduct?.quantity ?? 0;
 	}
 
 	function getItemShopStock(item: SaleItem, shopId: string) {
@@ -278,13 +315,8 @@
 
 <div class="m-auto w-220 rounded-xl border bg-card p-5 shadow-sm">
 	<form onsubmit={handleFormSubmit} class="space-y-6">
-		<!-- LEFT PANEL: Item Selection & Line Items (7 Cols) -->
 		<div class="space-y-6 lg:col-span-8">
-			<!-- Product Picker / Search Combobox -->
 			<div class="space-y-2">
-				<!-- <Label for="product-search" class="flex items-center gap-1">
-				Select / Search Products <span class="text-destructive">*</span>
-			</Label> -->
 				<div class="relative">
 					<Search class="absolute top-2.5 left-3 size-4 text-muted-foreground" />
 					<Input
@@ -310,7 +342,7 @@
 						<div
 							class="mb-1 flex items-center justify-between border-b px-2 py-1 text-[11px] font-semibold text-muted-foreground"
 						>
-							<span>Available Products ({filteredProducts?.length})</span>
+							<span>Available Products ({filteredProducts.length})</span>
 							<button
 								type="button"
 								class="text-xs hover:underline"
@@ -320,7 +352,14 @@
 							</button>
 						</div>
 
-						{#if filteredProducts?.length === 0}
+						{#if products === undefined || isProductFiltering}
+							<div class="flex items-center justify-center gap-2 p-3 text-xs text-muted-foreground">
+								<Loader2 class="size-4 animate-spin" />
+								<span
+									>{products === undefined ? 'Loading products...' : 'Searching products...'}</span
+								>
+							</div>
+						{:else if filteredProducts.length === 0}
 							<p class="p-3 text-center text-xs text-muted-foreground">No active products found.</p>
 						{:else}
 							{#each filteredProducts as product (product._id)}
@@ -369,6 +408,11 @@
 								</button>
 								<Separator class="my-1" />
 							{/each}
+							{#if hasMoreProductResults}
+								<p class="px-2 py-1 text-center text-[11px] text-muted-foreground">
+									Showing the first {maxProductResults} matches. Search to narrow the list.
+								</p>
+							{/if}
 						{/if}
 					</div>
 				{/if}
@@ -399,7 +443,7 @@
 								<!-- Item Identity -->
 								<div class="flex-1 space-y-0.5">
 									<p class="font-semibold text-foreground">{item.product.name}</p>
-									<p class="text-11px] text-muted-foreground">
+									<p class="text-[11px] text-muted-foreground">
 										{item.product.code} | {item.product.colour}
 									</p>
 								</div>
@@ -538,6 +582,9 @@
 						<Label>
 							Salesperson <span class="text-destructive">*</span>
 						</Label>
+						{#if lockedSalesperson}
+							<Input value={salepersonTriggerContent} readonly aria-readonly="true" />
+						{:else}
 						<Select.Root
 							type="single"
 							name="saleperson"
@@ -560,6 +607,7 @@
 								</Select.Group>
 							</Select.Content>
 						</Select.Root>
+						{/if}
 						{#if errors.salepersonId}
 							<p class="mt-1 text-xs text-destructive">{errors.salepersonId}</p>
 						{/if}

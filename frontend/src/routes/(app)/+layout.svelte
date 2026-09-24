@@ -1,9 +1,21 @@
 <script lang="ts">
+	import { goto } from '$app/navigation';
+	import { resolve } from '$app/paths';
+	import { page } from '$app/state';
+	import Cookies from 'universal-cookie';
+	import { authCookies } from '$lib/config/auth';
 	import { SidebarProvider } from '$lib/components/ui/sidebar';
 	import AppSidebar from '$lib/components/layout/AppSidebar.svelte';
 	// import Header from '$lib/components/layout/Header.svelte';
 
 	let { children } = $props();
+	const user = new Cookies().get(authCookies.user);
+
+	$effect(() => {
+		if (user?.role === 'SALESPERSON' && page.url.pathname !== '/sales/new') {
+			goto(resolve('/sales/new'), { replaceState: true });
+		}
+	});
 </script>
 
 <SidebarProvider>

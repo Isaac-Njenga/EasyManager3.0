@@ -2,9 +2,7 @@
 	import SaleForm from '$lib/components/modules/sales/sales.form.svelte';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import { toast } from 'svelte-sonner';
-	import { goto } from '$app/navigation';
 	import type { CreateSaleInput } from '$lib/services/sales/sales.types';
-	import { resolve } from '$app/paths';
 	import { saleService } from '$lib/services/sales/sales.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import type { PageProps } from './$types';
@@ -14,6 +12,7 @@
 	const products = $derived(data.products);
 	const shops = $derived(data.shops);
 	const salespersons = $derived(data.salespersons);
+	const isSalesperson = $derived(data.role === 'SALESPERSON');
 	const error = $derived(data.error);
 
 	$effect(() => {
@@ -23,6 +22,7 @@
 	});
 
 	let isSubmitting = $state(false);
+	let resetKey = $state(0);
 
 	async function handleCreate(payload: CreateSaleInput) {
 		isSubmitting = true;
@@ -30,8 +30,10 @@
 		try {
 			await saleService.create(getBrowserServiceContext(), payload);
 
-			toast.success('Sale created!');
-			goto(resolve('/sales'));
+			resetKey += 1;
+			toast.success('Sale recorded!', {
+				description: isSalesperson ? 'You can now record another sale.' : undefined
+			});
 		} catch (error) {
 			const description =
 				error instanceof Error ? error.message : 'Something went wrong. Please try again.';
@@ -46,9 +48,17 @@
 	<PageHeader
 		title="Record Sale"
 		description="Record a new sale"
-		actionLabel="Back to Sales"
-		actionHref="/sales"
+		actionLabel={isSalesperson ? undefined : 'Back to Sales'}
+		actionHref={isSalesperson ? undefined : '/sales'}
 	/>
 
-	<SaleForm {shops} {products} {salespersons} onSubmit={handleCreate} {isSubmitting} />
+	<SaleForm
+		{shops}
+		{products}
+		{salespersons}
+		lockedSalesperson={isSalesperson}
+		{resetKey}
+		onSubmit={handleCreate}
+		{isSubmitting}
+	/>
 </div>

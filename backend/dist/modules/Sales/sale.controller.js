@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteSale = exports.updateSale = exports.fetchSaleById = exports.fetchSales = exports.createSale = void 0;
+exports.deleteSale = exports.updateSale = exports.fetchSaleById = exports.fetchSales = exports.getSaleCreationContext = exports.createSale = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
@@ -16,7 +16,7 @@ exports.createSale = (0, catchAsync_1.catchAsync)(async (req, res) => {
     if (!req.body) {
         throw new BadRequestError_1.BadRequestError("Request body is required");
     }
-    const sale = await sale_service_1.SaleService.createSale(req.body, req.user.role);
+    const sale = await sale_service_1.SaleService.createSale(req.body, req.user.role, req.user._id.toString());
     // Create Audit Log
     await (0, logs_service_1.createLog)({
         type: "sale",
@@ -32,6 +32,19 @@ exports.createSale = (0, catchAsync_1.catchAsync)(async (req, res) => {
         success: true,
         data: sale,
         message: "Sale created successfully",
+    });
+});
+/**
+ * Supplies only the data needed to record a sale.  This keeps a salesperson
+ * out of the Products, Shops and Salespersons modules while still allowing
+ * the sale form to work.
+ */
+exports.getSaleCreationContext = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const context = await sale_service_1.SaleService.getCreationContext(req.user._id.toString(), req.user.role);
+    res.status(200).json({
+        success: true,
+        data: context,
+        message: "Sale creation context retrieved successfully",
     });
 });
 exports.fetchSales = (0, catchAsync_1.catchAsync)(async (req, res) => {

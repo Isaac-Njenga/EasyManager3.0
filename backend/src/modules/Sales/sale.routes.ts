@@ -7,12 +7,15 @@ import {
   fetchSaleById,
   updateSale,
   deleteSale,
+  getSaleCreationContext,
 } from "./sale.controller";
 
 export function SaleRouter(): Router {
   const router = Router();
 
-  router.post("/create-sale", protectRoute, adminRoute, createSale);
+  // Both roles may create a sale. All other sale operations remain admin-only.
+  router.get("/creation-context", protectRoute, getSaleCreationContext);
+  router.post("/create-sale", protectRoute, createSale);
   router.get("/get-sales", protectRoute, adminRoute, fetchSales);
   router.get("/get-sale/:id", protectRoute, adminRoute, fetchSaleById);
   router.put("/update-sale/:id", protectRoute, adminRoute, updateSale);

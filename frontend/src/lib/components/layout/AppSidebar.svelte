@@ -44,6 +44,7 @@
 	const cookies = new Cookies();
 
 	const user = cookies.get(authCookies.user);
+	const isSalesperson = user?.role === 'SALESPERSON';
 
 	function handleSignOut() {
 		cookies.remove(authCookies.accessToken, { path: '/' });
@@ -74,22 +75,26 @@
 	<!-- Content with Grouped Navigation -->
 	<SidebarContent>
 		{#each navigationGroups as group (group.label)}
+			{@const visibleItems = isSalesperson
+				? group.items.filter((item) => item.href === '/sales')
+				: group.items}
+			{#if visibleItems.length > 0}
 			<SidebarGroup>
 				<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
 
 				<SidebarGroupContent>
 					<SidebarMenu>
-						{#each group.items as item (item.href)}
-							{@const href = resolve(item.href)}
+						{#each visibleItems as item (item.href)}
+							{@const href = resolve(isSalesperson ? '/sales/new' : item.href)}
 							{@const isActive =
-								page.url.pathname === item.href || page.url.pathname.startsWith(`${item.href}/`)}
+								page.url.pathname === href}
 
 							<SidebarMenuItem>
-								<SidebarMenuButton {isActive} tooltipContent={item.title}>
+								<SidebarMenuButton {isActive} tooltipContent={isSalesperson ? 'Record Sale' : item.title}>
 									{#snippet child({ props })}
 										<a {href} {...props}>
 											<item.icon class="size-4 shrink-0" />
-											<span>{item.title}</span>
+											<span>{isSalesperson ? 'Record Sale' : item.title}</span>
 										</a>
 									{/snippet}
 								</SidebarMenuButton>
@@ -97,7 +102,8 @@
 						{/each}
 					</SidebarMenu>
 				</SidebarGroupContent>
-			</SidebarGroup>
+				</SidebarGroup>
+			{/if}
 		{/each}
 	</SidebarContent>
 
