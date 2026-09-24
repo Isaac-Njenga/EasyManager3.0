@@ -5,6 +5,12 @@ import { CreateLogDTO, LogEntry } from "./logs.types";
 import NodeCache from "node-cache";
 
 const logCache = new NodeCache({ stdTTL: 300 });
+export interface LogListResponse {
+  logs: LogEntry[];
+  totalLogs: number;
+  currentPage: number;
+  totalPages: number;
+}
 
 export const createLog = async (input: CreateLogDTO): Promise<LogEntry> => {
   if (!input) {
@@ -20,17 +26,15 @@ export const createLog = async (input: CreateLogDTO): Promise<LogEntry> => {
 
 export const fetchLogs = async (
   req: Request,
-): Promise<{ logs: LogEntry[] }> => {
-  const page = parseInt(req.query.page as string) || 1;
-  const limit = parseInt(req.query.limit as string) || 10;
+): Promise<LogListResponse> => {
+  const page = Math.max(1, parseInt(req.query.page as string) || 1);
+  const limit = Math.max(1, Math.min(100, parseInt(req.query.limit as string) || 25));
   const skip = (page - 1) * limit;
 
   const cacheKey = `logs_page_${page}_limit_${limit}`;
-  const cachedData = logCache.get<LogEntry[]>(cacheKey);
+  const cachedData = logCache.get<LogListResponse>(cacheKey);
   if (cachedData) {
-    return {
-      logs: cachedData,
-    };
+    return cachedData;
   }
 
   const [logs, totalLogs] = (await Promise.all([

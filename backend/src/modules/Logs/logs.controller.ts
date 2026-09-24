@@ -36,7 +36,8 @@ export const fetchAllLogs = catchAsync(
 
     res.status(200).json({
       success: true,
-      ...result,
+      data: result,
+      message: "Logs fetched successfully",
     });
   },
 );

@@ -10,6 +10,7 @@ import { ExpenseRouter } from "../modules/Expenses/expense.routes";
 import { TransferRouter } from "../modules/Transfers/transfer.routes";
 import { GeminiModelRouter } from "../modules/Gemini/gemini.routes";
 import { CohereModelRouter } from "../modules/Cohere/cohere.routes";
+import { LogsRouter } from "../modules/Logs/logs.routes";
 
 export function createRoutes(): Router {
   const router = Router();
@@ -25,6 +26,7 @@ export function createRoutes(): Router {
   router.use("/transfer", TransferRouter());
   router.use("/gemini-model", GeminiModelRouter());
   router.use("/cohere-model", CohereModelRouter());
+  router.use("/logs", LogsRouter());
 
   return router;
 }

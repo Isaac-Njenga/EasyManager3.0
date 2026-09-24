@@ -19,15 +19,13 @@ const createLog = async (input) => {
 };
 exports.createLog = createLog;
 const fetchLogs = async (req) => {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
+    const page = Math.max(1, parseInt(req.query.page) || 1);
+    const limit = Math.max(1, Math.min(100, parseInt(req.query.limit) || 25));
     const skip = (page - 1) * limit;
     const cacheKey = `logs_page_${page}_limit_${limit}`;
     const cachedData = logCache.get(cacheKey);
     if (cachedData) {
-        return {
-            logs: cachedData,
-        };
+        return cachedData;
     }
     const [logs, totalLogs] = (await Promise.all([
         logs_model_1.LogModel.find().skip(skip).limit(limit).lean().sort({ createdAt: -1 }),
