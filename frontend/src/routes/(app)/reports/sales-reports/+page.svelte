@@ -7,11 +7,52 @@
 	import BanknoteIcon from '@lucide/svelte/icons/banknote';
 	import CreditCardIcon from '@lucide/svelte/icons/credit-card';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
-	import {
-		salesTransactions,
-		paymentMethodBreakdown,
-		type SalesTransaction
-	} from '$lib/data/reports/sale-reports.data';
+	import type { Sale } from '$lib/services/sales/sales.types';
+	import { SvelteMap } from 'svelte/reactivity';
+
+	type Props = { sales: Sale[] };
+	// eslint-disable-next-line
+	let { sales }: Props = $props();
+
+	type SalesTransaction = {
+		orderId: string;
+		customerName: string;
+		customerEmail: string;
+		date: string;
+		itemsCount: number;
+		paymentMethod: string;
+		totalAmount: number;
+		status: string;
+	};
+
+	const salesTransactions = $derived<SalesTransaction[]>(
+		sales.map((sale) => ({
+			orderId: sale.receiptNumber,
+			customerName: sale.customer?.name ?? 'Walk-in Customer',
+			customerEmail: sale.customer?.email ?? '',
+			date: sale.dateOfSale,
+			itemsCount: sale.items.reduce((total, item) => total + item.quantity, 0),
+			paymentMethod: sale.paymentMethod,
+			totalAmount: sale.grandTotal,
+			status: sale.status
+		}))
+	);
+
+	const paymentMethodBreakdown = $derived.by(() => {
+		const counts = new SvelteMap<string, number>();
+		for (const sale of salesTransactions) {
+			counts.set(sale.paymentMethod, (counts.get(sale.paymentMethod) ?? 0) + 1);
+		}
+		return [...counts.entries()]
+			.map(([method, count]) => ({
+				method,
+				count,
+				percentage: salesTransactions.length
+					? Math.round((count / salesTransactions.length) * 100)
+					: 0
+			}))
+			.sort((a, b) => b.count - a.count);
+	});
 
 	let searchTerm = $state('');
 
@@ -97,7 +138,9 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{formatCurrency(totalSalesRevenue)}</div>
-				<p class="text-xs text-muted-foreground">+18.5% compared to last period</p>
+				<p class="text-xs text-muted-foreground">
+					{salesTransactions.length} recorded transactions
+				</p>
 			</Card.Content>
 		</Card.Root>
 
@@ -108,7 +151,7 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{completedOrdersCount}</div>
-				<p class="text-xs text-muted-foreground">583 orders across all channels</p>
+				<p class="text-xs text-muted-foreground">Completed transactions</p>
 			</Card.Content>
 		</Card.Root>
 
@@ -129,8 +172,11 @@
 				<CreditCardIcon class="size-4 text-primary" />
 			</Card.Header>
 			<Card.Content>
-				<div class="text-2xl font-bold text-primary">M-PESA (64%)</div>
-				<p class="text-xs text-muted-foreground">Highest volume payment gateway</p>
+				<div class="text-2xl font-bold text-primary">
+					{paymentMethodBreakdown[0]?.method ?? 'N/A'} ({paymentMethodBreakdown[0]?.percentage ??
+						0}%)
+				</div>
+				<p class="text-xs text-muted-foreground">Most-used payment method</p>
 			</Card.Content>
 		</Card.Root>
 	</div>

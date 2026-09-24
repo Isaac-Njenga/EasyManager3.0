@@ -7,12 +7,57 @@
 	import WalletIcon from '@lucide/svelte/icons/wallet';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 	import ClockIcon from '@lucide/svelte/icons/clock';
-	import {
-		expenseRecords,
-		expenseCategoryBreakdown,
-		type ExpenseRecord
-	} from '$lib/data/reports/expense-reports.data';
+	import type { Expense } from '$lib/services/expenses/expense.types';
 	import { formatCurrency } from '$lib/utils';
+	import { SvelteMap } from 'svelte/reactivity';
+
+	type Props = { expenses: Expense[] };
+	// eslint-disable-next-line
+	let { expenses }: Props = $props();
+
+	type ExpenseRecord = {
+		expenseId: string;
+		description: string;
+		category: string;
+		vendor: string;
+		date: string;
+		paymentType: string;
+		amount: number;
+		status: string;
+	};
+
+	const expenseRecords = $derived<ExpenseRecord[]>(
+		expenses.map((expense) => ({
+			expenseId: expense.expenseNumber,
+			description: expense.title,
+			category: expense.category,
+			vendor: expense.payee,
+			date: expense.dateOfExpense,
+			paymentType: 'One-off',
+			amount: expense.amount,
+			status:
+				expense.paymentStatus === 'Paid'
+					? 'Paid'
+					: expense.paymentStatus === 'Pending'
+						? 'Pending Approval'
+						: 'Overdue'
+		}))
+	);
+
+	const expenseCategoryBreakdown = $derived.by(() => {
+		const totals = new SvelteMap<string, number>();
+		for (const expense of expenseRecords) {
+			totals.set(expense.category, (totals.get(expense.category) ?? 0) + expense.amount);
+		}
+		const total = [...totals.values()].reduce((sum, amount) => sum + amount, 0);
+		return [...totals.entries()]
+			.map(([category, amount]) => ({
+				category,
+				amount,
+				percentage: total ? Math.round((amount / total) * 1000) / 10 : 0
+			}))
+			.sort((a, b) => b.amount - a.amount);
+	});
 
 	let searchTerm = $state('');
 
@@ -25,9 +70,9 @@
 			.filter((e) => e.status === 'Pending Approval')
 			.reduce((acc, curr) => acc + curr.amount, 0)
 	);
-	let recurringTotal = $derived(
+	let unpaidTotal = $derived(
 		expenseRecords
-			.filter((e) => e.paymentType === 'Recurring')
+			.filter((expense) => expense.status !== 'Paid')
 			.reduce((acc, curr) => acc + curr.amount, 0)
 	);
 
@@ -44,8 +89,6 @@
 		})
 	);
 
-	
-
 	const columns = [
 		{ key: 'expenseId', header: 'Expense ID & Details', cell: 'descriptionCell' },
 		{ key: 'category', header: 'Category' },
@@ -55,8 +98,6 @@
 		{ key: 'status', header: 'Status', cell: 'statusCell' }
 	];
 </script>
-
-<div>expenses</div>
 
 <!-- eslint-disable-next-line -->
 {#snippet descriptionCell(value: unknown, item: ExpenseRecord)}
@@ -103,18 +144,18 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{formatCurrency(totalExpenses)}</div>
-				<p class="text-xs text-muted-foreground">-3.4% compared to last month</p>
+				<p class="text-xs text-muted-foreground">Paid expenses from server records</p>
 			</Card.Content>
 		</Card.Root>
 
 		<Card.Root>
 			<Card.Header class="flex flex-row items-center justify-between pb-2">
-				<Card.Title class="text-sm font-medium">Fixed Recurring Costs</Card.Title>
+				<Card.Title class="text-sm font-medium">Unpaid Costs</Card.Title>
 				<RefreshCwIcon class="size-4 text-muted-foreground" />
 			</Card.Header>
 			<Card.Content>
-				<div class="text-2xl font-bold">{formatCurrency(recurringTotal)}</div>
-				<p class="text-xs text-muted-foreground">Rent, subscriptions, utility baseline</p>
+				<div class="text-2xl font-bold">{formatCurrency(unpaidTotal)}</div>
+				<p class="text-xs text-muted-foreground">Pending or overdue expenses</p>
 			</Card.Content>
 		</Card.Root>
 
@@ -136,7 +177,7 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{expenseRecords.length} Items</div>
-				<p class="text-xs text-muted-foreground">For current billing period</p>
+				<p class="text-xs text-muted-foreground">All loaded expense records</p>
 			</Card.Content>
 		</Card.Root>
 	</div>

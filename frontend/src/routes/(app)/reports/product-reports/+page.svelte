@@ -6,11 +6,76 @@
 	import PackageIcon from '@lucide/svelte/icons/package';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
-	import {
-		productReportMetrics,
-		categoryPerformance,
-		type ProductReportMetric
-	} from '$lib/data/reports/product-reports.data';
+	import type { Product } from '$lib/services/product/product.types';
+	import type { Sale } from '$lib/services/sales/sales.types';
+	import { SvelteMap } from 'svelte/reactivity';
+
+	type Props = { products: Product[]; sales: Sale[] };
+
+	// eslint-disable-next-line
+	let { products, sales }: Props = $props();
+
+	type ProductReportMetric = {
+		productId: string;
+		productName: string;
+		sku: string;
+		category: string;
+		unitsSold: number;
+		totalRevenue: number;
+		profitMargin: number;
+		currentStock: number;
+		stockStatus: 'In Stock' | 'Low Stock' | 'Out of Stock';
+	};
+
+	const productReportMetrics = $derived(
+		products.map((product) => {
+			const sold = sales
+				.flatMap((sale) => sale.items)
+				.filter((item) => item.product._id === product._id);
+			const unitsSold = sold.reduce((total, item) => total + item.quantity, 0);
+			const totalRevenue = sold.reduce(
+				(total, item) => total + (item.soldPrice ?? product.sellingPrice) * item.quantity,
+				0
+			);
+			const profit = sold.reduce(
+				(total, item) =>
+					total + ((item.soldPrice ?? product.sellingPrice) - product.costPrice) * item.quantity,
+				0
+			);
+			const currentStock = product.totalQuantity ?? 0;
+			return {
+				productId: product._id,
+				productName: product.name,
+				sku: product.sku ?? product.code,
+				category: product.category,
+				unitsSold,
+				totalRevenue,
+				profitMargin: totalRevenue ? Math.round((profit / totalRevenue) * 1000) / 10 : 0,
+				currentStock,
+				stockStatus:
+					currentStock === 0 ? 'Out of Stock' : currentStock < 10 ? 'Low Stock' : 'In Stock'
+			} satisfies ProductReportMetric;
+		})
+	);
+
+	const categoryPerformance = $derived.by(() => {
+		const totals = new SvelteMap<string, { revenue: number; itemsSold: number }>();
+		for (const item of productReportMetrics) {
+			const current = totals.get(item.category) ?? { revenue: 0, itemsSold: 0 };
+			totals.set(item.category, {
+				revenue: current.revenue + item.totalRevenue,
+				itemsSold: current.itemsSold + item.unitsSold
+			});
+		}
+		const totalRevenue = [...totals.values()].reduce((total, item) => total + item.revenue, 0);
+		return [...totals.entries()]
+			.map(([category, value]) => ({
+				category,
+				...value,
+				percentage: totalRevenue ? Math.round((value.revenue / totalRevenue) * 1000) / 10 : 0
+			}))
+			.sort((a, b) => b.revenue - a.revenue);
+	});
 
 	let searchTerm = $state('');
 
@@ -21,7 +86,15 @@
 	let totalUnitsSold = $derived(
 		productReportMetrics.reduce((acc, curr) => acc + curr.unitsSold, 0)
 	);
-	
+	let averageProfitMargin = $derived(
+		productReportMetrics.length
+			? Math.round(
+					(productReportMetrics.reduce((acc, curr) => acc + curr.profitMargin, 0) /
+						productReportMetrics.length) *
+						10
+				) / 10
+			: 0
+	);
 
 	let filteredMetrics = $derived(
 		productReportMetrics.filter((item) => {
@@ -98,7 +171,7 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{formatCurrency(totalRevenue)}</div>
-				<p class="text-xs text-muted-foreground">+14.2% from last month</p>
+				<p class="text-xs text-muted-foreground">Across {productReportMetrics.length} products</p>
 			</Card.Content>
 		</Card.Root>
 
@@ -109,7 +182,7 @@
 			</Card.Header>
 			<Card.Content>
 				<div class="text-2xl font-bold">{totalUnitsSold.toLocaleString()} units</div>
-				<p class="text-xs text-muted-foreground">Across top inventory items</p>
+				<p class="text-xs text-muted-foreground">Units recorded in completed sales</p>
 			</Card.Content>
 		</Card.Root>
 
@@ -119,12 +192,10 @@
 				<TrendingUpIcon class="size-4 text-muted-foreground" />
 			</Card.Header>
 			<Card.Content>
-				<div class="text-2xl font-bold text-emerald-600">52.5%</div>
-				<p class="text-xs text-muted-foreground">High profitability baseline</p>
+				<div class="text-2xl font-bold text-emerald-600">{averageProfitMargin}%</div>
+				<p class="text-xs text-muted-foreground">Weighted from product cost and sale price</p>
 			</Card.Content>
 		</Card.Root>
-
-		
 	</div>
 
 	<!-- Category Sales Breakdown -->

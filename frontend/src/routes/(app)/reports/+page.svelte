@@ -5,7 +5,11 @@
 	import SaleReport from './sales-reports/+page.svelte';
 	import ExpenseReport from './expense-reports/+page.svelte';
 	import LocationReport from './location-reports/+page.svelte';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
 </script>
+
 <svelte:head>
 	<title>Reports | EasyManager</title>
 </svelte:head>
@@ -22,16 +26,16 @@
 		</Tabs.List>
 
 		<Tabs.Content value="product" class="mt-4">
-			<ProductReport />
+			<ProductReport products={data.products} sales={data.sales} />
 		</Tabs.Content>
 		<Tabs.Content value="sales" class="mt-4">
-			<SaleReport />
+			<SaleReport sales={data.sales} />
 		</Tabs.Content>
 		<Tabs.Content value="expenses" class="mt-4">
-			<ExpenseReport />
+			<ExpenseReport expenses={data.expenses} />
 		</Tabs.Content>
 		<Tabs.Content value="locations" class="mt-4">
-			<LocationReport />
+			<LocationReport shops={data.shops} warehouses={data.warehouses} transfers={data.transfers} />
 		</Tabs.Content>
 	</Tabs.Root>
 </div>
