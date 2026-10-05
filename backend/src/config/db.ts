@@ -1,6 +1,7 @@
 import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { env } from "./env";
+import { ProductModel } from "../modules/Products/product.model";
 
 dotenv.config();
 
@@ -16,6 +17,30 @@ export async function connectToDB() {
       retryReads: true,
     });
 
+    const database = mongoose.connection.db;
+    if (!database) {
+      throw new Error("Database connection is not available");
+    }
+
+    const productCollectionExists = await database
+      .listCollections(
+        { name: ProductModel.collection.name },
+        { nameOnly: true },
+      )
+      .hasNext();
+
+    if (productCollectionExists) {
+      const productIndexes = await ProductModel.collection.indexes();
+      for (const index of productIndexes) {
+        const keys = Object.keys(index.key);
+        if (index.unique && keys.length === 1 && index.key.code === 1) {
+          await ProductModel.collection.dropIndex(index.name);
+          console.log("Removed unique product-code index");
+        }
+      }
+    }
+
+    await ProductModel.createIndexes();
     console.log("Database connected");
   } catch (error) {
     console.error("Database connection failed!:", error);

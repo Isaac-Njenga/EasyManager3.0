@@ -36,7 +36,6 @@ const productSchema = new mongoose_1.default.Schema({
     code: {
         type: String,
         required: true,
-        unique: true,
         trim: true,
     },
     colour: {
@@ -84,6 +83,7 @@ const productSchema = new mongoose_1.default.Schema({
     collection: "products",
     timestamps: true,
 });
+productSchema.set("autoIndex", false);
 productSchema.index({ code: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ status: 1 });

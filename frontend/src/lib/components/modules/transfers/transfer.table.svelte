@@ -14,14 +14,14 @@
 	import { transferColumns } from '$lib/components/modules/transfers/transfer.columns';
 	import type {
 		InventoryTransfer as Transfer,
-		LocationEntity
+		// LocationEntity
 	} from '$lib/services/transfers/transfer.types';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { format } from 'date-fns';
-	import type { Shop } from '$lib/services/shop/shop.types';
-	import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
+	// import type { Shop } from '$lib/services/shop/shop.types';
+	// import type { Warehouse } from '$lib/services/warehouse/warehouse.types';
 
 	type Props = {
 		filteredTransfers: Transfer[];
@@ -29,9 +29,9 @@
 
 	let { filteredTransfers }: Props = $props();
 
-	$effect(() => {
-		console.log(filteredTransfers);
-	});
+	// $effect(() => {
+	// 	console.log(filteredTransfers);
+	// });
 
 	let isDeleteTransferOpen = $state(false);
 	// let isDrawerOpen = $state(false);
@@ -59,13 +59,13 @@
 	}
 
 	// Type guard helpers
-	export function isShop(entity: LocationEntity): entity is Shop {
-		return 'name' in entity;
-	}
+	// export function isShop(entity: LocationEntity): entity is Shop {
+	// 	return 'name' in entity;
+	// }
 
-	export function isWarehouse(entity: LocationEntity): entity is Warehouse {
-		return 'name' in entity;
-	}
+	// export function isWarehouse(entity: LocationEntity): entity is Warehouse {
+	// 	return 'name' in entity;
+	// }
 </script>
 
 {#snippet codeCell(value: unknown, transfer: Transfer)}
@@ -80,7 +80,7 @@
 {#snippet SourceCell(value: unknown, transfer: Transfer)}
 	<div class="w-full">
 		<div class="truncate font-medium text-foreground">
-			{transfer.source.locationId.name}
+			{transfer.source?.locationId?.name}
 		</div>
 	</div>
 {/snippet}
@@ -89,7 +89,7 @@
 {#snippet DestinationCell(value: unknown, transfer: Transfer)}
 	<div class="w-full">
 		<div class="truncate font-medium text-foreground">
-			{transfer.destination.locationId.name}
+			{transfer.destination?.locationId?.name}
 		</div>
 	</div>
 {/snippet}
@@ -157,7 +157,7 @@
 	columns={transferColumns}
 	getRowKey={(transfer) => transfer._id}
 	emptyMessage="No Transfers recorded."
-	cells={{ itemsCountCell, typeCell, DestinationCell, codeCell, dateCell, actionsCell, SourceCell }}
+	cells={{ itemsCountCell, typeCell, DestinationCell,SourceCell, codeCell, dateCell, actionsCell, }}
 	pagination
 	pageSize={10}
 	pageSizeOptions={[5, 10, 20, 50]}

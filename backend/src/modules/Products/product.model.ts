@@ -40,7 +40,6 @@ const productSchema = new mongoose.Schema(
     code: {
       type: String,
       required: true,
-      unique: true,
       trim: true,
     },
 
@@ -100,6 +99,7 @@ const productSchema = new mongoose.Schema(
   },
 );
 
+productSchema.set("autoIndex", false);
 productSchema.index({ code: 1 });
 productSchema.index({ category: 1 });
 productSchema.index({ status: 1 });

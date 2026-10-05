@@ -344,7 +344,76 @@ export class SaleService {
       throw new NotFoundError("Sale not found!");
     }
 
-    invalidateSaleCache();
-    return toSale(sale);
+    try {
+      const changesByShop = new Map<
+        string,
+        Array<{ product: string; quantity: number }>
+      >();
+      for (const item of sale.items) {
+        const shopId = String(item.shop);
+        const changes = changesByShop.get(shopId) ?? [];
+        changes.push({
+          product: String(item.product),
+          quantity: Number(item.quantity),
+        });
+        changesByShop.set(shopId, changes);
+      }
+
+      for (const [shopId, changes] of changesByShop) {
+        await applyLocationStockChange("Shop", shopId, changes, 1);
+        await applyProductStockChange(changes, "Shop", shopId, 1);
+      }
+
+      const remainingSales = await SaleModel.aggregate([
+        { $match: { saleperson: sale.saleperson } },
+        {
+          $unwind: {
+            path: "$items",
+            preserveNullAndEmptyArrays: true,
+          },
+        },
+        {
+          $group: {
+            _id: "$_id",
+            grandTotal: { $first: "$grandTotal" },
+            commission: { $first: "$commission" },
+            unitsSold: { $sum: "$items.quantity" },
+          },
+        },
+        {
+          $group: {
+            _id: null,
+            totalSales: { $sum: 1 },
+            totalRevenueGenerated: { $sum: "$grandTotal" },
+            totalCommissionEarned: { $sum: "$commission" },
+            totalUnitsSold: { $sum: "$unitsSold" },
+          },
+        },
+      ]);
+      const performanceSummary = remainingSales[0] ?? {
+        totalSales: 0,
+        totalRevenueGenerated: 0,
+        totalCommissionEarned: 0,
+        totalUnitsSold: 0,
+      };
+      delete performanceSummary._id;
+
+      await SalespersonModel.findByIdAndUpdate(sale.saleperson, {
+        $set: {
+          sales: await SaleModel.distinct("_id", {
+            saleperson: sale.saleperson,
+          }),
+          totalCommission: performanceSummary.totalCommissionEarned,
+          performanceSummary,
+        },
+      });
+
+      return toSale(sale);
+    } finally {
+      invalidateProductCache();
+      invalidateShopCache();
+      invalidateSalespersonCache();
+      invalidateSaleCache();
+    }
   }
 }

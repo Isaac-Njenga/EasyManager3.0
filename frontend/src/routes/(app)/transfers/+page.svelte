@@ -23,6 +23,7 @@
 	const error = $derived(data.error);
 
 	$effect(() => {
+		// console.log('Transfers Data:', transfers);
 		if (error) {
 			toast.error('Failed to load transfers', { description: error });
 		}
