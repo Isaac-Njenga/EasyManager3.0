@@ -3,6 +3,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import DataTable from '$lib/components/common/DataTable.svelte';
 	import Search from '$lib/components/common/Search.svelte';
+	import { matchesSearchQuery } from '$lib/utils';
 	import PackageIcon from '@lucide/svelte/icons/package';
 	import TrendingUpIcon from '@lucide/svelte/icons/trending-up';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
@@ -98,13 +99,7 @@
 
 	let filteredMetrics = $derived(
 		productReportMetrics.filter((item) => {
-			if (!searchTerm.trim()) return true;
-			const term = searchTerm.toLowerCase();
-			return (
-				item.productName.toLowerCase().includes(term) ||
-				item.sku.toLowerCase().includes(term) ||
-				item.category.toLowerCase().includes(term)
-			);
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 

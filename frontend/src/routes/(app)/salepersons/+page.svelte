@@ -7,6 +7,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
+	import { matchesSearchQuery } from '$lib/utils';
 
 	let { data }: PageProps = $props();
 
@@ -24,11 +25,7 @@
 
 	let filteredSalespersons = $derived(
 		salespersons.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 
 			return matchesSearch;
 		})

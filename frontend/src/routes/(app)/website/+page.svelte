@@ -15,7 +15,7 @@
 	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import WebsiteTable from '$lib/components/modules/website/website.table.svelte';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import Modal from '$lib/components/common/Modal.svelte';
 	import ProductDetails from './WebProductDetail.svelte';
 	import { toast } from 'svelte-sonner';
@@ -96,8 +96,6 @@
 	// Filtering Logic
 	let filteredContent = $derived(
 		webProducts.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
 			const matchesCategory =
 				selectedCategory === 'All' || item.category === `${selectedCategory} Furniture`;
 
@@ -106,10 +104,7 @@
 				(stockFilter === 'inStock' && item.inStock !== false) ||
 				(stockFilter === 'outOfStock' && item.inStock === false);
 
-			const matchesSearch =
-				!normalizedSearch ||
-				item.name.toLowerCase().includes(normalizedSearch) ||
-				item.category?.toLowerCase().includes(normalizedSearch);
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 
 			return matchesCategory && matchesStock && matchesSearch;
 		})

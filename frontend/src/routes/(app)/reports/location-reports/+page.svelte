@@ -3,6 +3,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import DataTable from '$lib/components/common/DataTable.svelte';
 	import Search from '$lib/components/common/Search.svelte';
+	import { matchesSearchQuery } from '$lib/utils';
 	import StoreIcon from '@lucide/svelte/icons/store';
 	import WarehouseIcon from '@lucide/svelte/icons/warehouse';
 	import ArrowLeftRightIcon from '@lucide/svelte/icons/arrow-left-right';
@@ -107,13 +108,7 @@
 
 	let filteredLocations = $derived(
 		locationReportMetrics.filter((item) => {
-			if (!searchTerm.trim()) return true;
-			const term = searchTerm.toLowerCase();
-			return (
-				item.locationName.toLowerCase().includes(term) ||
-				item.city.toLowerCase().includes(term) ||
-				item.type.toLowerCase().includes(term)
-			);
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 

@@ -209,6 +209,7 @@
 	bind:open={isTransferDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
+	contentClass="sm:max-w-240"
 >
 	{#if selectedWarehouse}
 		<TransferForm preselectedSourceId={selectedWarehouse._id} {products} />

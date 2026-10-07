@@ -9,6 +9,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
+	import { matchesSearchQuery } from '$lib/utils';
 
 	const typeTags = [
 		{ label: 'All', value: 'All' },
@@ -37,10 +38,7 @@
 		transfers.filter((item) => {
 			const matchesType = selectedType === 'All' || item.type === selectedType;
 
-			const matchesSearch =
-				!searchTerm.trim() || item.transferNumber.toLowerCase().includes(searchTerm.toLowerCase());
-			// item.source.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-			// item.destination.name.toLowerCase().includes(searchTerm.toLowerCase());
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 
 			return matchesType && matchesSearch;
 		})

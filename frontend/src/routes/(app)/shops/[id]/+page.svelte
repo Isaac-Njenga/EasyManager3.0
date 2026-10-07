@@ -1,7 +1,7 @@
 <script lang="ts">
 	import type { Shop, ShopDistributionInput } from '$lib/services/shop/shop.types';
 	import type { Product } from '$lib/services/product/product.types';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import Modal from '$lib/components/common/Modal.svelte';
 
 	import Separator from '$lib/components/ui/separator/separator.svelte';
@@ -102,13 +102,7 @@
 
 	let filteredInventory = $derived(
 		populatedProducts.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
-
-			return matchesSearch;
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 
@@ -278,6 +272,7 @@
 	bind:open={isTransferDrawerOpen}
 	title={selectedShop?.name ?? 'Initiate Stock Transfer'}
 	description={selectedShop ? selectedShop.shopCode : ''}
+	contentClass="sm:max-w-240"
 >
 	{#if selectedShop}
 		<TransferForm preselectedSourceId={selectedShop._id} {products} />

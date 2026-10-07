@@ -15,6 +15,7 @@
 	import WarehouseIcon from '@lucide/svelte/icons/warehouse';
 	import Trash2Icon from '@lucide/svelte/icons/trash-2';
 	import AlertCircleIcon from '@lucide/svelte/icons/alert-circle';
+	import { matchesSearchQuery } from '$lib/utils';
 
 	type DistributionItem = {
 		product: Product;
@@ -66,12 +67,7 @@
 	const filteredProducts = $derived(
 		hasMinSearchLength
 			? products.filter((item) => {
-					const query = searchTerm.trim().toLowerCase();
-					return (
-						item.name.toLowerCase().includes(query) ||
-						item.code?.toLowerCase().includes(query) ||
-						item.sku?.toLowerCase().includes(query)
-					);
+					return matchesSearchQuery(item, searchTerm);
 				})
 			: []
 	);

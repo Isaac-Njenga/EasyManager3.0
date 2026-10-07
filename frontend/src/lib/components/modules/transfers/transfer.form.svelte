@@ -23,7 +23,7 @@
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
 	import Package from '@lucide/svelte/icons/package';
 	import PackageSearch from '@lucide/svelte/icons/package-search';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 
 	type Props = {
 		products: Product[];
@@ -82,7 +82,7 @@
 		const sourceInventory = selectedSource?.inventoryItems ?? [];
 
 		return sourceInventory.flatMap((entry) => {
-			if (typeof entry.product === 'object') return [entry.product];
+			if (entry.product && typeof entry.product === 'object') return [entry.product];
 
 			const product = products.find((item) => item._id === entry.product);
 			return product ? [product] : [];
@@ -93,14 +93,7 @@
 		sourceProducts.filter((p) => {
 			const isActive = p.status === 'Active';
 			if (!isActive) return false;
-			if (!searchQuery.trim()) return true;
-
-			const q = searchQuery.toLowerCase();
-			return (
-				p.name.toLowerCase().includes(q) ||
-				p.sku?.toLowerCase().includes(q) ||
-				p.code.toLowerCase().includes(q)
-			);
+			return matchesSearchQuery(p, searchQuery);
 		})
 	);
 

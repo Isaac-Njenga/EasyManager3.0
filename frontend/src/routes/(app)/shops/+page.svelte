@@ -6,7 +6,7 @@
 
 	// import { shopsData as shops } from '$lib/data/shop.data';
 	import Search from '$lib/components/common/Search.svelte';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 
 	// Icons for analytics cards
 	import Store from '@lucide/svelte/icons/store';
@@ -68,12 +68,8 @@
 	// 3. Automatically derive filtered list based on search & status filter
 	let filteredShops = $derived(
 		shops.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
 			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 
 			return matchesSearch && matchesStatus;
 		})

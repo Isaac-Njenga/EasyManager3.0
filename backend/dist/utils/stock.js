@@ -85,7 +85,7 @@ async function applyLocationStockChange(locationType, locationId, changes, direc
     for (const change of changes) {
         totals.set(change.product, (totals.get(change.product) ?? 0) + change.quantity);
     }
-    const items = location.inventoryItems ?? [];
+    const items = (location.inventoryItems ?? []).filter((entry) => mongoose_1.default.Types.ObjectId.isValid(getObjectIdString(entry.product)));
     for (const [productId, quantity] of totals) {
         const item = items.find((entry) => getObjectIdString(entry.product) === productId);
         if (direction === -1 && (!item || item.quantity < quantity)) {
@@ -103,6 +103,7 @@ async function applyLocationStockChange(locationType, locationId, changes, direc
     }
     location.inventoryItems = items.filter((item) => item.quantity > 0);
     await location.populate("inventoryItems.product");
+    location.inventoryItems = (location.inventoryItems ?? []).filter((item) => item.product != null);
     location.inventorySummary = (0, inventorySummary_1.calculateInventorySummary)(location.inventoryItems);
     await location.save();
 }

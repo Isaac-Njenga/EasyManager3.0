@@ -6,7 +6,7 @@
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
 	import Calendar from '@lucide/svelte/icons/calendar';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import Search from '$lib/components/common/Search.svelte';
 	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
@@ -104,12 +104,8 @@
 
 	let filteredSales = $derived(
 		sales.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
 			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 			return matchesSearch && matchesStatus;
 		})
 	);

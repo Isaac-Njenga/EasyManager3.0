@@ -207,6 +207,7 @@
 	bind:open={isTransferDrawerOpen}
 	title={selectedShop?.name ?? 'Initiate Stock Transfer'}
 	description={selectedShop ? selectedShop.shopCode : ''}
+	contentClass="sm:max-w-240"
 >
 	{#if selectedShop}
 		<TransferForm preselectedSourceId={selectedShop._id} {products} />

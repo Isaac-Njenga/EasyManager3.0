@@ -25,7 +25,7 @@
 	import Package from '@lucide/svelte/icons/package';
 	import Loader2 from '@lucide/svelte/icons/loader-2';
 	import ChevronsUpDown from '@lucide/svelte/icons/chevrons-up-down';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import { toast } from 'svelte-sonner';
 	import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
 
@@ -119,7 +119,7 @@
 		paymentMethod = sale?.paymentMethod ?? 'Cash';
 		paymentStatus = sale?.paymentStatus ?? 'Paid';
 		saleStatus = sale?.status ?? 'Completed';
-		saleperson = sale?.saleperson?._id ?? (lockedSalesperson ? salespersons?.[0]?._id ?? '' : '');
+		saleperson = sale?.saleperson?._id ?? (lockedSalesperson ? (salespersons?.[0]?._id ?? '') : '');
 		dateOfSale = sale?.dateOfSale ?? new Date().toISOString().split('T')[0];
 		notes = sale?.notes ?? '';
 	});
@@ -140,33 +140,17 @@
 
 	// --- Derived Calculations ---
 	const searchableProducts = $derived(
-		(products ?? [])
-			.filter((product) => product.status === 'Active')
-			.map((product) => ({
-				product,
-				searchText: [product.name, product.sku, product.code]
-					.filter(Boolean)
-					.join(' ')
-					.toLowerCase()
-			}))
+		(products ?? []).filter((product) => product.status === 'Active')
+	);
+	const matchingProducts = $derived(
+		searchableProducts.filter((product) => matchesSearchQuery(product, appliedSearchQuery))
 	);
 
 	let filteredProducts = $derived.by(() => {
-		const query = appliedSearchQuery;
-		const matches = query
-			? searchableProducts
-					.filter(({ searchText }) => searchText.includes(query))
-					.map(({ product }) => product)
-			: searchableProducts.map(({ product }) => product);
-
-		return matches.slice(0, maxProductResults);
+		return matchingProducts.slice(0, maxProductResults);
 	});
 
-	const hasMoreProductResults = $derived(
-		searchableProducts.filter(
-			({ searchText }) => !appliedSearchQuery || searchText.includes(appliedSearchQuery)
-		).length > maxProductResults
-	);
+	const hasMoreProductResults = $derived(matchingProducts.length > maxProductResults);
 
 	let subTotal = $derived(
 		selectedItems.reduce(
@@ -585,28 +569,28 @@
 						{#if lockedSalesperson}
 							<Input value={salepersonTriggerContent} readonly aria-readonly="true" />
 						{:else}
-						<Select.Root
-							type="single"
-							name="saleperson"
-							value={saleperson}
-							onValueChange={(val) => (saleperson = val)}
-							required
-						>
-							<Select.Trigger
-								class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
+							<Select.Root
+								type="single"
+								name="saleperson"
+								value={saleperson}
+								onValueChange={(val) => (saleperson = val)}
+								required
 							>
-								{salepersonTriggerContent}
-							</Select.Trigger>
-							<Select.Content>
-								<Select.Group>
-									{#each salepersonOptions as sp (sp.value)}
-										<Select.Item value={sp.value} label={sp.label}>
-											{sp.label}
-										</Select.Item>
-									{/each}
-								</Select.Group>
-							</Select.Content>
-						</Select.Root>
+								<Select.Trigger
+									class="flex h-9 w-full items-center justify-between gap-2 rounded-md border bg-background px-3 py-1 text-xs shadow-sm"
+								>
+									{salepersonTriggerContent}
+								</Select.Trigger>
+								<Select.Content>
+									<Select.Group>
+										{#each salepersonOptions as sp (sp.value)}
+											<Select.Item value={sp.value} label={sp.label}>
+												{sp.label}
+											</Select.Item>
+										{/each}
+									</Select.Group>
+								</Select.Content>
+							</Select.Root>
 						{/if}
 						{#if errors.salepersonId}
 							<p class="mt-1 text-xs text-destructive">{errors.salepersonId}</p>

@@ -12,7 +12,7 @@
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 
 	let { data }: PageProps = $props();
 
@@ -22,9 +22,7 @@
 	// Derived metrics for analytic cards
 	const totalProducts = $derived(products.length);
 	const activeProducts = $derived(products.filter((p) => p.status === 'Active').length);
-	const totalStockQuantity = $derived(
-		products.reduce((acc, p) => acc + (p.totalQuantity || 0), 0)
-	);
+	const totalStockQuantity = $derived(products.reduce((acc, p) => acc + (p.totalQuantity || 0), 0));
 	const totalInventoryValue = $derived(
 		products.reduce(
 			(acc, p) => acc + (p.costPrice || p.sellingPrice || 0) * (p.totalQuantity || 0),
@@ -47,14 +45,8 @@
 
 	let filteredProducts = $derived(
 		products.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
 			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) =>
-					String(value).toLowerCase().includes(normalizedSearch)
-				);
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 			return matchesSearch && matchesStatus;
 		})
 	);
@@ -75,7 +67,9 @@
 	<!-- Analytics Section -->
 	<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
 		<div class="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
-			<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
+			<div
+				class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary"
+			>
 				<PackageIcon class="size-5" />
 			</div>
 			<div>
@@ -85,7 +79,9 @@
 		</div>
 
 		<div class="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
-			<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400">
+			<div
+				class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
+			>
 				<CheckCircle2Icon class="size-5" />
 			</div>
 			<div>
@@ -95,7 +91,9 @@
 		</div>
 
 		<div class="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
-			<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400">
+			<div
+				class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600 dark:text-blue-400"
+			>
 				<BoxesIcon class="size-5" />
 			</div>
 			<div>
@@ -105,12 +103,16 @@
 		</div>
 
 		<div class="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm">
-			<div class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400">
+			<div
+				class="flex size-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600 dark:text-amber-400"
+			>
 				<DollarSignIcon class="size-5" />
 			</div>
 			<div>
 				<p class="text-xs font-medium text-muted-foreground">Inventory Value</p>
-				<p class="text-2xl font-bold tracking-tight text-foreground">{formatCurrency(totalInventoryValue)}</p>
+				<p class="text-2xl font-bold tracking-tight text-foreground">
+					{formatCurrency(totalInventoryValue)}
+				</p>
 			</div>
 		</div>
 	</div>

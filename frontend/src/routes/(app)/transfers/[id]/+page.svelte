@@ -2,6 +2,7 @@
 	import type { Product } from '$lib/services/product/product.types';
 	import type { PageProps } from './$types';
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
+	import Search from '$lib/components/common/Search.svelte';
 
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import ProductsTable from '$lib/components/modules/products/products.table.svelte';
@@ -11,6 +12,7 @@
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import { toast } from 'svelte-sonner';
+	import { matchesSearchQuery } from '$lib/utils';
 
 	const typeTags = [
 		{ label: 'Warehouse-Warehouse', value: 'inter_warehouse' },
@@ -39,8 +41,6 @@
 	// 		(item): item is Product => typeof item === 'object' && item !== null && '_id' in item
 	// 	);
 	// });
-
-	
 
 	const populatedProducts = $derived.by<Product[]>(() => {
 		if (!selectedTransfer?.items) return [];
@@ -73,13 +73,7 @@
 
 	let filteredInventory = $derived(
 		populatedProducts.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
-
-			return matchesSearch;
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 </script>
@@ -123,11 +117,11 @@
 					</div>
 				{/if}
 				<div class="space-y-3">
-					<!-- <Search
+					<Search
 						value={searchTerm}
 						bind:isLoading={isSearching}
 						onChange={(val) => (searchTerm = val)}
-					/> -->
+					/>
 				</div>
 				{#if populatedProducts.length > 0}
 					<ProductsTable

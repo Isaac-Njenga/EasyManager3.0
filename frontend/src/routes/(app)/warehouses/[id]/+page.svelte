@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import type { Product } from '$lib/services/product/product.types';
 	import type {
 		Warehouse,
@@ -104,14 +104,7 @@
 
 	let filteredInventory = $derived(
 		populatedProducts.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-			if (!normalizedSearch) return true;
-
-			const searchableText = [item.name, item.code ?? '', item.sku ?? '', item.category ?? '']
-				.join(' ')
-				.toLowerCase();
-
-			return searchableText.includes(normalizedSearch);
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 
@@ -295,6 +288,7 @@
 	bind:open={isTransferDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
+	contentClass="sm:max-w-240"
 >
 	{#if selectedWarehouse}
 		<TransferForm preselectedSourceId={selectedWarehouse._id} {products} />

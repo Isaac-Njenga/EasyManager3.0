@@ -9,7 +9,7 @@
 	import CheckCircle2 from '@lucide/svelte/icons/check-circle-2';
 	import Clock from '@lucide/svelte/icons/clock';
 	import FileText from '@lucide/svelte/icons/file-text';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
@@ -56,11 +56,8 @@
 
 	let filteredExpenses = $derived(
 		expenses.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
 			const matchesStatus = selectedStatus === 'All' || item.paymentStatus === selectedStatus;
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 			return matchesSearch && matchesStatus;
 		})
 	);

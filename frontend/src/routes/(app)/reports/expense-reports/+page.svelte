@@ -3,6 +3,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import DataTable from '$lib/components/common/DataTable.svelte';
 	import Search from '$lib/components/common/Search.svelte';
+	import { matchesSearchQuery } from '$lib/utils';
 	import ReceiptIcon from '@lucide/svelte/icons/receipt';
 	import WalletIcon from '@lucide/svelte/icons/wallet';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
@@ -78,14 +79,7 @@
 
 	let filteredExpenses = $derived(
 		expenseRecords.filter((item) => {
-			if (!searchTerm.trim()) return true;
-			const term = searchTerm.toLowerCase();
-			return (
-				item.expenseId.toLowerCase().includes(term) ||
-				item.description.toLowerCase().includes(term) ||
-				item.vendor.toLowerCase().includes(term) ||
-				item.category.toLowerCase().includes(term)
-			);
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 

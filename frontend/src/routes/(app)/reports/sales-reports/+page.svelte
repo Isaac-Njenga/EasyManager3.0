@@ -3,6 +3,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import DataTable from '$lib/components/common/DataTable.svelte';
 	import Search from '$lib/components/common/Search.svelte';
+	import { matchesSearchQuery } from '$lib/utils';
 	import ShoppingBagIcon from '@lucide/svelte/icons/shopping-bag';
 	import BanknoteIcon from '@lucide/svelte/icons/banknote';
 	import CreditCardIcon from '@lucide/svelte/icons/credit-card';
@@ -72,14 +73,7 @@
 
 	let filteredTransactions = $derived(
 		salesTransactions.filter((item) => {
-			if (!searchTerm.trim()) return true;
-			const term = searchTerm.toLowerCase();
-			return (
-				item.orderId.toLowerCase().includes(term) ||
-				item.customerName.toLowerCase().includes(term) ||
-				item.customerEmail.toLowerCase().includes(term) ||
-				item.paymentMethod.toLowerCase().includes(term)
-			);
+			return matchesSearchQuery(item, searchTerm);
 		})
 	);
 

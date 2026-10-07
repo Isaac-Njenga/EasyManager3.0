@@ -4,7 +4,7 @@
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import WarehouseTable from '$lib/components/modules/warehouses/warehouse.table.svelte';
 	import Search from '$lib/components/common/Search.svelte';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 
 	import WarehouseIcon from '@lucide/svelte/icons/warehouse';
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
@@ -18,7 +18,7 @@
 
 	// Reactive derivations from server load
 	const warehouses = $derived(data.warehouses ?? []);
-	const products = $derived(data.products?? []);
+	const products = $derived(data.products ?? []);
 	const error = $derived(data.error);
 
 	// Toast error alert if server load failed
@@ -63,12 +63,8 @@
 	// --- Automatically derive filtered list based on search & status filter ---
 	let filteredWarehouses = $derived(
 		warehouses.filter((item) => {
-			const normalizedSearch = searchTerm.trim().toLowerCase();
-
 			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-			const matchesSearch =
-				!normalizedSearch ||
-				Object.values(item).some((value) => String(value).toLowerCase().includes(normalizedSearch));
+			const matchesSearch = matchesSearchQuery(item, searchTerm);
 
 			return matchesSearch && matchesStatus;
 		})
@@ -182,7 +178,7 @@
 					</div>
 				{/if}
 
-				<WarehouseTable {filteredWarehouses} {products}/>
+				<WarehouseTable {filteredWarehouses} {products} />
 			{/if}
 		</div>
 	</div>
