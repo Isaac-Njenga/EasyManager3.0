@@ -230,9 +230,11 @@
 										<PackageIcon class="size-5" />
 									</div>
 									<div>
-										<div class="text-sm font-medium text-foreground">{product.name}</div>
+										<div class="text-sm font-medium text-foreground uppercase">{product.name}</div>
 										<div class="text-xs text-muted-foreground">
-											Code: {product.code || 'N/A'} • Total Stock: {product.totalQuantity ?? 0}
+											Code:
+											<span class="uppercase">{product.code || 'N/A'}</span> •
+											<span>Total Stock: {product.totalQuantity ?? 0}</span>
 										</div>
 									</div>
 								</div>

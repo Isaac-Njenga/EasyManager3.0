@@ -30,7 +30,10 @@ async function connectToDB() {
             const productIndexes = await product_model_1.ProductModel.collection.indexes();
             for (const index of productIndexes) {
                 const keys = Object.keys(index.key);
-                if (index.unique && keys.length === 1 && index.key.code === 1) {
+                if (index.name &&
+                    index.unique &&
+                    keys.length === 1 &&
+                    index.key.code === 1) {
                     await product_model_1.ProductModel.collection.dropIndex(index.name);
                     console.log("Removed unique product-code index");
                 }

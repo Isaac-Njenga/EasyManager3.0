@@ -395,7 +395,7 @@
 											</div>
 										{/if}
 										<div>
-											<p class="text-xs font-semibold">{product.name}</p>
+											<p class="text-xs font-semibold uppercase">{product.name}</p>
 											<p class="text-[11px] text-muted-foreground">
 												{product.code} | Qty: {product.totalQuantity} | Colour: {product.colour}
 											</p>
