@@ -38,17 +38,17 @@
 	let isDeleteProductOpen = $state(false);
 	let selectedProduct = $state<Product | null>(null);
 
-	function viewProduct(product: Product) {
+	export function viewProduct(product: Product) {
 		selectedProduct = product;
 		isDrawerOpen = true;
 	}
 
-	function editProduct(product: Product) {
+	export function editProduct(product: Product) {
 		// console.log('Edit product:', product._id);
 		goto(resolve(`/products/${product._id}/edit`));
 	}
 
-	function openDeleteModal(product: Product) {
+	export function openDeleteModal(product: Product) {
 		selectedProduct = product;
 		isDeleteProductOpen = true;
 	}

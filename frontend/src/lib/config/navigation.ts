@@ -14,6 +14,7 @@ import ArrowRightLeft from '@lucide/svelte/icons/arrow-right-left';
 import ClipboardClock from '@lucide/svelte/icons/clipboard-clock';
 import Contact from '@lucide/svelte/icons/contact';
 import GlobeCheck from '@lucide/svelte/icons/globe-check';
+// import TestTubeDiagonal from '@lucide/svelte/icons/test-tube-diagonal';
 
 export type NavigationItem = {
 	title: string;
@@ -35,6 +36,11 @@ export const navigationGroups: NavigationGroup[] = [
 				href: '/dashboard',
 				icon: LayoutDashboard
 			}
+			// {
+			// 	title: 'Test',
+			// 	href: '/table-test',
+			// 	icon: TestTubeDiagonal
+			// }
 		]
 	},
 	{

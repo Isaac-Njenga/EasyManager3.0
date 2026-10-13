@@ -1,18 +1,20 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import ProductTable from '$lib/components/modules/products/products.table.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
+	// import ProductTable from '$lib/components/modules/products/products.table.svelte';
+	// import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import PackageIcon from '@lucide/svelte/icons/package';
 	import CheckCircle2Icon from '@lucide/svelte/icons/check-circle-2';
 	import BoxesIcon from '@lucide/svelte/icons/boxes';
 	import DollarSignIcon from '@lucide/svelte/icons/dollar-sign';
 
-	import Search from '$lib/components/common/Search.svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	// import Search from '$lib/components/common/Search.svelte';
+	// import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
+	import { ProductColumns } from '$lib/components/modules/products/product-table/product.columns';
+	import DataTable from '$lib/components/modules/products/product-table/product-table.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -41,7 +43,7 @@
 
 	let isSearching = $state(false);
 
-	const statusTags = ['All', 'Active', 'Inactive'];
+	// const statusTags = ['All', 'Active', 'Inactive'];
 
 	let filteredProducts = $derived(
 		products.filter((item) => {
@@ -118,8 +120,15 @@
 	</div>
 
 	<!-- Search & Table Container -->
-	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-		<div class="mb-3">
+	<div class="space-y-4 rounded-xl border bg-card shadow-sm">
+		<!-- <div class="mb-0 flex items-center justify-end space-x-2 p-2 pb-0">
+			<Badge variant="outline">
+				<span class="text-xs font-medium text-muted-foreground">
+					Products: {filteredProducts.length}
+				</span>
+			</Badge>
+		</div> -->
+		<!-- <div class="mb-3">
 			<div class="mb-3">
 				<Search
 					value={searchTerm}
@@ -139,12 +148,11 @@
 						</Badge>
 					{/each}
 				</div>
-
-				<span class="text-xs font-medium text-muted-foreground">
-					Products: {filteredProducts.length}
-				</span>
+				<span class="text-right text-xs font-medium text-muted-foreground">
+				Products: {filteredProducts.length}
+			</span>
 			</div>
-		</div>
+		</div> -->
 
 		<div>
 			{#if isSearching}
@@ -153,13 +161,14 @@
 					<div class="py-8 text-center text-muted-foreground">Loading products...</div>
 				</div>
 			{:else}
-				<Separator class="mb-4" />
-				{#if searchTerm}
+				<!-- <Separator class="mb-4" /> -->
+				<!-- {#if searchTerm}
 					<div class="mb-2 text-sm text-muted-foreground">
 						Showing results for <b>"{searchTerm}"</b>
 					</div>
-				{/if}
-				<ProductTable {filteredProducts} />
+				{/if} -->
+				<!-- <ProductTable {filteredProducts} /> -->
+				<DataTable data={filteredProducts} columns={ProductColumns} />
 			{/if}
 		</div>
 	</div>
