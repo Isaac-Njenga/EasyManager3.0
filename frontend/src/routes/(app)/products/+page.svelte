@@ -14,7 +14,7 @@
 	import { toast } from 'svelte-sonner';
 	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import { ProductColumns } from '$lib/components/modules/products/product-table/product.columns';
-	import DataTable from '$lib/components/modules/products/product-table/product-table.svelte';
+	import DataTable from '$lib/components/modules/products/product-table/product.table.svelte';
 
 	let { data }: PageProps = $props();
 

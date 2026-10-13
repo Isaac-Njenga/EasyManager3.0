@@ -1,15 +1,13 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import ArrowLeftRightIcon from '@lucide/svelte/icons/arrow-left-right';
 	import BoxesIcon from '@lucide/svelte/icons/boxes';
-	import TransferTable from '$lib/components/modules/transfers/transfer.table.svelte';
-	import Search from '$lib/components/common/Search.svelte';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
 	import { matchesSearchQuery } from '$lib/utils';
+	import { TransferColumns } from '$lib/components/modules/transfers/transfer-table/transfer.columns';
+	import DataTable from '$lib/components/modules/transfers/transfer-table/transfer.table.svelte';
 
 	const typeTags = [
 		{ label: 'All', value: 'All' },
@@ -24,7 +22,6 @@
 	const error = $derived(data.error);
 
 	$effect(() => {
-		// console.log('Transfers Data:', transfers);
 		if (error) {
 			toast.error('Failed to load transfers', { description: error });
 		}
@@ -97,34 +94,7 @@
 	</div>
 
 	<!-- Search & Filters -->
-	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-		<div class="space-y-3">
-			<Search
-				value={searchTerm}
-				bind:isLoading={isSearching}
-				onChange={(val) => (searchTerm = val)}
-			/>
-
-			<div class="flex items-center justify-between">
-				<div class="flex gap-2">
-					{#each typeTags as tag (tag.value)}
-						<Badge
-							variant={selectedType === tag.value ? 'default' : 'outline'}
-							onclick={() => (selectedType = tag.value)}
-							class="pointer-fine:cursor-pointer"
-						>
-							{tag.label}
-						</Badge>
-					{/each}
-				</div>
-
-				<span class="text-xs font-medium text-muted-foreground">
-					Transfers: {filteredTransfers.length}
-				</span>
-			</div>
-		</div>
-
-		<!-- Table Container -->
+	<div class="space-y-4 rounded-xl border bg-card shadow-sm">
 		<div>
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-4 py-8">
@@ -132,14 +102,7 @@
 					<div class="text-muted-foreground">Loading Transfer Logs...</div>
 				</div>
 			{:else}
-				<Separator class="mb-4" />
-				{#if searchTerm}
-					<div class="mb-2 text-sm text-muted-foreground">
-						Showing results for <b>"{searchTerm}"</b> ({filteredTransfers.length} found)
-					</div>
-				{/if}
-
-				<TransferTable {filteredTransfers} />
+				<DataTable data={transfers} columns={TransferColumns} />
 			{/if}
 		</div>
 	</div>

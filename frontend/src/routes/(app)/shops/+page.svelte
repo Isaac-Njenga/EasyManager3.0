@@ -11,7 +11,7 @@
 	import AlertTriangle from '@lucide/svelte/icons/alert-triangle';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
-	import DataTable from '$lib/components/modules/shop/shop-table/shop-table.svelte';
+	import DataTable from '$lib/components/modules/shop/shop-table/shop.table.svelte';
 	import { createShopColumns } from '$lib/components/modules/shop/shop-table/shop.columns';
 
 	let { data }: PageProps = $props();

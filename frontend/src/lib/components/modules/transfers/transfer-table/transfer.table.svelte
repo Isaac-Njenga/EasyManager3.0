@@ -17,7 +17,7 @@
 	import ChevronLast from '@lucide/svelte/icons/chevron-last';
 	import ChevronLeft from '@lucide/svelte/icons/chevron-left';
 	import ChevronRight from '@lucide/svelte/icons/chevron-right';
-	import type { Product } from '$lib/services/product/product.types';
+	import type { InventoryTransfer as Transfer } from '$lib/services/transfers/transfer.types';
 	import { Label } from '$lib/components/ui/label';
 
 	type DataTableProps<TData extends RowData> = {
@@ -29,16 +29,16 @@
 	let { data, columns }: DataTableProps<TData> = $props();
 	const [rowSelection, setRowSelection] = createTableState<RowSelectionState>({});
 
-	const searchableFields: (keyof Product)[] = ['name', 'code', 'colour', 'category', 'status'];
+	const searchableFields: (keyof Transfer)[] = ['dateOfTransfer', 'type'];
 
 	const filteredData = $derived.by(() => {
 		const query = searchQuery.trim().toLowerCase();
 
 		if (!query) return data;
 
-		return data.filter((product) =>
+		return data.filter((transfer) =>
 			searchableFields.some((field) => {
-				const value = (product as Product)[field];
+				const value = (transfer as Transfer)[field];
 
 				return value != null && String(value).toLowerCase().includes(query);
 			})
@@ -135,46 +135,6 @@
 			</Table.Root>
 		</div>
 	</div>
-
-	<!-- <div class="flex items-center justify-end gap-5 space-x-2 p-2">
-		<div class="text-sm text-muted-foreground">
-			Page {pagination.pageIndex + 1} of {table.getPageCount()}
-		</div>
-		<div>
-			<Button
-				variant="outline"
-				size="sm"
-				onclick={() => table.firstPage()}
-				disabled={!table.getCanPreviousPage()}
-			>
-				<ChevronFirst />
-			</Button>
-			<Button
-				variant="outline"
-				size="sm"
-				onclick={() => table.previousPage()}
-				disabled={!table.getCanPreviousPage()}
-			>
-				<ChevronLeft />
-			</Button>
-			<Button
-				variant="outline"
-				size="sm"
-				onclick={() => table.nextPage()}
-				disabled={!table.getCanNextPage()}
-			>
-				<ChevronRight />
-			</Button>
-			<Button
-				variant="outline"
-				size="sm"
-				onclick={() => table.lastPage()}
-				disabled={!table.getCanNextPage()}
-			>
-				<ChevronLast />
-			</Button>
-		</div>
-	</div> -->
 
 	<div class="flex flex-col gap-4 p-2 sm:flex-row sm:items-center sm:justify-between">
 		<!-- Rows per page -->
