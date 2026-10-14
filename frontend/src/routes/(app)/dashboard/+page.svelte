@@ -4,8 +4,6 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	// import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
-	import ExpensesTable from '$lib/components/modules/expenses/expenses.table.svelte';
 	import SalesExpenseProgression from '$lib/components/modules/dashboard/SalesExpenseProgression.svelte';
 	import { formatCurrency } from '$lib/utils';
 	import { format, subDays } from 'date-fns';
@@ -26,6 +24,8 @@
 	import { toast } from 'svelte-sonner';
 	import DataTable from '$lib/components/modules/sales/sale-table/sale.table.svelte';
 	import { SaleColumns } from '$lib/components/modules/sales/sale-table/sale.columns';
+	import ExpenseDataTable from '$lib/components/modules/expenses/expense-table/expense.table.svelte';
+	import { ExpenseColumns } from '$lib/components/modules/expenses/expense-table/expense.columns';
 
 	let { data }: PageProps = $props();
 
@@ -367,7 +367,8 @@
 				</Tabs.Content>
 
 				<Tabs.Content value="expenses" class="mt-6">
-					<ExpensesTable {filteredExpenses} />
+					<!-- <ExpensesTable {filteredExpenses} /> -->
+					<ExpenseDataTable data={expenses} columns={ExpenseColumns} showSearch={true} />
 				</Tabs.Content>
 			</Tabs.Root>
 		</div>

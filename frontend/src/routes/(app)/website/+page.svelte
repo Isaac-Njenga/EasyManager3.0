@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import Search from '$lib/components/common/Search.svelte';
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -12,9 +11,8 @@
 	import Tag from '@lucide/svelte/icons/tag';
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
-	import RotateCcw from '@lucide/svelte/icons/rotate-ccw';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
-	import WebsiteTable from '$lib/components/modules/website/website.table.svelte';
+	import DataTable from '$lib/components/modules/website/website-table/website.table.svelte';
+	import { WebProductColumns as WebsiteColumns } from '$lib/components/modules/website/website-table/website.columns';
 	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import Modal from '$lib/components/common/Modal.svelte';
 	import ProductDetails from './WebProductDetail.svelte';
@@ -75,16 +73,6 @@
 	let stockFilter = $state<'all' | 'inStock' | 'outOfStock'>('all');
 	let viewMode = $state<'table' | 'grid'>('table');
 
-	const categoryTags = [
-		'All',
-		'Office',
-		'Living Room',
-		'Kitchen',
-		'Outdoor',
-		'Bedroom',
-		'Second-Hand'
-	];
-
 	// Calculated Metrics
 	const totalProducts = $derived(webProducts.length);
 	const outOfStockCount = $derived(webProducts.filter((p) => p.inStock === false).length);
@@ -110,11 +98,7 @@
 		})
 	);
 
-	function resetFilters() {
-		searchTerm = '';
-		selectedCategory = 'All';
-		stockFilter = 'all';
-	}
+	
 </script>
 
 <svelte:head>
@@ -176,60 +160,8 @@
 	</div>
 
 	<!-- Toolbar & Filter Area -->
-	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-		<div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-			<div class="w-full md:max-w-md">
-				<Search
-					value={searchTerm}
-					bind:isLoading={isSearching}
-					onChange={(val) => (searchTerm = val)}
-				/>
-			</div>
-
-			<!-- View Switcher & Actions -->
-			<div class="flex items-center gap-2">
-				<div class="flex items-center rounded-lg border bg-muted p-1">
-					<Button
-						variant={viewMode === 'table' ? 'secondary' : 'ghost'}
-						size="sm"
-						class="h-7 px-2"
-						onclick={() => (viewMode = 'table')}
-					>
-						<List class="size-4" />
-					</Button>
-					<Button
-						variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
-						size="sm"
-						class="h-7 px-2"
-						onclick={() => (viewMode = 'grid')}
-					>
-						<LayoutGrid class="size-4" />
-					</Button>
-				</div>
-
-				{#if searchTerm || selectedCategory !== 'All' || stockFilter !== 'all'}
-					<Button variant="outline" size="sm" class="h-9" onclick={resetFilters}>
-						<RotateCcw class="mr-1.5 size-3.5" />
-						Reset
-					</Button>
-				{/if}
-			</div>
-		</div>
-
-		<!-- Filter Pills & Stock Toggle -->
-		<div class="flex flex-col gap-3 pt-2 sm:flex-row sm:items-center sm:justify-between">
-			<div class="flex flex-wrap gap-1.5">
-				{#each categoryTags as tag (tag)}
-					<Badge
-						variant={selectedCategory === tag ? 'default' : 'outline'}
-						onclick={() => (selectedCategory = tag)}
-						class="cursor-pointer transition-colors"
-					>
-						{tag}
-					</Badge>
-				{/each}
-			</div>
-
+	<div class="space-y-4 rounded-xl border bg-card p-2 shadow-sm">
+		<div class="flex flex-row justify-between p-2 pb-0">
 			<div class="flex items-center gap-2 text-xs">
 				<span class="text-muted-foreground">Stock:</span>
 				<button
@@ -257,26 +189,40 @@
 					Out of Stock
 				</button>
 			</div>
+
+			<!-- View Switcher & Actions -->
+			<div class="flex items-center gap-2">
+				<div class="flex items-center rounded-sm border bg-muted ">
+					<Button
+						variant={viewMode === 'table' ? 'secondary' : 'ghost'}
+						size="sm"
+						class="h-7 px-2"
+						onclick={() => (viewMode = 'table')}
+					>
+						<List class="size-4" />
+					</Button>
+					<Button
+						variant={viewMode === 'grid' ? 'secondary' : 'ghost'}
+						size="sm"
+						class="h-7 px-2"
+						onclick={() => (viewMode = 'grid')}
+					>
+						<LayoutGrid class="size-4" />
+					</Button>
+				</div>
+			</div>
 		</div>
 
 		<!-- Catalog Display Engine -->
-		<div class="pt-2">
+		<div class='pt-0'> 
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-3 py-12">
 					<Loader2Icon class="size-5 animate-spin text-primary" />
 					<div class="text-sm text-muted-foreground">Updating product results...</div>
 				</div>
 			{:else}
-				<Separator class="mb-4" />
-
-				<div class="mb-3 flex items-center justify-between text-xs text-muted-foreground">
-					<span>
-						Showing <b>{filteredContent.length}</b> of <b>{totalProducts}</b> products
-					</span>
-				</div>
-
 				{#if viewMode === 'table'}
-					<WebsiteTable {filteredContent} />
+					<DataTable data={filteredContent} columns={WebsiteColumns} />
 				{:else}
 					<!-- Optional Catalog Grid View -->
 					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">

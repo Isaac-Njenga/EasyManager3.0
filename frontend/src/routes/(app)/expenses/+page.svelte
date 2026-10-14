@@ -1,18 +1,16 @@
 <script lang="ts">
-	import Search from '$lib/components/common/Search.svelte';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
-	import ExpenseTable from '$lib/components/modules/expenses/expenses.table.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import { Card, CardContent } from '$lib/components/ui/card';
 	import Wallet from '@lucide/svelte/icons/wallet';
 	import CheckCircle2 from '@lucide/svelte/icons/check-circle-2';
 	import Clock from '@lucide/svelte/icons/clock';
 	import FileText from '@lucide/svelte/icons/file-text';
-	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import { formatCurrency } from '$lib/utils';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
+	import DataTable from '$lib/components/modules/expenses/expense-table/expense.table.svelte';
+	import { ExpenseColumns } from '$lib/components/modules/expenses/expense-table/expense.columns';
 
 	let { data }: PageProps = $props();
 
@@ -26,13 +24,8 @@
 		}
 	});
 
-	let searchTerm = $state('');
-	let selectedStatus = $state('All');
 	let isSearching = $state(false);
 
-	const statusTags = ['All', 'Paid', 'Pending', 'Cancelled'];
-
-	// Analytics calculations using $derived
 	let totalExpenseAmount = $derived(
 		expenses.reduce(
 			(sum, item) => (item.paymentStatus !== 'Cancelled' ? sum + item.amount : sum),
@@ -53,14 +46,6 @@
 	);
 
 	let totalRecordsCount = $derived(expenses.length);
-
-	let filteredExpenses = $derived(
-		expenses.filter((item) => {
-			const matchesStatus = selectedStatus === 'All' || item.paymentStatus === selectedStatus;
-			const matchesSearch = matchesSearchQuery(item, searchTerm);
-			return matchesSearch && matchesStatus;
-		})
-	);
 </script>
 
 <svelte:head>
@@ -131,34 +116,7 @@
 	</div>
 
 	<!-- Search & Filters -->
-	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-		<div class="mb-3">
-			<div class="mb-3">
-				<Search
-					value={searchTerm}
-					bind:isLoading={isSearching}
-					onChange={(val) => (searchTerm = val)}
-				/>
-			</div>
-			<div class="flex items-center justify-between">
-				<div class="flex gap-2">
-					{#each statusTags as tag (tag)}
-						<Badge
-							variant={selectedStatus === tag ? 'default' : 'outline'}
-							onclick={() => (selectedStatus = tag)}
-							class="pointer-fine:cursor-pointer"
-						>
-							{tag}
-						</Badge>
-					{/each}
-				</div>
-
-				<span class="text-xs font-medium text-muted-foreground">
-					Expenses: {filteredExpenses.length}
-				</span>
-			</div>
-		</div>
-
+	<div class="space-y-4 rounded-xl border bg-card p-2 shadow-sm">
 		<!-- Expenses Table Container -->
 		<div>
 			{#if isSearching}
@@ -167,13 +125,7 @@
 					<div class="py-8 text-center text-muted-foreground">Loading expenses...</div>
 				</div>
 			{:else}
-				<Separator class="mb-4" />
-				{#if searchTerm}
-					<div class="mb-2 text-sm text-muted-foreground">
-						Showing results for <b>"{searchTerm}"</b>
-					</div>
-				{/if}
-				<ExpenseTable {filteredExpenses} />
+				<DataTable data={expenses} columns={ExpenseColumns} showSearch={true} />
 			{/if}
 		</div>
 	</div>
