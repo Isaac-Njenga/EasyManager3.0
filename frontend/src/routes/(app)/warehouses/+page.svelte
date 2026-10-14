@@ -1,18 +1,16 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
-	import Loader2Icon from '@lucide/svelte/icons/loader-2';
-	import WarehouseTable from '$lib/components/modules/warehouses/warehouse.table.svelte';
-	import Search from '$lib/components/common/Search.svelte';
-	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
+	import { formatCurrency } from '$lib/utils';
+	import Loader2 from '@lucide/svelte/icons/loader-2';
 
 	import WarehouseIcon from '@lucide/svelte/icons/warehouse';
 	import DollarSign from '@lucide/svelte/icons/dollar-sign';
 	import Package from '@lucide/svelte/icons/package';
 
-	import Separator from '$lib/components/ui/separator/separator.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
+	import DataTable from '$lib/components/modules/warehouses/warehouse-table/warehouse.table.svelte';
+	import { createWarehouseColumns } from '$lib/components/modules/warehouses/warehouse-table/warehouse.columns';
 
 	let { data }: PageProps = $props();
 
@@ -28,11 +26,8 @@
 		}
 	});
 
-	let searchTerm = $state('');
-	let selectedStatus = $state('All');
 	let isSearching = $state(false);
-
-	const statusTags = ['All', 'Active', 'Inactive', 'Under Maintenance'];
+	const columns = $derived(createWarehouseColumns(products));
 
 	// --- Derived Analytics ---
 	const analytics = $derived.by(() => {
@@ -59,16 +54,6 @@
 			totalLowStockAlerts
 		};
 	});
-
-	// --- Automatically derive filtered list based on search & status filter ---
-	let filteredWarehouses = $derived(
-		warehouses.filter((item) => {
-			const matchesStatus = selectedStatus === 'All' || item.status === selectedStatus;
-			const matchesSearch = matchesSearchQuery(item, searchTerm);
-
-			return matchesSearch && matchesStatus;
-		})
-	);
 </script>
 
 <svelte:head>
@@ -135,50 +120,15 @@
 		</div>
 	</div>
 
-	<!-- Search & Filters -->
-	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-		<div class="space-y-3">
-			<Search
-				value={searchTerm}
-				bind:isLoading={isSearching}
-				onChange={(val) => (searchTerm = val)}
-			/>
-
-			<div class="flex items-center justify-between">
-				<div class="flex gap-2">
-					{#each statusTags as tag (tag)}
-						<Badge
-							variant={selectedStatus === tag ? 'default' : 'outline'}
-							onclick={() => (selectedStatus = tag)}
-							class="pointer-fine:cursor-pointer"
-						>
-							{tag}
-						</Badge>
-					{/each}
-				</div>
-
-				<span class="text-xs font-medium text-muted-foreground">
-					Warehouses: {filteredWarehouses.length}
-				</span>
-			</div>
-		</div>
-
-		<!-- Table Container -->
+	<div class="space-y-4 rounded-xl border bg-card shadow-sm">
 		<div>
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-4 py-8">
-					<Loader2Icon class="size-5 animate-spin text-primary" />
-					<div class="text-muted-foreground">Loading Warehouses...</div>
+					<Loader2 class="size-5 animate-spin text-primary" />
+					<div class="text-muted-foreground">Loading warehouses...</div>
 				</div>
 			{:else}
-				<Separator class="mb-4" />
-				{#if searchTerm}
-					<div class="mb-2 text-sm text-muted-foreground">
-						Showing results for <b>"{searchTerm}"</b> ({filteredWarehouses.length} found)
-					</div>
-				{/if}
-
-				<WarehouseTable {filteredWarehouses} {products} />
+				<DataTable data={warehouses} {columns} />
 			{/if}
 		</div>
 	</div>

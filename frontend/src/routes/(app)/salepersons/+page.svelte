@@ -1,13 +1,10 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
-	import SalepersonsTable from '$lib/components/modules/salepersons/saleperson.table.svelte';
-	import Search from '$lib/components/common/Search.svelte';
-
-	import Separator from '$lib/components/ui/separator/separator.svelte';
+	import DataTable from '$lib/components/modules/salepersons/saleperson-table/saleperson.table.svelte';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
-	import { matchesSearchQuery } from '$lib/utils';
+	import { SalepersonColumns } from '$lib/components/modules/salepersons/saleperson-table/saleperson.columns';
 
 	let { data }: PageProps = $props();
 
@@ -20,16 +17,7 @@
 		}
 	});
 
-	let searchTerm = $state('');
 	let isSearching = $state(false);
-
-	let filteredSalespersons = $derived(
-		salespersons.filter((item) => {
-			const matchesSearch = matchesSearchQuery(item, searchTerm);
-
-			return matchesSearch;
-		})
-	);
 </script>
 
 <svelte:head>
@@ -44,23 +32,7 @@
 	/>
 
 	<!-- Search & Filters -->
-	<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
-		<div class="space-y-3">
-			<Search
-				value={searchTerm}
-				bind:isLoading={isSearching}
-				onChange={(val) => (searchTerm = val)}
-			/>
-
-			<div class="flex items-center justify-between">
-				<div class="flex gap-2"></div>
-
-				<span class="text-xs font-medium text-muted-foreground">
-					Salepersons: {filteredSalespersons.length}
-				</span>
-			</div>
-		</div>
-
+	<div class="space-y-4 rounded-xl border bg-card shadow-sm">
 		<!-- Table Container -->
 		<div>
 			{#if isSearching}
@@ -69,14 +41,7 @@
 					<div class="text-muted-foreground">Loading Salepersons...</div>
 				</div>
 			{:else}
-				<Separator class="mb-4" />
-				{#if searchTerm}
-					<div class="mb-2 text-sm text-muted-foreground">
-						Showing results for <b>"{searchTerm}"</b> ({filteredSalespersons.length} found)
-					</div>
-				{/if}
-
-				<SalepersonsTable {filteredSalespersons} />
+				<DataTable data={salespersons} columns={SalepersonColumns} />
 			{/if}
 		</div>
 	</div>

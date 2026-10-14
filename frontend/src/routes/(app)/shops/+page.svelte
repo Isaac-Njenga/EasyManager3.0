@@ -129,7 +129,6 @@
 		</div>
 	</div>
 
-	<!-- Search & Filters -->
 	<div class="space-y-4 rounded-xl border bg-card shadow-sm">
 		<div>
 			{#if isSearching}
