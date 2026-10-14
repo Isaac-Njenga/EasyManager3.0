@@ -4,7 +4,7 @@
 	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import * as Tabs from '$lib/components/ui/tabs/index.js';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
-	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
+	// import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
 	import ExpensesTable from '$lib/components/modules/expenses/expenses.table.svelte';
 	import SalesExpenseProgression from '$lib/components/modules/dashboard/SalesExpenseProgression.svelte';
 	import { formatCurrency } from '$lib/utils';
@@ -24,6 +24,8 @@
 	import type { WebProduct } from '$lib/services/website/website.types';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
+	import DataTable from '$lib/components/modules/sales/sale-table/sale.table.svelte';
+	import { SaleColumns } from '$lib/components/modules/sales/sale-table/sale.columns';
 
 	let { data }: PageProps = $props();
 
@@ -348,7 +350,7 @@
 	<!-- <SalesExpenseProgression {sales} {expenses} /> -->
 
 	<!-- Main Detail Tabs -->
-	<div class="grid gap-2 sm:grid-cols-2 lg:grid-cols-2">
+	<div class="grid gap-2 sm:grid-cols-1 lg:grid-cols-1">
 		<div>
 			<SalesExpenseProgression sales={filteredSales} expenses={filteredExpenses} />
 		</div>
@@ -360,7 +362,8 @@
 				</Tabs.List>
 
 				<Tabs.Content value="sales" class="mt-2">
-					<SalesTable {filteredSales} />
+					<!-- <SalesTable {filteredSales} /> -->
+					<DataTable data={filteredSales} columns={SaleColumns} showSearch={false} />
 				</Tabs.Content>
 
 				<Tabs.Content value="expenses" class="mt-6">

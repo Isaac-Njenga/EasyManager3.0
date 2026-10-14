@@ -9,7 +9,8 @@
 	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import Search from '$lib/components/common/Search.svelte';
-	import SalesTable from '$lib/components/modules/sales/sales.table.svelte';
+	import DataTable from '$lib/components/modules/sales/sale-table/sale.table.svelte';
+	import { SaleColumns } from '$lib/components/modules/sales/sale-table/sale.columns';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import type { PageProps } from './$types';
 	import { toast } from 'svelte-sonner';
@@ -215,15 +216,15 @@
 			{#if filteredSales.length === 0}
 				<p class="py-8 text-center text-xs text-muted-foreground">No sales found.</p>
 			{:else}
-				<SalesTable {filteredSales} />
+				<DataTable data={filteredSales} columns={SaleColumns} showSearch={true} />
 			{/if}
 		{/if}
 	{/if}
 
 	<!-- 3. Drill-down Table for Selected Day -->
 	{#if activeDayData}
-		<div class="space-y-4 rounded-lg border bg-card p-4 shadow-sm">
-			<div class="flex items-center justify-between border-b pb-3">
+		<div class="space-y-4 rounded-lg border bg-card p-2 shadow-sm">
+			<div class="flex items-center justify-between border-b pb-2">
 				<div>
 					<h3 class="text-sm font-bold">
 						Sales for {activeDayData.dayName}, {activeDayData.displayDate}
@@ -239,7 +240,7 @@
 				<p class="py-8 text-center text-xs text-muted-foreground">No sales recorded on this day.</p>
 			{:else}
 				<div class="overflow-x-auto">
-					<SalesTable filteredSales={activeDayData.sales} />
+					<DataTable data={activeDayData.sales} columns={SaleColumns} showSearch={true} />
 				</div>
 			{/if}
 		</div>
