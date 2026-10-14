@@ -79,29 +79,32 @@
 				? group.items.filter((item) => item.href === '/sales')
 				: group.items}
 			{#if visibleItems.length > 0}
-			<SidebarGroup>
-				<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
+				<SidebarGroup>
+					<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
 
-				<SidebarGroupContent>
-					<SidebarMenu>
-						{#each visibleItems as item (item.href)}
-							{@const href = resolve(isSalesperson ? '/sales/new' : item.href)}
-							{@const isActive =
-								page.url.pathname === href}
+					<SidebarGroupContent>
+						<SidebarMenu>
+							{#each visibleItems as item (item.href)}
+								<!-- eslint-disable-next-line -->
+								{@const href = resolve(isSalesperson ? '/sales/new' : item.href)}
+								{@const isActive = page.url.pathname === href}
 
-							<SidebarMenuItem>
-								<SidebarMenuButton {isActive} tooltipContent={isSalesperson ? 'Record Sale' : item.title}>
-									{#snippet child({ props })}
-										<a {href} {...props}>
-											<item.icon class="size-4 shrink-0" />
-											<span>{isSalesperson ? 'Record Sale' : item.title}</span>
-										</a>
-									{/snippet}
-								</SidebarMenuButton>
-							</SidebarMenuItem>
-						{/each}
-					</SidebarMenu>
-				</SidebarGroupContent>
+								<SidebarMenuItem>
+									<SidebarMenuButton
+										{isActive}
+										tooltipContent={isSalesperson ? 'Record Sale' : item.title}
+									>
+										{#snippet child({ props })}
+											<a {href} {...props}>
+												<item.icon class="size-4 shrink-0" />
+												<span>{isSalesperson ? 'Record Sale' : item.title}</span>
+											</a>
+										{/snippet}
+									</SidebarMenuButton>
+								</SidebarMenuItem>
+							{/each}
+						</SidebarMenu>
+					</SidebarGroupContent>
 				</SidebarGroup>
 			{/if}
 		{/each}

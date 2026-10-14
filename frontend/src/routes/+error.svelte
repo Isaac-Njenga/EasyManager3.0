@@ -1,14 +1,13 @@
 <script lang="ts">
 	import { browser } from '$app/environment';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 	import ArrowLeftIcon from '@lucide/svelte/icons/arrow-left';
 	import HomeIcon from '@lucide/svelte/icons/house';
 	import RefreshCwIcon from '@lucide/svelte/icons/refresh-cw';
 	import TriangleAlertIcon from '@lucide/svelte/icons/triangle-alert';
 
-	let { error, status } = $props();
-
-	const isNotFound = $derived(status === 404);
+	const isNotFound = $derived(page.status === 404);
 	const title = $derived(isNotFound ? 'Page not found' : 'Something went wrong');
 	const description = $derived(
 		isNotFound
@@ -16,7 +15,9 @@
 			: 'We could not complete that request. Please try again or return to your dashboard.'
 	);
 	const errorMessage = $derived(
-		!isNotFound && error?.message && error.message !== 'Internal Error' ? error.message : ''
+		!isNotFound && page.error?.message && page.error.message !== 'Internal Error'
+			? page.error.message
+			: ''
 	);
 
 	function goBack() {
@@ -29,7 +30,7 @@
 </script>
 
 <svelte:head>
-	<title>{status} | EasyManager</title>
+	<title>{page.status} | EasyManager</title>
 	<meta name="description" content={description} />
 </svelte:head>
 
@@ -55,7 +56,9 @@
 			{/if}
 		</div>
 
-		<p class="mb-3 text-sm font-semibold tracking-[0.2em] text-primary uppercase">Error {status}</p>
+		<p class="mb-3 text-sm font-semibold tracking-[0.2em] text-primary uppercase">
+			Error {page.status}
+		</p>
 		<h1 class="text-4xl font-semibold tracking-tight text-foreground sm:text-5xl">{title}</h1>
 		<p class="mx-auto mt-5 max-w-md text-base leading-7 text-muted-foreground">{description}</p>
 

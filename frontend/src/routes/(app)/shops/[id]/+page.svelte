@@ -14,10 +14,10 @@
 	import Boxes from '@lucide/svelte/icons/boxes';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import { toast } from 'svelte-sonner';
+	import { ProductColumns } from '$lib/components/modules/products/product-table/product.columns';
+	import DataTable from '$lib/components/modules/products/product-table/product.table.svelte';
 
 	import LogFooter from '$lib/components/common/LogFooter.svelte';
-	import ProductsTable from '$lib/components/modules/products/products.table.svelte';
-	import Search from '$lib/components/common/Search.svelte';
 	import type { PageProps } from './$types';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import { Button, buttonVariants } from '$lib/components/ui/button';
@@ -179,14 +179,14 @@
 		</div>
 
 		<!-- Inventory Products Section -->
-		<div class="space-y-4 rounded-xl border bg-card p-5 shadow-sm">
+		<div class="space-y-4 rounded-xl border bg-card p-2 shadow-sm">
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-4 py-8">
 					<Loader2Icon class="size-5 animate-spin text-primary" />
 					<div class="text-muted-foreground">Loading shops...</div>
 				</div>
 			{:else}
-				<div class="flex items-center justify-between">
+				<div class="flex items-center justify-between p-2 pb-0">
 					<div>
 						<h3
 							class="flex items-center gap-2 text-xs font-bold tracking-wider text-muted-foreground uppercase"
@@ -218,23 +218,8 @@
 				</div>
 				<Separator />
 
-				{#if searchTerm}
-					<div class="mb-2 text-sm text-muted-foreground">
-						Showing results for <b>"{searchTerm}"</b> ({filteredInventory.length} found)
-					</div>
-				{/if}
-				<div class="space-y-3">
-					<Search
-						value={searchTerm}
-						bind:isLoading={isSearching}
-						onChange={(val) => (searchTerm = val)}
-					/>
-				</div>
 				{#if populatedProducts.length > 0}
-					<ProductsTable
-						filteredProducts={filteredInventory}
-						// shopId={selectedShop._id}
-					/>
+					<DataTable data={filteredInventory} columns={ProductColumns} />
 				{:else}
 					<div class="py-8 text-center text-xs text-muted-foreground">
 						No detailed product records loaded for this shop.
