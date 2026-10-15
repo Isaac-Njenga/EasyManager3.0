@@ -314,7 +314,7 @@
 			<Button
 				size="xs"
 				variant="default"
-				disabled={transferStore.items.length === 0 || isSubmitting}
+				disabled={!transferStore.canSubmit || isSubmitting}
 				onclick={executeTransferAction}
 				>{#if isSubmitting}
 					<Loader2Icon class="size-4 animate-spin" /> Transferring...

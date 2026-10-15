@@ -26,6 +26,22 @@ class TransferStore {
 	sourceId = $state('');
 	destinationId = $state('');
 	items = $state<Product[]>([]);
+	resetVersion = $state(0);
+
+	get canSubmit(): boolean {
+		return Boolean(
+			this.sourceId &&
+			this.destinationId &&
+			this.sourceId !== this.destinationId &&
+			this.items.length > 0 &&
+			this.items.every(
+				(item) =>
+					Number.isInteger(item.totalQuantity) &&
+					item.totalQuantity > 0 &&
+					item.totalQuantity <= this.getSourceQuantity(item._id)
+			)
+		);
+	}
 
 	setLocations(locations: TransferLocationOption[]) {
 		transferLocations.splice(0, transferLocations.length, ...locations);
@@ -173,6 +189,7 @@ class TransferStore {
 		this.items = [];
 		this.sourceId = '';
 		this.destinationId = '';
+		this.resetVersion += 1;
 	}
 }
 

@@ -19,10 +19,19 @@
 	let quantities = $state<Record<string, string>>({});
 	let savingProductId = $state('');
 
+	const uniqueProducts = $derived(
+		Array.from(
+			products
+				.reduce((unique, product) => unique.set(product._id, product), new Map<string, Product>())
+				.values()
+		)
+	);
+
 	const rows = $derived(
-		products
+		uniqueProducts
 			.map((product) => {
 				const record = inventoryItems.find((entry) => {
+					if (!entry?.product) return false;
 					const value = entry.product;
 					return String(typeof value === 'object' ? value._id : value) === product._id;
 				});
@@ -65,13 +74,13 @@
 			<Input
 				id="stock-search"
 				bind:value={searchTerm}
-				placeholder="Find a product by name or code"
+				placeholder="Search..."
 			/>
 		</div>
 	</div>
 
-	<div class="max-h-[28rem] overflow-auto rounded-md border">
-		<table class="w-full min-w-[36rem] text-left text-sm">
+	<div class="max-h-112 overflow-auto rounded-md border">
+		<table class="w-full min-w-xl text-left text-sm">
 			<thead class="sticky top-0 bg-muted text-xs text-muted-foreground">
 				<tr>
 					<th class="px-3 py-2">Product</th>
@@ -84,8 +93,8 @@
 				{#each rows as row (row.product._id)}
 					<tr>
 						<td class="px-3 py-2">
-							<div class="font-medium">{row.product.name}</div>
-							<div class="text-xs text-muted-foreground">{row.product.code}</div>
+							<div class="font-medium uppercase">{row.product.name}</div>
+							<div class="text-xs text-muted-foreground uppercase">Code: {row.product.code}</div>
 							{#if Number(quantities[row.product._id]) !== row.currentQuantity}
 								<div class="mt-1 text-xs text-muted-foreground">
 									Total after save: {row.product.totalQuantity +

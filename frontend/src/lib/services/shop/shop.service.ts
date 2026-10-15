@@ -14,6 +14,24 @@ export const shopService = {
 		return response.shops ?? [];
 	},
 
+	async fetchAll(context: ServiceContext): Promise<Shop[]> {
+		const pageSize = 100;
+		const firstPage = await apiClient.get<ShopListResponse>(
+			`/shop/get-shops?page=1&limit=${pageSize}`,
+			context
+		);
+		const pages = await Promise.all(
+			Array.from({ length: Math.max(0, firstPage.totalPages - 1) }, (_, index) =>
+				apiClient.get<ShopListResponse>(
+					`/shop/get-shops?page=${index + 2}&limit=${pageSize}`,
+					context
+				)
+			)
+		);
+		const shops = [...(firstPage.shops ?? []), ...pages.flatMap((page) => page.shops ?? [])];
+		return [...new Map(shops.map((shop) => [shop._id, shop])).values()];
+	},
+
 	async get(context: ServiceContext, id: string): Promise<Shop> {
 		return apiClient.get<Shop>(`/shop/get-shop/${id}`, context);
 	},

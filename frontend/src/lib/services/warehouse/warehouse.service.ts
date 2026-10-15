@@ -17,6 +17,27 @@ export const warehouseService = {
 		return response.warehouses ?? [];
 	},
 
+	async fetchAll(context: ServiceContext): Promise<Warehouse[]> {
+		const pageSize = 100;
+		const firstPage = await apiClient.get<WarehouseListResponse>(
+			`/warehouse/get-warehouses?page=1&limit=${pageSize}`,
+			context
+		);
+		const pages = await Promise.all(
+			Array.from({ length: Math.max(0, firstPage.totalPages - 1) }, (_, index) =>
+				apiClient.get<WarehouseListResponse>(
+					`/warehouse/get-warehouses?page=${index + 2}&limit=${pageSize}`,
+					context
+				)
+			)
+		);
+		const warehouses = [
+			...(firstPage.warehouses ?? []),
+			...pages.flatMap((page) => page.warehouses ?? [])
+		];
+		return [...new Map(warehouses.map((warehouse) => [warehouse._id, warehouse])).values()];
+	},
+
 	async get(context: ServiceContext, id: string): Promise<Warehouse> {
 		return apiClient.get<Warehouse>(`/warehouse/get-warehouse/${id}`, context);
 	},
