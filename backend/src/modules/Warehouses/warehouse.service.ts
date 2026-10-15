@@ -19,6 +19,7 @@ import {
 } from "../../utils/stock";
 import { calculateInventorySummary } from "../../utils/inventorySummary";
 import { invalidateProductCache } from "../Products/product.service";
+import { hydrateInventoryProductLocations } from "../Products/product-location-hydration";
 
 const warehouseCache = new NodeCache({ stdTTL: 300 });
 
@@ -100,12 +101,16 @@ export class WarehouseService {
 
     await warehouseDoc.save();
 
-    const savedWarehouse = await WarehouseModel.findById(
-      warehouseDoc._id,
-    ).lean();
+    const savedWarehouse = await WarehouseModel.findById(warehouseDoc._id)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
     invalidateWarehouseCache();
 
-    return toWarehouse(savedWarehouse ?? warehouseDoc.toObject());
+    return toWarehouse(
+      await hydrateInventoryProductLocations(
+        savedWarehouse ?? warehouseDoc.toObject(),
+      ),
+    );
   }
 
   // Pure service method decoupled from Express Request
@@ -121,7 +126,12 @@ export class WarehouseService {
 
     const cachedData = warehouseCache.get<WarehouseListResponse>(cacheKey);
     if (cachedData) {
-      return cachedData;
+      return {
+        ...cachedData,
+        warehouses: await Promise.all(
+          (cachedData.warehouses ?? []).map(hydrateInventoryProductLocations),
+        ),
+      };
     }
 
     // Build dynamic MongoDB filter query
@@ -147,7 +157,9 @@ export class WarehouseService {
     ]);
 
     const responseData: WarehouseListResponse = {
-      warehouses: warehouses as unknown as Warehouse[],
+      warehouses: (await Promise.all(
+        warehouses.map(hydrateInventoryProductLocations),
+      )) as unknown as Warehouse[],
       totalWarehouses: totalWarehouses,
       currentPage: page,
       totalPages: Math.ceil(totalWarehouses / limit) || 1,
@@ -166,7 +178,9 @@ export class WarehouseService {
 
     const cacheKey = `warehouse_detail_${warehouseId}`;
     const cachedWarehouse = warehouseCache.get<Warehouse>(cacheKey);
-    if (cachedWarehouse) return cachedWarehouse;
+    if (cachedWarehouse) {
+      return hydrateInventoryProductLocations(cachedWarehouse);
+    }
 
     const warehouse = await WarehouseModel.findById(warehouseId)
       .populate(PRODUCT_PROFILE_POPULATE)
@@ -175,7 +189,9 @@ export class WarehouseService {
       throw new NotFoundError("Warehouse not found!");
     }
 
-    const result = toWarehouse(warehouse);
+    const result = toWarehouse(
+      await hydrateInventoryProductLocations(warehouse),
+    );
     warehouseCache.set(cacheKey, result);
     return result;
   }
@@ -213,7 +229,7 @@ export class WarehouseService {
     }
 
     invalidateWarehouseCache();
-    return toWarehouse(warehouse);
+    return toWarehouse(await hydrateInventoryProductLocations(warehouse));
   }
 
   static async distributeInventory(
@@ -236,7 +252,7 @@ export class WarehouseService {
       .lean();
 
     invalidateWarehouseCache();
-    return toWarehouse(finalWarehouse);
+    return toWarehouse(await hydrateInventoryProductLocations(finalWarehouse));
   }
 
   static async adjustInventory(
@@ -253,9 +269,11 @@ export class WarehouseService {
     invalidateProductCache();
     invalidateWarehouseCache();
     return toWarehouse(
-      await WarehouseModel.findById(warehouseId)
-        .populate(PRODUCT_PROFILE_POPULATE)
-        .lean(),
+      await hydrateInventoryProductLocations(
+        await WarehouseModel.findById(warehouseId)
+          .populate(PRODUCT_PROFILE_POPULATE)
+          .lean(),
+      ),
     );
   }
 
@@ -274,6 +292,6 @@ export class WarehouseService {
     }
 
     invalidateWarehouseCache();
-    return toWarehouse(warehouse);
+    return toWarehouse(await hydrateInventoryProductLocations(warehouse));
   }
 }

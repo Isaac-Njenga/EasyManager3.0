@@ -19,6 +19,7 @@ import {
 } from "../../utils/stock";
 import { calculateInventorySummary } from "../../utils/inventorySummary";
 import { invalidateProductCache } from "../Products/product.service";
+import { hydrateInventoryProductLocations } from "../Products/product-location-hydration";
 
 const shopCache = new NodeCache({ stdTTL: 300 });
 
@@ -101,10 +102,14 @@ export class ShopService {
 
     await shopDoc.save();
 
-    const savedShop = await ShopModel.findById(shopDoc._id).lean();
+    const savedShop = await ShopModel.findById(shopDoc._id)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
     invalidateShopCache();
 
-    return toShop(savedShop ?? shopDoc.toObject());
+    return toShop(
+      await hydrateInventoryProductLocations(savedShop ?? shopDoc.toObject()),
+    );
   }
 
   // Pure service method decoupled from Express Request
@@ -120,7 +125,12 @@ export class ShopService {
 
     const cachedData = shopCache.get<ShopListResponse>(cacheKey);
     if (cachedData) {
-      return cachedData;
+      return {
+        ...cachedData,
+        shops: await Promise.all(
+          (cachedData.shops ?? []).map(hydrateInventoryProductLocations),
+        ),
+      };
     }
 
     // Build dynamic MongoDB filter query
@@ -147,7 +157,9 @@ export class ShopService {
     ]);
 
     const responseData: ShopListResponse = {
-      shops: shops as unknown as Shop[],
+      shops: (await Promise.all(
+        shops.map(hydrateInventoryProductLocations),
+      )) as unknown as Shop[],
       totalShops,
       currentPage: page,
       totalPages: Math.ceil(totalShops / limit) || 1,
@@ -166,7 +178,7 @@ export class ShopService {
 
     const cacheKey = `shop_detail_${shopId}`;
     const cachedShop = shopCache.get<Shop>(cacheKey);
-    if (cachedShop) return cachedShop;
+    if (cachedShop) return hydrateInventoryProductLocations(cachedShop);
 
     const shop = await ShopModel.findById(shopId)
       .populate(PRODUCT_PROFILE_POPULATE)
@@ -175,7 +187,7 @@ export class ShopService {
       throw new NotFoundError("Shop not found!");
     }
 
-    const result = toShop(shop);
+    const result = toShop(await hydrateInventoryProductLocations(shop));
     shopCache.set(cacheKey, result);
     return result;
   }
@@ -213,7 +225,7 @@ export class ShopService {
     }
 
     invalidateShopCache();
-    return toShop(shop);
+    return toShop(await hydrateInventoryProductLocations(shop));
   }
 
   static async distributeInventory(
@@ -238,7 +250,7 @@ export class ShopService {
     if (!shop) throw new NotFoundError("Shop not found!");
 
     invalidateShopCache();
-    return toShop(shop);
+    return toShop(await hydrateInventoryProductLocations(shop));
   }
 
   static async adjustInventory(
@@ -258,7 +270,7 @@ export class ShopService {
       .populate(PRODUCT_PROFILE_POPULATE)
       .lean();
     if (!shop) throw new NotFoundError("Shop not found!");
-    return toShop(shop);
+    return toShop(await hydrateInventoryProductLocations(shop));
   }
 
   static async deleteShop(
@@ -274,6 +286,6 @@ export class ShopService {
     }
 
     invalidateShopCache();
-    return toShop(shop);
+    return toShop(await hydrateInventoryProductLocations(shop));
   }
 }

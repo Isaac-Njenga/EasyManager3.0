@@ -13,6 +13,7 @@ const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
 const inventorySummary_1 = require("../../utils/inventorySummary");
 const product_service_1 = require("../Products/product.service");
+const product_location_hydration_1 = require("../Products/product-location-hydration");
 const warehouseCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateWarehouseCache = () => {
     warehouseCache.flushAll();
@@ -64,9 +65,11 @@ class WarehouseService {
         const createData = sanitizeCreateData(data, requesterRole);
         const warehouseDoc = new warehouse_model_1.WarehouseModel(createData);
         await warehouseDoc.save();
-        const savedWarehouse = await warehouse_model_1.WarehouseModel.findById(warehouseDoc._id).lean();
+        const savedWarehouse = await warehouse_model_1.WarehouseModel.findById(warehouseDoc._id)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         (0, exports.invalidateWarehouseCache)();
-        return toWarehouse(savedWarehouse ?? warehouseDoc.toObject());
+        return toWarehouse(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(savedWarehouse ?? warehouseDoc.toObject()));
     }
     // Pure service method decoupled from Express Request
     static async fetchWarehouses(queryParams) {
@@ -77,7 +80,10 @@ class WarehouseService {
         const cacheKey = `warehouses_p${page}_l${limit}_s${search || ""}_st${status || ""}`;
         const cachedData = warehouseCache.get(cacheKey);
         if (cachedData) {
-            return cachedData;
+            return {
+                ...cachedData,
+                warehouses: await Promise.all((cachedData.warehouses ?? []).map(product_location_hydration_1.hydrateInventoryProductLocations)),
+            };
         }
         // Build dynamic MongoDB filter query
         const filter = {};
@@ -100,7 +106,7 @@ class WarehouseService {
             warehouse_model_1.WarehouseModel.countDocuments(filter),
         ]);
         const responseData = {
-            warehouses: warehouses,
+            warehouses: (await Promise.all(warehouses.map(product_location_hydration_1.hydrateInventoryProductLocations))),
             totalWarehouses: totalWarehouses,
             currentPage: page,
             totalPages: Math.ceil(totalWarehouses / limit) || 1,
@@ -112,15 +118,16 @@ class WarehouseService {
         assertWarehouseId(warehouseId);
         const cacheKey = `warehouse_detail_${warehouseId}`;
         const cachedWarehouse = warehouseCache.get(cacheKey);
-        if (cachedWarehouse)
-            return cachedWarehouse;
+        if (cachedWarehouse) {
+            return (0, product_location_hydration_1.hydrateInventoryProductLocations)(cachedWarehouse);
+        }
         const warehouse = await warehouse_model_1.WarehouseModel.findById(warehouseId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
         if (!warehouse) {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
-        const result = toWarehouse(warehouse);
+        const result = toWarehouse(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(warehouse));
         warehouseCache.set(cacheKey, result);
         return result;
     }
@@ -141,7 +148,7 @@ class WarehouseService {
             warehouse.inventorySummary = inventorySummary;
         }
         (0, exports.invalidateWarehouseCache)();
-        return toWarehouse(warehouse);
+        return toWarehouse(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(warehouse));
     }
     static async distributeInventory(warehouseId, data) {
         assertWarehouseId(warehouseId);
@@ -156,16 +163,16 @@ class WarehouseService {
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
         (0, exports.invalidateWarehouseCache)();
-        return toWarehouse(finalWarehouse);
+        return toWarehouse(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(finalWarehouse));
     }
     static async adjustInventory(warehouseId, data) {
         assertWarehouseId(warehouseId);
         await (0, stock_1.setLocationProductQuantity)("Warehouse", warehouseId, data.product, data.quantity);
         (0, product_service_1.invalidateProductCache)();
         (0, exports.invalidateWarehouseCache)();
-        return toWarehouse(await warehouse_model_1.WarehouseModel.findById(warehouseId)
+        return toWarehouse(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(await warehouse_model_1.WarehouseModel.findById(warehouseId)
             .populate(PRODUCT_PROFILE_POPULATE)
-            .lean());
+            .lean()));
     }
     static async deleteWarehouse(warehouseId, requesterId, requesterRole) {
         assertWarehouseId(warehouseId);
@@ -176,7 +183,7 @@ class WarehouseService {
             throw new NotFoundError_1.NotFoundError("Warehouse not found!");
         }
         (0, exports.invalidateWarehouseCache)();
-        return toWarehouse(warehouse);
+        return toWarehouse(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(warehouse));
     }
 }
 exports.WarehouseService = WarehouseService;

@@ -95,6 +95,7 @@
 		const productsById = new SvelteMap<string, Product & { sourceQuantity: number }>();
 
 		for (const entry of sourceInventory) {
+			if (!entry?.product) continue;
 			const productId =
 				typeof entry.product === 'object' ? entry.product?._id : String(entry.product);
 			const product =
@@ -132,6 +133,7 @@
 		productId: string
 	) {
 		return location?.inventoryItems?.find((entry) => {
+			if (!entry?.product) return false;
 			const product = entry.product;
 			return String(typeof product === 'object' ? product._id : product) === productId;
 		});

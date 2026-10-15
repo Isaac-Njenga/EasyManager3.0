@@ -290,8 +290,8 @@
 
 							<tr class="transition-colors hover:bg-muted/30">
 								<td class="px-4 py-3">
-									<div class="font-medium text-foreground">{item.product.name}</div>
-									<div class="text-xs text-muted-foreground">
+									<div class="font-medium text-foreground uppercase">{item.product.name}</div>
+									<div class="text-xs text-muted-foreground uppercase">
 										Code: {item.product.code || 'N/A'}
 									</div>
 								</td>

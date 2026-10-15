@@ -50,8 +50,9 @@ class TransferStore {
 	getSourceQuantity(productId: string): number {
 		const source = transferLocations.find((location) => location.locationId === this.sourceId);
 		const item = source?.inventoryItems?.find((entry) => {
+			if (!entry?.product) return false;
 			const product = entry.product;
-			return (typeof product === 'object' ? product._id : product) === productId;
+			return String(typeof product === 'object' ? product._id : product) === productId;
 		});
 		return item?.quantity ?? 0;
 	}

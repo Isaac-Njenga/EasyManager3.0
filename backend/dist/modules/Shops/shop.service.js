@@ -13,6 +13,7 @@ const flattenObject_1 = require("../../utils/flattenObject");
 const stock_1 = require("../../utils/stock");
 const inventorySummary_1 = require("../../utils/inventorySummary");
 const product_service_1 = require("../Products/product.service");
+const product_location_hydration_1 = require("../Products/product-location-hydration");
 const shopCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateShopCache = () => {
     shopCache.flushAll();
@@ -64,9 +65,11 @@ class ShopService {
         const createData = sanitizeCreateData(data, requesterRole);
         const shopDoc = new shop_model_1.ShopModel(createData);
         await shopDoc.save();
-        const savedShop = await shop_model_1.ShopModel.findById(shopDoc._id).lean();
+        const savedShop = await shop_model_1.ShopModel.findById(shopDoc._id)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
         (0, exports.invalidateShopCache)();
-        return toShop(savedShop ?? shopDoc.toObject());
+        return toShop(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(savedShop ?? shopDoc.toObject()));
     }
     // Pure service method decoupled from Express Request
     static async fetchShops(queryParams) {
@@ -77,7 +80,10 @@ class ShopService {
         const cacheKey = `shops_p${page}_l${limit}_s${search || ""}_st${status || ""}_t${type || ""}`;
         const cachedData = shopCache.get(cacheKey);
         if (cachedData) {
-            return cachedData;
+            return {
+                ...cachedData,
+                shops: await Promise.all((cachedData.shops ?? []).map(product_location_hydration_1.hydrateInventoryProductLocations)),
+            };
         }
         // Build dynamic MongoDB filter query
         const filter = {};
@@ -102,7 +108,7 @@ class ShopService {
             shop_model_1.ShopModel.countDocuments(filter),
         ]);
         const responseData = {
-            shops: shops,
+            shops: (await Promise.all(shops.map(product_location_hydration_1.hydrateInventoryProductLocations))),
             totalShops,
             currentPage: page,
             totalPages: Math.ceil(totalShops / limit) || 1,
@@ -115,14 +121,14 @@ class ShopService {
         const cacheKey = `shop_detail_${shopId}`;
         const cachedShop = shopCache.get(cacheKey);
         if (cachedShop)
-            return cachedShop;
+            return (0, product_location_hydration_1.hydrateInventoryProductLocations)(cachedShop);
         const shop = await shop_model_1.ShopModel.findById(shopId)
             .populate(PRODUCT_PROFILE_POPULATE)
             .lean();
         if (!shop) {
             throw new NotFoundError_1.NotFoundError("Shop not found!");
         }
-        const result = toShop(shop);
+        const result = toShop(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(shop));
         shopCache.set(cacheKey, result);
         return result;
     }
@@ -143,7 +149,7 @@ class ShopService {
             shop.inventorySummary = inventorySummary;
         }
         (0, exports.invalidateShopCache)();
-        return toShop(shop);
+        return toShop(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(shop));
     }
     static async distributeInventory(shopId, data) {
         assertShopId(shopId);
@@ -160,7 +166,7 @@ class ShopService {
         if (!shop)
             throw new NotFoundError_1.NotFoundError("Shop not found!");
         (0, exports.invalidateShopCache)();
-        return toShop(shop);
+        return toShop(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(shop));
     }
     static async adjustInventory(shopId, data) {
         assertShopId(shopId);
@@ -172,7 +178,7 @@ class ShopService {
             .lean();
         if (!shop)
             throw new NotFoundError_1.NotFoundError("Shop not found!");
-        return toShop(shop);
+        return toShop(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(shop));
     }
     static async deleteShop(shopId, requesterId, requesterRole) {
         assertShopId(shopId);
@@ -181,7 +187,7 @@ class ShopService {
             throw new NotFoundError_1.NotFoundError("Shop not found!");
         }
         (0, exports.invalidateShopCache)();
-        return toShop(shop);
+        return toShop(await (0, product_location_hydration_1.hydrateInventoryProductLocations)(shop));
     }
 }
 exports.ShopService = ShopService;
