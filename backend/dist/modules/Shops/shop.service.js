@@ -162,6 +162,18 @@ class ShopService {
         (0, exports.invalidateShopCache)();
         return toShop(shop);
     }
+    static async adjustInventory(shopId, data) {
+        assertShopId(shopId);
+        await (0, stock_1.setLocationProductQuantity)("Shop", shopId, data.product, data.quantity);
+        (0, product_service_1.invalidateProductCache)();
+        (0, exports.invalidateShopCache)();
+        const shop = await shop_model_1.ShopModel.findById(shopId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean();
+        if (!shop)
+            throw new NotFoundError_1.NotFoundError("Shop not found!");
+        return toShop(shop);
+    }
     static async deleteShop(shopId, requesterId, requesterRole) {
         assertShopId(shopId);
         const shop = await shop_model_1.ShopModel.findByIdAndDelete(shopId).lean();

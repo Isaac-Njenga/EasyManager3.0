@@ -12,6 +12,7 @@ import {
   ProductListResponse,
 } from "./product.types";
 import { flattenObject } from "../../utils/flattenObject";
+import { invalidateWarehouseCache } from "../Warehouses/warehouse.service";
 
 const productCache = new NodeCache({ stdTTL: 300 });
 
@@ -19,7 +20,8 @@ export const invalidateProductCache = (): void => {
   productCache.flushAll();
 };
 
-const LOCATION_PROFILE_SELECT = "_id name status type address warehouseCode shopCode";
+const LOCATION_PROFILE_SELECT =
+  "_id name status type address warehouseCode shopCode";
 
 const getLocationId = (value: unknown): string => {
   if (value && typeof value === "object" && "_id" in value) {
@@ -31,9 +33,9 @@ const getLocationId = (value: unknown): string => {
 const isPopulatedLocation = (value: unknown): boolean =>
   Boolean(
     value &&
-      typeof value === "object" &&
-      "name" in value &&
-      typeof (value as { name?: unknown }).name === "string",
+    typeof value === "object" &&
+    "name" in value &&
+    typeof (value as { name?: unknown }).name === "string",
   );
 
 /**
@@ -74,7 +76,10 @@ const hydrateLocationRefs = async (product: any): Promise<any> => {
       : [],
   ]);
   const locations = new Map(
-    [...warehouses, ...shops].map((location) => [String(location._id), location]),
+    [...warehouses, ...shops].map((location) => [
+      String(location._id),
+      location,
+    ]),
   );
 
   for (const distribution of distributions) {
@@ -160,12 +165,45 @@ export class ProductService {
     requesterRole: string,
   ): Promise<Product> {
     const createData = sanitizeCreateData(data, requesterRole);
-    const productDoc = new ProductModel(createData);
+    const warehouses = await WarehouseModel.find({}).select(
+      "_id inventoryItems",
+    );
+    const productDoc = new ProductModel({
+      ...createData,
+      totalQuantity: 0,
+      inventoryDistribution: warehouses.map((warehouse) => ({
+        locationType: "Warehouse",
+        locationId: warehouse._id,
+        quantity: 0,
+      })),
+    });
 
     await productDoc.save();
 
+    try {
+      for (const warehouse of warehouses) {
+        const exists = warehouse.inventoryItems?.some(
+          (item: any) => getLocationId(item.product) === String(productDoc._id),
+        );
+        if (exists) continue;
+        warehouse.inventoryItems = [
+          ...(warehouse.inventoryItems ?? []),
+          { product: productDoc._id, quantity: 0 },
+        ] as any;
+        await warehouse.save();
+      }
+    } catch (error) {
+      await WarehouseModel.updateMany(
+        { "inventoryItems.product": productDoc._id },
+        { $pull: { inventoryItems: { product: productDoc._id } } },
+      );
+      await ProductModel.findByIdAndDelete(productDoc._id);
+      throw error;
+    }
+
     const savedProduct = await ProductModel.findById(productDoc._id).lean();
     invalidateProductCache();
+    invalidateWarehouseCache();
     return toProduct(
       await hydrateLocationRefs(savedProduct ?? productDoc.toObject()),
     );
@@ -212,7 +250,9 @@ export class ProductService {
     ]);
 
     const responseData: ProductListResponse = {
-      products: (await Promise.all(products.map(hydrateLocationRefs))) as Product[],
+      products: (await Promise.all(
+        products.map(hydrateLocationRefs),
+      )) as Product[],
       totalProducts: totalProducts,
       currentPage: page,
       totalPages: Math.ceil(totalProducts / limit),

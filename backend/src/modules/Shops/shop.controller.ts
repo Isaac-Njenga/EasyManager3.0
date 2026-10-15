@@ -8,6 +8,7 @@ import {
   CreateShopDTO,
   ShopDistributionInput,
   UpdateShopDTO,
+  InventoryAdjustmentInput,
 } from "./shop.types";
 
 const getShopIdParam = (id: string | string[] | undefined): string => {
@@ -138,6 +139,32 @@ export const distributeShopInventory = catchAsync(
       success: true,
       data: shop,
       message: "Inventory distributed successfully",
+    });
+  },
+);
+
+export const adjustShopInventory = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const id = getShopIdParam(req.params.id);
+    const shop = await ShopService.adjustInventory(
+      id,
+      req.body as InventoryAdjustmentInput,
+    );
+
+    await createLog({
+      type: "shop",
+      refId: id,
+      action: "updated",
+      title: "Shop stock adjusted",
+      description: `Adjusted product ${req.body.product} to ${req.body.quantity} units`,
+      refModel: "shop",
+      actor: req.user?._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: shop,
+      message: "Shop stock adjusted successfully",
     });
   },
 );

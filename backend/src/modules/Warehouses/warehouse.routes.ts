@@ -7,6 +7,7 @@ import {
   fetchWarehouseById,
   updateWarehouse,
   distributeWarehouseInventory,
+  adjustWarehouseInventory,
   deleteWarehouse,
 } from "./warehouse.controller";
 
@@ -32,6 +33,12 @@ export function WarehouseRouter(): Router {
     protectRoute,
     adminRoute,
     distributeWarehouseInventory,
+  );
+  router.put(
+    "/adjust-inventory/:id",
+    protectRoute,
+    adminRoute,
+    adjustWarehouseInventory,
   );
   router.delete(
     "/delete-warehouse/:id",

@@ -1,5 +1,11 @@
 import { apiClient } from '$lib/services/api/client';
-import type { CreateShopInput, Shop, ShopListResponse, ShopDistributionInput } from './shop.types';
+import type {
+	CreateShopInput,
+	Shop,
+	ShopListResponse,
+	ShopDistributionInput,
+	InventoryAdjustmentInput
+} from './shop.types';
 import type { ServiceContext } from '../api/types';
 
 export const shopService = {
@@ -26,6 +32,14 @@ export const shopService = {
 		input: ShopDistributionInput
 	): Promise<Shop> {
 		return apiClient.put<Shop>(`/shop/distribute-inventory/${id}`, input, context);
+	},
+
+	async adjustInventory(
+		context: ServiceContext,
+		id: string,
+		input: InventoryAdjustmentInput
+	): Promise<Shop> {
+		return apiClient.put<Shop>(`/shop/adjust-inventory/${id}`, input, context);
 	},
 
 	async delete(context: ServiceContext, id: string): Promise<void> {

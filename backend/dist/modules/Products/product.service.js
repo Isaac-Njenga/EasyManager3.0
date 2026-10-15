@@ -12,6 +12,7 @@ const product_model_1 = require("./product.model");
 const shop_model_1 = require("../Shops/shop.model");
 const warehouse_model_1 = require("../Warehouses/warehouse.model");
 const flattenObject_1 = require("../../utils/flattenObject");
+const warehouse_service_1 = require("../Warehouses/warehouse.service");
 const productCache = new node_cache_1.default({ stdTTL: 300 });
 const invalidateProductCache = () => {
     productCache.flushAll();
@@ -57,7 +58,10 @@ const hydrateLocationRefs = async (product) => {
                 .lean()
             : [],
     ]);
-    const locations = new Map([...warehouses, ...shops].map((location) => [String(location._id), location]));
+    const locations = new Map([...warehouses, ...shops].map((location) => [
+        String(location._id),
+        location,
+    ]));
     for (const distribution of distributions) {
         if (isPopulatedLocation(distribution.locationId))
             continue;
@@ -115,10 +119,37 @@ const sanitizeUpdateData = (data, requesterRole) => {
 class ProductService {
     static async createProduct(data, requesterRole) {
         const createData = sanitizeCreateData(data, requesterRole);
-        const productDoc = new product_model_1.ProductModel(createData);
+        const warehouses = await warehouse_model_1.WarehouseModel.find({}).select("_id inventoryItems");
+        const productDoc = new product_model_1.ProductModel({
+            ...createData,
+            totalQuantity: 0,
+            inventoryDistribution: warehouses.map((warehouse) => ({
+                locationType: "Warehouse",
+                locationId: warehouse._id,
+                quantity: 0,
+            })),
+        });
         await productDoc.save();
+        try {
+            for (const warehouse of warehouses) {
+                const exists = warehouse.inventoryItems?.some((item) => getLocationId(item.product) === String(productDoc._id));
+                if (exists)
+                    continue;
+                warehouse.inventoryItems = [
+                    ...(warehouse.inventoryItems ?? []),
+                    { product: productDoc._id, quantity: 0 },
+                ];
+                await warehouse.save();
+            }
+        }
+        catch (error) {
+            await warehouse_model_1.WarehouseModel.updateMany({ "inventoryItems.product": productDoc._id }, { $pull: { inventoryItems: { product: productDoc._id } } });
+            await product_model_1.ProductModel.findByIdAndDelete(productDoc._id);
+            throw error;
+        }
         const savedProduct = await product_model_1.ProductModel.findById(productDoc._id).lean();
         (0, exports.invalidateProductCache)();
+        (0, warehouse_service_1.invalidateWarehouseCache)();
         return toProduct(await hydrateLocationRefs(savedProduct ?? productDoc.toObject()));
     }
     static async fetchProducts(queryParams) {

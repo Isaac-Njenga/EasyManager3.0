@@ -8,6 +8,7 @@ import {
   CreateWarehouseDTO,
   UpdateWarehouseDTO,
   WarehouseDistributionInput,
+  InventoryAdjustmentInput,
 } from "./warehouse.types";
 
 const getWarehouseIdParam = (id: string | string[] | undefined): string => {
@@ -137,6 +138,32 @@ export const distributeWarehouseInventory = catchAsync(
       success: true,
       data: warehouse,
       message: "Inventory distributed successfully",
+    });
+  },
+);
+
+export const adjustWarehouseInventory = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const id = getWarehouseIdParam(req.params.id);
+    const warehouse = await WarehouseService.adjustInventory(
+      id,
+      req.body as InventoryAdjustmentInput,
+    );
+
+    await createLog({
+      type: "warehouse",
+      refId: id,
+      action: "updated",
+      title: "Warehouse stock adjusted",
+      description: `Adjusted product ${req.body.product} to ${req.body.quantity} units`,
+      refModel: "warehouse",
+      actor: req.user?._id,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: warehouse,
+      message: "Warehouse stock adjusted successfully",
     });
   },
 );

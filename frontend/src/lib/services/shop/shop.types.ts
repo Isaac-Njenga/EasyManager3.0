@@ -58,3 +58,8 @@ type InventoryItem = {
 export interface ShopDistributionInput {
 	inventoryItems: InventoryItem[];
 }
+
+export type InventoryAdjustmentInput = {
+	product: string;
+	quantity: number;
+};

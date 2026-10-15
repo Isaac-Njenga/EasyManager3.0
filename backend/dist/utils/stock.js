@@ -5,6 +5,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.applyProductStockChange = applyProductStockChange;
 exports.applyLocationStockChange = applyLocationStockChange;
+exports.setLocationProductQuantity = setLocationProductQuantity;
 const mongoose_1 = __importDefault(require("mongoose"));
 const BadRequestError_1 = require("../common/errors/BadRequestError");
 const product_model_1 = require("../modules/Products/product.model");
@@ -101,10 +102,78 @@ async function applyLocationStockChange(locationType, locationId, changes, direc
             items.push({ product: new mongoose_1.default.Types.ObjectId(productId), quantity });
         }
     }
-    location.inventoryItems = items.filter((item) => item.quantity > 0);
+    location.inventoryItems = items;
     await location.populate("inventoryItems.product");
     location.inventoryItems = (location.inventoryItems ?? []).filter((item) => item.product != null);
     location.inventorySummary = (0, inventorySummary_1.calculateInventorySummary)(location.inventoryItems);
     await location.save();
+}
+async function setLocationProductQuantity(locationType, locationId, productId, quantity) {
+    if (!mongoose_1.default.Types.ObjectId.isValid(locationId)) {
+        throw new BadRequestError_1.BadRequestError(`Invalid ${locationType} ID format`);
+    }
+    if (!mongoose_1.default.Types.ObjectId.isValid(productId)) {
+        throw new BadRequestError_1.BadRequestError("Invalid Product ID format");
+    }
+    if (!Number.isInteger(quantity) || quantity < 0) {
+        throw new BadRequestError_1.BadRequestError("Stock quantity must be a non-negative integer");
+    }
+    const LocationModel = getLocationModel(locationType);
+    const [location, product] = await Promise.all([
+        LocationModel.findById(locationId),
+        product_model_1.ProductModel.findById(productId),
+    ]);
+    if (!location)
+        throw new BadRequestError_1.BadRequestError(`${locationType} not found`);
+    if (!product)
+        throw new BadRequestError_1.BadRequestError("Product not found");
+    const locationItems = [...(location.inventoryItems ?? [])];
+    const locationItem = locationItems.find((entry) => getObjectIdString(entry.product) === productId);
+    const previousQuantity = locationItem?.quantity ?? 0;
+    const delta = quantity - previousQuantity;
+    if (product.totalQuantity + delta < 0) {
+        throw new BadRequestError_1.BadRequestError("Adjustment would make total product stock negative");
+    }
+    const previousTotalQuantity = product.totalQuantity;
+    const previousDistributions = (product.inventoryDistribution ?? []).map((entry) => ({ ...entry.toObject?.(), ...entry }));
+    const distributions = previousDistributions.map((entry) => ({
+        ...entry,
+    }));
+    const distribution = distributions.find((entry) => getObjectIdString(entry.locationId) === locationId &&
+        entry.locationType === locationType);
+    if (locationItem) {
+        locationItem.quantity = quantity;
+    }
+    else {
+        locationItems.push({
+            product: new mongoose_1.default.Types.ObjectId(productId),
+            quantity,
+        });
+    }
+    if (distribution) {
+        distribution.quantity = quantity;
+    }
+    else {
+        distributions.push({
+            locationType,
+            locationId: new mongoose_1.default.Types.ObjectId(locationId),
+            quantity,
+        });
+    }
+    product.totalQuantity += delta;
+    product.set("inventoryDistribution", distributions);
+    await product.save();
+    try {
+        location.inventoryItems = locationItems;
+        await location.populate("inventoryItems.product");
+        location.inventorySummary = (0, inventorySummary_1.calculateInventorySummary)(location.inventoryItems);
+        await location.save();
+    }
+    catch (error) {
+        product.totalQuantity = previousTotalQuantity;
+        product.set("inventoryDistribution", previousDistributions);
+        await product.save();
+        throw error;
+    }
 }
 //# sourceMappingURL=stock.js.map

@@ -8,6 +8,7 @@ import {
   updateShop,
   deleteShop,
   distributeShopInventory,
+  adjustShopInventory,
 } from "./shop.controller";
 
 export function ShopRouter(): Router {
@@ -22,6 +23,12 @@ export function ShopRouter(): Router {
     protectRoute,
     adminRoute,
     distributeShopInventory,
+  );
+  router.put(
+    "/adjust-inventory/:id",
+    protectRoute,
+    adminRoute,
+    adjustShopInventory,
   );
   router.delete("/delete-shop/:id", protectRoute, adminRoute, deleteShop);
 

@@ -11,6 +11,7 @@ const app = (0, express_1.default)();
 const normalizeOrigin = (origin) => origin.trim().replace(/\/$/, "");
 const allowedOrigins = [
     "http://localhost:5173",
+    // "http://localhost:5174",
     ...env_1.env.FRONTEND_URL.split(","),
     ...env_1.env.WEBSITE_URL.split(","),
 ]

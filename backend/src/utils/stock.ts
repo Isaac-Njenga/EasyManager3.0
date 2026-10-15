@@ -165,7 +165,7 @@ export async function applyLocationStockChange(
     }
   }
 
-  location.inventoryItems = items.filter((item) => item.quantity > 0);
+  location.inventoryItems = items;
   await location.populate("inventoryItems.product");
   location.inventoryItems = (location.inventoryItems ?? []).filter(
     (item) => item.product != null,
@@ -174,4 +174,90 @@ export async function applyLocationStockChange(
     location.inventoryItems as any,
   );
   await location.save();
+}
+
+export async function setLocationProductQuantity(
+  locationType: StockLocationType,
+  locationId: string,
+  productId: string,
+  quantity: number,
+): Promise<void> {
+  if (!mongoose.Types.ObjectId.isValid(locationId)) {
+    throw new BadRequestError(`Invalid ${locationType} ID format`);
+  }
+  if (!mongoose.Types.ObjectId.isValid(productId)) {
+    throw new BadRequestError("Invalid Product ID format");
+  }
+  if (!Number.isInteger(quantity) || quantity < 0) {
+    throw new BadRequestError("Stock quantity must be a non-negative integer");
+  }
+
+  const LocationModel = getLocationModel(locationType) as any;
+  const [location, product] = await Promise.all([
+    LocationModel.findById(locationId),
+    ProductModel.findById(productId),
+  ]);
+  if (!location) throw new BadRequestError(`${locationType} not found`);
+  if (!product) throw new BadRequestError("Product not found");
+
+  const locationItems: any[] = [...(location.inventoryItems ?? [])];
+  const locationItem = locationItems.find(
+    (entry) => getObjectIdString(entry.product) === productId,
+  );
+  const previousQuantity = locationItem?.quantity ?? 0;
+  const delta = quantity - previousQuantity;
+  if (product.totalQuantity + delta < 0) {
+    throw new BadRequestError(
+      "Adjustment would make total product stock negative",
+    );
+  }
+
+  const previousTotalQuantity = product.totalQuantity;
+  const previousDistributions: any[] = (
+    product.inventoryDistribution ?? []
+  ).map((entry: any) => ({ ...entry.toObject?.(), ...entry }));
+  const distributions: any[] = previousDistributions.map((entry) => ({
+    ...entry,
+  }));
+  const distribution = distributions.find(
+    (entry) =>
+      getObjectIdString(entry.locationId) === locationId &&
+      entry.locationType === locationType,
+  );
+
+  if (locationItem) {
+    locationItem.quantity = quantity;
+  } else {
+    locationItems.push({
+      product: new mongoose.Types.ObjectId(productId),
+      quantity,
+    });
+  }
+  if (distribution) {
+    distribution.quantity = quantity;
+  } else {
+    distributions.push({
+      locationType,
+      locationId: new mongoose.Types.ObjectId(locationId),
+      quantity,
+    });
+  }
+
+  product.totalQuantity += delta;
+  product.set("inventoryDistribution", distributions);
+  await product.save();
+
+  try {
+    location.inventoryItems = locationItems;
+    await location.populate("inventoryItems.product");
+    location.inventorySummary = calculateInventorySummary(
+      location.inventoryItems as any,
+    );
+    await location.save();
+  } catch (error) {
+    product.totalQuantity = previousTotalQuantity;
+    product.set("inventoryDistribution", previousDistributions);
+    await product.save();
+    throw error;
+  }
 }

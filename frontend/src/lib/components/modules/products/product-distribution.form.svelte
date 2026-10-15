@@ -48,6 +48,7 @@
 
 		return new Set(
 			selectedLocation.inventoryItems
+				.filter((item) => Number(item.quantity) > 0)
 				.map((item) => {
 					const prod = item?.product;
 					if (!prod) return null;
@@ -61,8 +62,7 @@
 		);
 	});
 
-	// Lazy search trigger (>= 2 characters)
-	const hasMinSearchLength = $derived(searchTerm.trim().length >= 2);
+	const hasMinSearchLength = $derived(searchTerm.trim().length > 0);
 
 	const filteredProducts = $derived(
 		hasMinSearchLength
@@ -91,7 +91,7 @@
 	}
 
 	function handleAddProductToQueue(product: Product) {
-		if (alreadyAssignedProductIds.has(product._id) || queuedItems[product._id]) {
+		if (getStockAtLocation(product) > 0 || queuedItems[product._id]) {
 			return;
 		}
 

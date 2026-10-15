@@ -69,3 +69,8 @@ export interface UpdateShopDTO {
 export interface ShopDistributionInput {
   inventoryItems: Array<{ product: string; quantity: number }>;
 }
+
+export interface InventoryAdjustmentInput {
+  product: string;
+  quantity: number;
+}

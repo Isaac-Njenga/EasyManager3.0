@@ -9,11 +9,13 @@ import {
   Shop,
   ShopListResponse,
   ShopDistributionInput,
+  InventoryAdjustmentInput,
 } from "./shop.types";
 import { flattenObject } from "../../utils/flattenObject";
 import {
   applyLocationStockChange,
   applyProductStockChange,
+  setLocationProductQuantity,
 } from "../../utils/stock";
 import { calculateInventorySummary } from "../../utils/inventorySummary";
 import { invalidateProductCache } from "../Products/product.service";
@@ -236,6 +238,26 @@ export class ShopService {
     if (!shop) throw new NotFoundError("Shop not found!");
 
     invalidateShopCache();
+    return toShop(shop);
+  }
+
+  static async adjustInventory(
+    shopId: string,
+    data: InventoryAdjustmentInput,
+  ): Promise<Shop> {
+    assertShopId(shopId);
+    await setLocationProductQuantity(
+      "Shop",
+      shopId,
+      data.product,
+      data.quantity,
+    );
+    invalidateProductCache();
+    invalidateShopCache();
+    const shop = await ShopModel.findById(shopId)
+      .populate(PRODUCT_PROFILE_POPULATE)
+      .lean();
+    if (!shop) throw new NotFoundError("Shop not found!");
     return toShop(shop);
   }
 

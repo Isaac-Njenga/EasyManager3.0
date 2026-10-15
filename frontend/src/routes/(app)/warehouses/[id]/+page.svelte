@@ -26,8 +26,10 @@
 	import { transferStore } from '$lib/stores/transfers/transfer.svelte';
 	import TransferForm from '$lib/components/modules/transfers/transfer.form.svelte';
 	import DistributionForm from '$lib/components/modules/products/product-distribution.form.svelte';
+	import InventoryStockEditor from '$lib/components/modules/products/inventory-stock-editor.svelte';
 	import { toast } from 'svelte-sonner';
 	import { warehouseService } from '$lib/services/warehouse/warehouse.service';
+	import { invalidateAll } from '$app/navigation';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 
@@ -59,6 +61,7 @@
 		try {
 			if (await transferStore.handleTransfer()) {
 				isTransferDrawerOpen = false;
+				await invalidateAll();
 			}
 		} catch (error) {
 			toast.error('Transfer failed', {
@@ -66,7 +69,7 @@
 					error instanceof Error ? error.message : 'Something went wrong. Please try again.'
 			});
 		} finally {
-			isSubmitting = true;
+			isSubmitting = false;
 		}
 	}
 
@@ -121,12 +124,28 @@
 
 			toast.success('Product distributed successfully!');
 			isDistributionDrawerOpen = false;
+			await invalidateAll();
 		} catch (error) {
 			const description =
 				error instanceof Error ? error.message : 'Something went wrong. Please try again.';
 			toast.error('Product distribution failed', { description });
 		} finally {
 			isSubmitting = false;
+		}
+	}
+
+	async function adjustStock(productId: string, quantity: number) {
+		try {
+			await warehouseService.adjustInventory(getBrowserServiceContext(), selectedWarehouse._id, {
+				product: productId,
+				quantity
+			});
+			toast.success('Warehouse stock reconciled');
+			await invalidateAll();
+		} catch (error) {
+			toast.error('Stock adjustment failed', {
+				description: error instanceof Error ? error.message : 'Please try again.'
+			});
 		}
 	}
 </script>
@@ -242,6 +261,17 @@
 			{/if}
 		</div>
 
+		<details class="rounded-lg border bg-card p-4">
+			<summary class="cursor-pointer text-sm font-semibold">Reconcile stock quantities</summary>
+			<div class="mt-4">
+				<InventoryStockEditor
+					{products}
+					inventoryItems={selectedWarehouse.inventoryItems}
+					onAdjust={adjustStock}
+				/>
+			</div>
+		</details>
+
 		<!-- Operational Remarks & Notes -->
 		{#if selectedWarehouse.notes}
 			<div class="space-y-2 rounded-xl border bg-card p-5 shadow-sm">
@@ -274,7 +304,7 @@
 	bind:open={isTransferDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
-	contentClass="sm:max-w-240"
+	contentClass="w-[calc(100vw-2rem)] sm:max-w-6xl"
 >
 	{#if selectedWarehouse}
 		<TransferForm preselectedSourceId={selectedWarehouse._id} {products} />
@@ -300,6 +330,7 @@
 	bind:open={isDistributionDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Product Distribution'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
+	contentClass="w-[calc(100vw-2rem)] sm:max-w-6xl"
 	><div class="max-h-screen">
 		{#if selectedWarehouse}
 			<DistributionForm

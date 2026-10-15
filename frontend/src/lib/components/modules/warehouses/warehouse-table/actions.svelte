@@ -66,7 +66,7 @@
 					error instanceof Error ? error.message : 'Something went wrong. Please try again.'
 			});
 		} finally {
-			isSubmitting = true;
+			isSubmitting = false;
 		}
 	}
 
@@ -112,7 +112,7 @@
 	bind:open={isTransferDrawerOpen}
 	title={selectedWarehouse?.name ?? 'Initiate Stock Transfer'}
 	description={selectedWarehouse ? selectedWarehouse.warehouseCode : ''}
-	contentClass="sm:max-w-240"
+	contentClass="w-[calc(100vw-2rem)] sm:max-w-6xl"
 >
 	{#if selectedWarehouse}
 		<TransferForm preselectedSourceId={selectedWarehouse._id} {products} />

@@ -101,12 +101,14 @@
 		locations.find((location) => location.locationId === transferStore.destinationId)
 	);
 
-	function getLocationQuantity(location: TransferLocationOption | undefined, productId: string) {
-		const item = location?.inventoryItems?.find((entry) => {
+	function getLocationInventoryItem(
+		location: TransferLocationOption | undefined,
+		productId: string
+	) {
+		return location?.inventoryItems?.find((entry) => {
 			const product = entry.product;
-			return (typeof product === 'object' ? product._id : product) === productId;
+			return String(typeof product === 'object' ? product._id : product) === productId;
 		});
-		return item?.quantity ?? 0;
 	}
 
 	const destinationOptions = $derived(
@@ -245,8 +247,8 @@
 									<div>
 										<p class="text-xs font-semibold">{product.name}</p>
 										<p class="text-[11px] text-muted-foreground">
-											{product.code} | Source: {sourceQuantity} | Destination:
-											{getLocationQuantity(selectedDestination, product._id)}
+											{product.code} | Source available: {sourceQuantity} | Destination on hand:
+											{getLocationInventoryItem(selectedDestination, product._id)?.quantity ?? 0}
 										</p>
 										{#if isUnavailable}
 											<p class="text-[10px] text-amber-600">
@@ -280,18 +282,18 @@
 		{:else}
 			<div class="space-y-2 pt-2">
 				{#each transferStore.items as item, index (item._id)}
-					<div class="flex items-end gap-2">
-						<div class="flex flex-1 flex-col gap-1.5">
+					{@const destinationItem = getLocationInventoryItem(selectedDestination, item._id)}
+					{@const destinationQuantity = Number(destinationItem?.quantity ?? 0)}
+					{@const transferQuantity = Number(item.totalQuantity) || 0}
+					<div
+						class="grid gap-3 rounded-lg border bg-background p-3 sm:grid-cols-[minmax(0,1fr)_8rem_auto] sm:items-end"
+					>
+						<div class="flex min-w-0 flex-col gap-1.5">
 							<Label class="text-[11px]">Item</Label>
 							<Input type="text" readonly bind:value={item.name} class="h-9 text-xs" />
 						</div>
 
-						<div class="flex w-30 flex-col gap-1.5">
-							<Label class="text-[11px]">Code</Label>
-							<Input type="text" readonly bind:value={item.code} class="h-9 text-xs" />
-						</div>
-
-						<div class="flex w-18 flex-col gap-1.5">
+						<div class="flex flex-col gap-1.5">
 							<Label class="text-[11px]">Quantity</Label>
 							<Input
 								type="number"
@@ -301,9 +303,18 @@
 								bind:value={item.totalQuantity}
 								class="h-9 text-xs"
 							/>
+						</div>
+
+						<div class="min-w-0 text-xs sm:pb-1">
+							<p class="text-muted-foreground">{item.code}</p>
+							<p class="mt-1 text-foreground">
+								Destination: {destinationItem ? destinationQuantity : 'Not stocked'}
+								<span class="px-1 text-muted-foreground">→</span>
+								<span class="font-semibold">{destinationQuantity + transferQuantity}</span>
+								<span class="text-muted-foreground">after transfer</span>
+							</p>
 							<p class="text-[10px] text-muted-foreground">
-								Available: {transferStore.getSourceQuantity(item._id)} | After destination:
-								{getLocationQuantity(selectedDestination, item._id) + item.totalQuantity}
+								Source remaining: {transferStore.getSourceQuantity(item._id) - transferQuantity}
 							</p>
 						</div>
 

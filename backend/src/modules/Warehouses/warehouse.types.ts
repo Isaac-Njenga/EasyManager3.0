@@ -69,3 +69,8 @@ export interface UpdateWarehouseDTO {
 export interface WarehouseDistributionInput {
   inventoryItems: Array<{ product: string; quantity: number }>;
 }
+
+export interface InventoryAdjustmentInput {
+  product: string;
+  quantity: number;
+}

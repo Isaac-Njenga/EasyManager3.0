@@ -9,11 +9,13 @@ import {
   Warehouse,
   WarehouseListResponse,
   WarehouseDistributionInput,
+  InventoryAdjustmentInput,
 } from "./warehouse.types";
 import { flattenObject } from "../../utils/flattenObject";
 import {
   applyLocationStockChange,
   applyProductStockChange,
+  setLocationProductQuantity,
 } from "../../utils/stock";
 import { calculateInventorySummary } from "../../utils/inventorySummary";
 import { invalidateProductCache } from "../Products/product.service";
@@ -235,6 +237,26 @@ export class WarehouseService {
 
     invalidateWarehouseCache();
     return toWarehouse(finalWarehouse);
+  }
+
+  static async adjustInventory(
+    warehouseId: string,
+    data: InventoryAdjustmentInput,
+  ): Promise<Warehouse> {
+    assertWarehouseId(warehouseId);
+    await setLocationProductQuantity(
+      "Warehouse",
+      warehouseId,
+      data.product,
+      data.quantity,
+    );
+    invalidateProductCache();
+    invalidateWarehouseCache();
+    return toWarehouse(
+      await WarehouseModel.findById(warehouseId)
+        .populate(PRODUCT_PROFILE_POPULATE)
+        .lean(),
+    );
   }
 
   static async deleteWarehouse(

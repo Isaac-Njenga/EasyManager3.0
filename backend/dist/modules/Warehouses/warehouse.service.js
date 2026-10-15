@@ -158,6 +158,15 @@ class WarehouseService {
         (0, exports.invalidateWarehouseCache)();
         return toWarehouse(finalWarehouse);
     }
+    static async adjustInventory(warehouseId, data) {
+        assertWarehouseId(warehouseId);
+        await (0, stock_1.setLocationProductQuantity)("Warehouse", warehouseId, data.product, data.quantity);
+        (0, product_service_1.invalidateProductCache)();
+        (0, exports.invalidateWarehouseCache)();
+        return toWarehouse(await warehouse_model_1.WarehouseModel.findById(warehouseId)
+            .populate(PRODUCT_PROFILE_POPULATE)
+            .lean());
+    }
     static async deleteWarehouse(warehouseId, requesterId, requesterRole) {
         assertWarehouseId(warehouseId);
         const warehouse = await warehouse_model_1.WarehouseModel.findByIdAndDelete(warehouseId)

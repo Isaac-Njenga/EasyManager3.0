@@ -12,6 +12,7 @@ function ShopRouter() {
     router.get("/get-shop/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.fetchShopById);
     router.put("/update-shop/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.updateShop);
     router.put("/distribute-inventory/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.distributeShopInventory);
+    router.put("/adjust-inventory/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.adjustShopInventory);
     router.delete("/delete-shop/:id", auth_middleware_1.protectRoute, admin_middleware_1.adminRoute, shop_controller_1.deleteShop);
     return router;
 }
