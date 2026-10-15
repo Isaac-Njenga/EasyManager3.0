@@ -4,6 +4,7 @@ import type { DataTableFeatures } from './features';
 import ImageCell from './cells/image-cell.svelte';
 import NameCell from './cells/name-cell.svelte';
 import CodeCell from './cells/code-cell.svelte';
+import ColourCell from './cells/colour-cell.svelte';
 import QuantityCell from './cells/quantity-cell.svelte';
 import QtyTransferCell from './cells/qty-transfer.svelte';
 import DestinationCell from './cells/destination-cell.svelte';
@@ -74,6 +75,20 @@ export function createProdColumns({
 				});
 			}
 		}),
+
+		columnHelper.accessor('colour', {
+				header: () => {
+					const headerSnippet = createRawSnippet(() => ({
+						render: () => `<div class="font-semibold text-center text-muted-foreground">Colour</div>`
+					}));
+					return renderSnippet(headerSnippet);
+				},
+				cell: ({ row }) => {
+					return renderComponent(ColourCell, {
+						colour: row.original.colour
+					});
+				}
+			}),
 
 		//this is the quantity that is present in the source
 		columnHelper.accessor('totalQuantity', {

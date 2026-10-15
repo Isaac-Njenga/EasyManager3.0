@@ -7,6 +7,7 @@ import ImageCell from './cells/image-cell.svelte';
 import StatusCell from './cells/status-cell.svelte';
 import NameCell from './cells/name-cell.svelte';
 import CodeCell from './cells/code-cell.svelte';
+import ColourCell from './cells/colour-cell.svelte';
 import QuantityCell from './cells/quantity-cell.svelte';
 import DataTableActions from './actions.svelte';
 
@@ -52,6 +53,19 @@ export const ProductColumns = columnHelper.columns([
 			return renderComponent(CodeCell, {
 				code: row.original.code,
 				sku: row.original.sku
+			});
+		}
+	}),
+	columnHelper.accessor('colour', {
+		header: () => {
+			const headerSnippet = createRawSnippet(() => ({
+				render: () => `<div class="font-semibold text-center text-muted-foreground">Colour</div>`
+			}));
+			return renderSnippet(headerSnippet);
+		},
+		cell: ({ row }) => {
+			return renderComponent(ColourCell, {
+				colour: row.original.colour
 			});
 		}
 	}),
