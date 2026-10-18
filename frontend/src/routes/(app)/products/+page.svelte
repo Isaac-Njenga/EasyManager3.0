@@ -76,7 +76,7 @@
 			</div>
 			<div>
 				<p class="text-xs font-medium text-muted-foreground">Total Products</p>
-				<p class="text-2xl font-bold tracking-tight text-foreground">{totalProducts}</p>
+				<p class="text-xl font-bold tracking-tight text-foreground">{totalProducts}</p>
 			</div>
 		</div>
 
@@ -88,7 +88,7 @@
 			</div>
 			<div>
 				<p class="text-xs font-medium text-muted-foreground">Active Catalog</p>
-				<p class="text-2xl font-bold tracking-tight text-foreground">{activeProducts}</p>
+				<p class="text-xl font-bold tracking-tight text-foreground">{activeProducts}</p>
 			</div>
 		</div>
 
@@ -100,7 +100,7 @@
 			</div>
 			<div>
 				<p class="text-xs font-medium text-muted-foreground">Total Stock Units</p>
-				<p class="text-2xl font-bold tracking-tight text-foreground">{totalStockQuantity}</p>
+				<p class="text-xl font-bold tracking-tight text-foreground">{totalStockQuantity}</p>
 			</div>
 		</div>
 
@@ -112,7 +112,7 @@
 			</div>
 			<div>
 				<p class="text-xs font-medium text-muted-foreground">Inventory Value</p>
-				<p class="text-2xl font-bold tracking-tight text-foreground">
+				<p class="text-xl font-bold tracking-tight text-foreground">
 					{formatCurrency(totalInventoryValue)}
 				</p>
 			</div>
