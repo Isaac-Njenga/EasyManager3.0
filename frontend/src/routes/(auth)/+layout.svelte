@@ -6,7 +6,7 @@
 	<title>Sign In | EasyManager</title>
 	<meta
 		name="description"
-		content="Sign in to EasyManeger."
+		content="Sign in to EasyManager."
 	/>
 </svelte:head>
 

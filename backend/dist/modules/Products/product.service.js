@@ -18,12 +18,6 @@ const invalidateProductCache = () => {
     productCache.flushAll();
 };
 exports.invalidateProductCache = invalidateProductCache;
-const getLocationId = (value) => {
-    if (value && typeof value === "object" && "_id" in value) {
-        return String(value._id);
-    }
-    return String(value);
-};
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set([
     "code",
@@ -72,7 +66,7 @@ const sanitizeUpdateData = (data, requesterRole) => {
 class ProductService {
     static async createProduct(data, requesterRole) {
         const createData = sanitizeCreateData(data, requesterRole);
-        const warehouses = await warehouse_model_1.WarehouseModel.find({}).select("_id inventoryItems");
+        const warehouses = await warehouse_model_1.WarehouseModel.find({}).select("_id");
         const productDoc = new product_model_1.ProductModel({
             ...createData,
             totalQuantity: 0,
@@ -84,19 +78,24 @@ class ProductService {
         });
         await productDoc.save();
         try {
-            for (const warehouse of warehouses) {
-                const exists = warehouse.inventoryItems?.some((item) => getLocationId(item.product) === String(productDoc._id));
-                if (exists)
-                    continue;
-                warehouse.inventoryItems = [
-                    ...(warehouse.inventoryItems ?? []),
-                    { product: productDoc._id, quantity: 0 },
-                ];
-                await warehouse.save();
-            }
+            await warehouse_model_1.WarehouseModel.updateMany({ "inventoryItems.product": { $ne: productDoc._id } }, {
+                $addToSet: {
+                    inventoryItems: { product: productDoc._id, quantity: 0 },
+                },
+                $inc: {
+                    "inventorySummary.totalProducts": 1,
+                    "inventorySummary.outOfStockItemsCount": 1,
+                },
+            });
         }
         catch (error) {
-            await warehouse_model_1.WarehouseModel.updateMany({ "inventoryItems.product": productDoc._id }, { $pull: { inventoryItems: { product: productDoc._id } } });
+            await warehouse_model_1.WarehouseModel.updateMany({ "inventoryItems.product": productDoc._id }, {
+                $pull: { inventoryItems: { product: productDoc._id } },
+                $inc: {
+                    "inventorySummary.totalProducts": -1,
+                    "inventorySummary.outOfStockItemsCount": -1,
+                },
+            });
             await product_model_1.ProductModel.findByIdAndDelete(productDoc._id);
             throw error;
         }

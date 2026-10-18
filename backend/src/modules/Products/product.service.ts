@@ -20,13 +20,6 @@ export const invalidateProductCache = (): void => {
   productCache.flushAll();
 };
 
-const getLocationId = (value: unknown): string => {
-  if (value && typeof value === "object" && "_id" in value) {
-    return String((value as { _id: unknown })._id);
-  }
-  return String(value);
-};
-
 // Configurable field restrictions
 const ADMIN_ONLY_FIELDS = new Set<string>([
   "code",
@@ -101,9 +94,7 @@ export class ProductService {
     requesterRole: string,
   ): Promise<Product> {
     const createData = sanitizeCreateData(data, requesterRole);
-    const warehouses = await WarehouseModel.find({}).select(
-      "_id inventoryItems",
-    );
+    const warehouses = await WarehouseModel.find({}).select("_id");
     const productDoc = new ProductModel({
       ...createData,
       totalQuantity: 0,
@@ -117,21 +108,28 @@ export class ProductService {
     await productDoc.save();
 
     try {
-      for (const warehouse of warehouses) {
-        const exists = warehouse.inventoryItems?.some(
-          (item: any) => getLocationId(item.product) === String(productDoc._id),
-        );
-        if (exists) continue;
-        warehouse.inventoryItems = [
-          ...(warehouse.inventoryItems ?? []),
-          { product: productDoc._id, quantity: 0 },
-        ] as any;
-        await warehouse.save();
-      }
+      await WarehouseModel.updateMany(
+        { "inventoryItems.product": { $ne: productDoc._id } },
+        {
+          $addToSet: {
+            inventoryItems: { product: productDoc._id, quantity: 0 },
+          },
+          $inc: {
+            "inventorySummary.totalProducts": 1,
+            "inventorySummary.outOfStockItemsCount": 1,
+          },
+        },
+      );
     } catch (error) {
       await WarehouseModel.updateMany(
         { "inventoryItems.product": productDoc._id },
-        { $pull: { inventoryItems: { product: productDoc._id } } },
+        {
+          $pull: { inventoryItems: { product: productDoc._id } },
+          $inc: {
+            "inventorySummary.totalProducts": -1,
+            "inventorySummary.outOfStockItemsCount": -1,
+          },
+        },
       );
       await ProductModel.findByIdAndDelete(productDoc._id);
       throw error;
