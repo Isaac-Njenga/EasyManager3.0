@@ -64,8 +64,21 @@ const websiteSchema = new mongoose.Schema(
       required: false,
       default: false,
     },
+    slug: { type: String, required: true, lowercase: true },
+    metaTitle: { type: String, trim: true, maxlength: 70 },
+    metaDescription: { type: String, trim: true, maxlength: 320 },
   },
   { collection: "website", timestamps: true },
+);
+
+websiteSchema.index(
+  { slug: 1 },
+  {
+    unique: true,
+    partialFilterExpression: {
+      slug: { $type: "string" },
+    },
+  },
 );
 
 websiteSchema.index({

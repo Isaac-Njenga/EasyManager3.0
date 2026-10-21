@@ -127,7 +127,8 @@ async function setLocationProductQuantity(locationType, locationId, productId, q
         throw new BadRequestError_1.BadRequestError(`${locationType} not found`);
     if (!product)
         throw new BadRequestError_1.BadRequestError("Product not found");
-    const locationItems = [...(location.inventoryItems ?? [])];
+    const locationItems = (location.inventoryItems ?? []).filter((entry) => entry?.product &&
+        mongoose_1.default.Types.ObjectId.isValid(getObjectIdString(entry.product)));
     const locationItem = locationItems.find((entry) => getObjectIdString(entry.product) === productId);
     const previousQuantity = locationItem?.quantity ?? 0;
     const delta = quantity - previousQuantity;

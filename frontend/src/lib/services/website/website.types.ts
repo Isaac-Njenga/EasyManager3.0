@@ -12,6 +12,11 @@ export type WebProduct = {
 	inStock?: boolean;
 	isBestSeller?: boolean;
 	isNewArrival?: boolean;
+	slug: string;
+	metaTitle: string;
+	metaDescription: string;
+	createdAt: string;
+	updatedAt: string;
 };
 
 export type CreateWebProductInput = {
@@ -27,6 +32,9 @@ export type CreateWebProductInput = {
 	inStock?: boolean;
 	isBestSeller?: boolean;
 	isNewArrival?: boolean;
+	slug: string;
+	metaTitle?: string;
+	metaDescription?: string;
 };
 
 export type CreateDescriptionInput = {
@@ -58,5 +66,7 @@ export type GeneratedDescriptionResponse = {
 	description: string;
 	keyFeatures: string[];
 	tags: string[];
+	slug: string;
+	metaTitle: string;
+	metaDescription: string;
 };
-

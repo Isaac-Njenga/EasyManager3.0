@@ -59,6 +59,9 @@
 	let image = $state<string[]>([]);
 
 	let price = $state('');
+	let slug = $state('');
+	let metaTitle = $state('');
+	let metaDescription = $state('');
 	let discount = $state('0');
 	let description = $state('');
 	let category: WebProductCategory | string = $state<WebProductCategory>('Office Furniture');
@@ -82,6 +85,9 @@
 			inStock = webProduct.inStock ?? true;
 			isBestSeller = webProduct.isBestSeller ?? false;
 			isNewArrival = webProduct.isNewArrival ?? false;
+			slug = webProduct.slug ?? '';
+			metaTitle = webProduct.metaTitle ?? '';
+			metaDescription = webProduct.metaDescription ?? '';
 		}
 	});
 
@@ -159,6 +165,10 @@
 		if (keyFeatures.length === 0) newErrors.keyFeatures = 'At least one feature is required';
 		if (tags.length === 0) newErrors.tags = 'At least one tag is required';
 
+		if (!slug.trim()) newErrors.slug = 'Slug is required';
+		if (!metaDescription.trim()) newErrors.metaDescription = 'Meta Description is required';
+		if (!metaTitle.trim()) newErrors.metaTitle = 'Meta Title is required';
+
 		const numDiscount = Number(discount);
 		if (isNaN(numDiscount) || numDiscount < 0 || numDiscount > 100) {
 			newErrors.discount = 'Discount must be between 0% and 100%';
@@ -199,6 +209,7 @@
 		};
 
 		const result = await onDescriptionSubmit(payload);
+		// console.log(result);
 
 		if (result) {
 			if (result.description) {
@@ -206,6 +217,18 @@
 				// 	? `\n\nKey Features:\n• ` + result.keyFeatures.join('\n• ')
 				// 	: '';
 				description = `${result.description}`;
+			}
+
+			if (result.slug) {
+				slug = `${result.slug}`;
+			}
+
+			if (result.metaTitle) {
+				metaTitle = `${result.metaTitle}`;
+			}
+
+			if (result.metaDescription) {
+				metaDescription = `${result.metaDescription}`;
 			}
 
 			if (result.keyFeatures && result.keyFeatures.length > 0) {
@@ -236,7 +259,10 @@
 			discount: Number(discount),
 			inStock,
 			isBestSeller,
-			isNewArrival
+			isNewArrival,
+			slug: slug.trim(),
+			metaTitle: metaTitle.trim(),
+			metaDescription: metaDescription.trim()
 		};
 
 		await onSubmit(payload);
@@ -332,94 +358,6 @@
 							<p class="text-xs text-destructive">{errors.category}</p>
 						{/if}
 					</div>
-
-					<div class="space-y-2 sm:col-span-2">
-						<div class="flex flex-row justify-between">
-							<Label for="description">Description</Label>
-							<Button variant="outline" onclick={handleGenerateDescription}>
-								{#if isGenerating}
-									<LoaderCircle class="size-4 animate-spin" />
-								{:else}
-									<PencilSparkles class="size-4" />
-								{/if}
-							</Button>
-						</div>
-						<Textarea
-							id="description"
-							bind:value={description}
-							placeholder="Describe dimensions, materials, and features..."
-							aria-invalid={!!errors.description}
-							rows={4}
-						/>
-					</div>
-
-					<div class="space-y-2 sm:col-span-2">
-						<Label for="colour">Key Features</Label>
-						<div class="flex gap-2">
-							<Input
-								id="feature"
-								bind:value={keyFeaturesInput}
-								onkeydown={handleFeatureKeydown}
-								placeholder="Type a unique feature (e.g. Water Resistant) and press Enter"
-							/>
-							<Button type="button" variant="secondary" onclick={addFeature}>
-								<Plus class="size-4" />
-							</Button>
-						</div>
-						{#if keyFeatures.length > 0}
-							<div class="mt-2 flex flex-wrap gap-1.5">
-								{#each keyFeatures as feature (feature)}
-									<Badge variant="outline" class="flex items-center gap-1.5 px-2.5 py-1">
-										{feature}
-										<button
-											type="button"
-											class="rounded-full hover:bg-muted"
-											onclick={() => removeFeature(feature)}
-										>
-											<X class="size-3" />
-										</button>
-									</Badge>
-								{/each}
-							</div>
-						{/if}
-						{#if errors.keyFeatures}
-							<p class="text-xs text-destructive">{errors.keyFeatures}</p>
-						{/if}
-					</div>
-
-					<div class="space-y-2 sm:col-span-2">
-						<Label for="colour">Tags</Label>
-						<div class="flex gap-2">
-							<Input
-								id="tag"
-								bind:value={tagInput}
-								onkeydown={handleTagKeydown}
-								placeholder="Type a tag (e.g. Brand New) and press Enter"
-							/>
-							<Button type="button" variant="secondary" onclick={addTag}>
-								<Plus class="size-4" />
-							</Button>
-						</div>
-						{#if tags.length > 0}
-							<div class="mt-2 flex flex-wrap gap-1.5">
-								{#each tags as tag (tag)}
-									<Badge variant="outline" class="flex items-center gap-1.5 px-2.5 py-1">
-										{tag}
-										<button
-											type="button"
-											class="rounded-full hover:bg-muted"
-											onclick={() => removeTag(tag)}
-										>
-											<X class="size-3" />
-										</button>
-									</Badge>
-								{/each}
-							</div>
-						{/if}
-						{#if errors.tags}
-							<p class="text-xs text-destructive">{errors.tags}</p>
-						{/if}
-					</div>
 				</CardContent>
 			</Card>
 
@@ -464,6 +402,132 @@
 						{#if errors.discount}
 							<p class="text-xs text-destructive">{errors.discount}</p>
 						{/if}
+					</div>
+				</CardContent>
+			</Card>
+
+			<Card>
+				<CardHeader>
+					<CardTitle>Meta Information</CardTitle>
+				</CardHeader>
+				<CardContent>
+					<div class="space-y-2 sm:col-span-2">
+						<div class="flex flex-row justify-between">
+							<Label for="description">Description</Label>
+							<Button variant="outline" onclick={handleGenerateDescription}>
+								{#if isGenerating}
+									<LoaderCircle class="size-4 animate-spin" />
+								{:else}
+									<PencilSparkles class="size-4" />
+								{/if}
+							</Button>
+						</div>
+						<Textarea
+							id="description"
+							bind:value={description}
+							placeholder="Describe dimensions, materials, and features..."
+							aria-invalid={!!errors.description}
+							rows={4}
+							class='mb-2'
+						/>
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<Label for="colour">Key Features</Label>
+						<div class="flex gap-2">
+							<Input
+								id="feature"
+								bind:value={keyFeaturesInput}
+								onkeydown={handleFeatureKeydown}
+								placeholder="Type a unique feature (e.g. Water Resistant) and press Enter"
+							class='mb-2'
+							/>
+							<Button type="button" variant="secondary" onclick={addFeature}>
+								<Plus class="size-4" />
+							</Button>
+						</div>
+						{#if keyFeatures.length > 0}
+							<div class="my-2 flex flex-wrap gap-1.5 ">
+								{#each keyFeatures as feature (feature)}
+									<Badge variant="outline" class="flex items-center gap-1.5 px-2.5 py-1">
+										{feature}
+										<button
+											type="button"
+											class="rounded-full hover:bg-muted"
+											onclick={() => removeFeature(feature)}
+										>
+											<X class="size-3" />
+										</button>
+									</Badge>
+								{/each}
+							</div>
+						{/if}
+						{#if errors.keyFeatures}
+							<p class="text-xs text-destructive">{errors.keyFeatures}</p>
+						{/if}
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<Label for="colour">Tags</Label>
+						<div class="flex gap-2">
+							<Input
+								id="tag"
+								bind:value={tagInput}
+								onkeydown={handleTagKeydown}
+								placeholder="Type a tag (e.g. Brand New) and press Enter"
+							/>
+							<Button type="button" variant="secondary" onclick={addTag}>
+								<Plus class="size-4" />
+							</Button>
+						</div>
+						{#if tags.length > 0}
+							<div class="my-2 flex flex-wrap gap-1.5">
+								{#each tags as tag (tag)}
+									<Badge variant="outline" class="flex items-center gap-1.5 px-2.5 py-1">
+										{tag}
+										<button
+											type="button"
+											class="rounded-full hover:bg-muted"
+											onclick={() => removeTag(tag)}
+										>
+											<X class="size-3" />
+										</button>
+									</Badge>
+								{/each}
+							</div>
+						{/if}
+						{#if errors.tags}
+							<p class="text-xs text-destructive">{errors.tags}</p>
+						{/if}
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<div class="flex flex-row justify-between">
+							<Label for="slug">Meta Slug</Label>
+						</div>
+						<Input id="slug" bind:value={slug} aria-invalid={!!errors.slug} 
+							class='mb-2' />
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<div class="flex flex-row justify-between">
+							<Label for="metaTitle">Meta Title</Label>
+						</div>
+						<Input id="metaTitle" bind:value={metaTitle} aria-invalid={!!errors.metaTitle} 
+							class='mb-2'/>
+					</div>
+
+					<div class="space-y-2 sm:col-span-2">
+						<div class="flex flex-row justify-between">
+							<Label for="metaDescription">Meta Description</Label>
+						</div>
+						<Textarea
+							id="metaDescription"
+							bind:value={metaDescription}
+							aria-invalid={!!errors.metaDescription}
+							rows={4}
+							class='mb-2'
+						/>
 					</div>
 				</CardContent>
 			</Card>

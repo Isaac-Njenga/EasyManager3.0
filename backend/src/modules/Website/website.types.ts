@@ -19,6 +19,11 @@ export type WebProduct = {
   inStock: boolean;
   isBestSeller: boolean;
   isNewArrival: boolean;
+  slug: string;
+  metaTitle: string;
+  metaDescription: string;
+  createdAt: string;
+  updatedAt: string;
 };
 
 export interface CreateWebProductDTO {
@@ -34,6 +39,9 @@ export interface CreateWebProductDTO {
   inStock?: boolean;
   isBestSeller?: boolean;
   isNewArrival?: boolean;
+  slug: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface UpdateWebProductDTO {
@@ -49,12 +57,15 @@ export interface UpdateWebProductDTO {
   inStock?: boolean;
   isBestSeller?: boolean;
   isNewArrival?: boolean;
+  slug?: string;
+  metaTitle?: string;
+  metaDescription?: string;
 }
 
 export interface SearchQuery {
-    query?: string;     // General keyword search across name, category, and tags
-    tag?: string;       // Strict tag filter
-    category?: string;  // Strict category filter
-    minPrice?: number;
-    maxPrice?: number;
+  query?: string; // General keyword search across name, category, and tags
+  tag?: string; // Strict tag filter
+  category?: string; // Strict category filter
+  minPrice?: number;
+  maxPrice?: number;
 }
