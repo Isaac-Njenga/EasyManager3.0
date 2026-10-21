@@ -1,6 +1,5 @@
 <script lang="ts">
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
-	import Badge from '$lib/components/ui/badge/badge.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
 	import Loader2Icon from '@lucide/svelte/icons/loader-2';
@@ -24,6 +23,7 @@
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
 	import { webProductService } from '$lib/services/website/website.service';
+	import ProductCard from '$lib/components/common/ProductCard.svelte';
 
 	let { data }: PageProps = $props();
 
@@ -97,8 +97,6 @@
 			return matchesCategory && matchesStock && matchesSearch;
 		})
 	);
-
-	
 </script>
 
 <svelte:head>
@@ -192,7 +190,7 @@
 
 			<!-- View Switcher & Actions -->
 			<div class="flex items-center gap-2">
-				<div class="flex items-center rounded-sm border bg-muted ">
+				<div class="flex items-center rounded-sm border bg-muted">
 					<Button
 						variant={viewMode === 'table' ? 'secondary' : 'ghost'}
 						size="sm"
@@ -214,7 +212,7 @@
 		</div>
 
 		<!-- Catalog Display Engine -->
-		<div class='pt-0'> 
+		<div class="pt-0">
 			{#if isSearching}
 				<div class="flex items-center justify-center gap-3 py-12">
 					<Loader2Icon class="size-5 animate-spin text-primary" />
@@ -224,57 +222,9 @@
 				{#if viewMode === 'table'}
 					<DataTable data={filteredContent} columns={WebsiteColumns} />
 				{:else}
-					<!-- Optional Catalog Grid View -->
-					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+					<div class="mt-6 grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
 						{#each filteredContent as item (item._id)}
-							<div
-								class="group overflow-hidden rounded-lg border bg-card transition-all hover:shadow-md"
-							>
-								<div class="relative mb-1 aspect-square overflow-hidden rounded-none bg-muted">
-									{#if item.image?.[0]}
-										<img
-											src={item.image[0]}
-											alt={item.name}
-											class="h-full w-full object-cover transition-transform group-hover:scale-105"
-										/>
-									{:else}
-										<div
-											class="flex h-full items-center justify-center text-xs text-muted-foreground"
-										>
-											No Image
-										</div>
-									{/if}
-									{#if item.discount}
-										<Badge class="absolute top-2 left-2 bg-destructive text-white">
-											-{item.discount}%
-										</Badge>
-									{/if}
-								</div>
-								<div class="p-2">
-									<h3 class="line-clamp-1 font-medium text-foreground">{item.name}</h3>
-									<p class="text-xs text-muted-foreground">{item.category}</p>
-									<div class="mt-2 flex items-center justify-between">
-										<span class="font-bold text-foreground">{formatCurrency(item.price)}</span>
-										<div>
-											<Badge class="cursor-pointer text-[10px]" onclick={() => viewItem(item)}
-												>View</Badge
-											>
-											<Badge
-												variant={item.inStock !== false ? 'outline' : 'destructive'}
-												class="text-[10px] {item.inStock !== false
-													? 'border-emerald-500/30 bg-emerald-500/10 text-emerald-600'
-													: 'border-destructive/30 bg-destructive/10 text-destructive'}"
-											>
-												{item.inStock !== false ? 'In Stock' : 'Out of Stock'}
-											</Badge>
-										</div>
-									</div>
-								</div>
-							</div>
-						{:else}
-							<div class="col-span-full py-12 text-center text-muted-foreground">
-								No products found matching criteria.
-							</div>
+							<ProductCard {item} handleViewItem={viewItem} />
 						{/each}
 					</div>
 				{/if}

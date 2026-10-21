@@ -88,11 +88,7 @@ export class WebProductService {
   }
 
   static async fetchProducts(): Promise<WebProductListResponse> {
-    const page = Math.max(1);
-    const limit = Math.max(1, Math.min(100, 10));
-    const skip = (page - 1) * limit;
-
-    const cacheKey = `products_p${page}_l${limit}`;
+    const cacheKey = "products_all";
 
     const cachedData = productCache.get<WebProductListResponse>(cacheKey);
     if (cachedData) {
@@ -103,8 +99,6 @@ export class WebProductService {
 
     const [products, totalProducts] = await Promise.all([
       WebsiteModel.find(filter)
-        .skip(skip)
-        .limit(limit)
         .sort({ createdAt: -1 })
         .lean(),
       WebsiteModel.countDocuments(filter),
@@ -113,8 +107,8 @@ export class WebProductService {
     const responseData: WebProductListResponse = {
       webProducts: products as unknown as WebProduct[],
       totalWebProducts: totalProducts,
-      currentPage: page,
-      totalPages: Math.ceil(totalProducts / limit),
+      currentPage: 1,
+      totalPages: totalProducts > 0 ? 1 : 0,
     };
 
     //cache response
