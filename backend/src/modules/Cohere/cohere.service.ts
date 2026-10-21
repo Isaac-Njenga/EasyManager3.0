@@ -33,8 +33,8 @@ Generate details for:
 Return ONLY a valid JSON object matching this schema, with no markdown formatting or extra text:
 {
   "description": "string" (at least 90-120 words),
-  "keyFeatures": ["string"] (at least 5),
-  "tags": ["string"] (searchable tags that can be associated with similar products)
+  "keyFeatures": ["string"] (maximum of 5),
+  "tags": ["string"] (searchable tags that can be associated with similar products, maximum of 8)
   "slug": "string" (generate it from the product name by hyphening and lowercasing the name but try and keep it as unique as possible)
   "metaTitle": "string" (generate it for SEO purposes)
   "metaDescription": "string" (generate it for SEO purposes)
