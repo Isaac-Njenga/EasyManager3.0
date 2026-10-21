@@ -113,7 +113,7 @@
 </script>
 
 <svelte:head>
-	<title>Sales | EasyManager</title>
+	<title>Sales</title>
 </svelte:head>
 <div class="space-y-6">
 	<PageHeader

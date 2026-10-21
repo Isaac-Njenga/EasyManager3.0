@@ -3,7 +3,7 @@
 </script>
 
 <svelte:head>
-	<title>Sign In | EasyManager</title>
+	<title>Sign In</title>
 	<meta
 		name="description"
 		content="Sign in to EasyManager."

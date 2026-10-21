@@ -195,7 +195,7 @@
 </script>
 
 <svelte:head>
-	<title>Dashboard | EasyManager</title>
+	<title>Dashboard</title>
 </svelte:head>
 
 <div class="space-y-6">

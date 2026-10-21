@@ -11,7 +11,7 @@
 </script>
 
 <svelte:head>
-	<title>Reports | EasyManager</title>
+	<title>Reports</title>
 </svelte:head>
 
 <div class="space-y-6">

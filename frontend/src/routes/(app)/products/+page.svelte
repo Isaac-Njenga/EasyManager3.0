@@ -55,7 +55,7 @@
 </script>
 
 <svelte:head>
-	<title>Products | EasyManager</title>
+	<title>Products</title>
 </svelte:head>
 
 <div class="space-y-6">

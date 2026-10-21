@@ -60,7 +60,7 @@
 </script>
 
 <svelte:head>
-	<title>Shops | EasyManager</title>
+	<title>Shops</title>
 </svelte:head>
 <div class="space-y-6">
 	<!-- Page Header -->

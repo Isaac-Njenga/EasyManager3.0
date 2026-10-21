@@ -9,7 +9,7 @@
 	const formatDate = (value: string) => new Intl.DateTimeFormat('en-KE', { dateStyle: 'medium', timeStyle: 'short' }).format(new Date(value));
 </script>
 
-<svelte:head><title>Logs | EasyManager</title></svelte:head>
+<svelte:head><title>Logs</title></svelte:head>
 
 <div class="space-y-6">
 	<PageHeader title="Audit logs" description="Track activity across the application." />

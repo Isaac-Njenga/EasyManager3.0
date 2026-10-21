@@ -21,7 +21,7 @@
 </script>
 
 <svelte:head>
-	<title>Salepersons | EasyManager</title>
+	<title>Salepersons</title>
 </svelte:head>
 <div class="space-y-6">
 	<PageHeader

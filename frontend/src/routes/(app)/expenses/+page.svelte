@@ -49,7 +49,7 @@
 </script>
 
 <svelte:head>
-	<title>Expenses | EasyManager</title>
+	<title>Expenses</title>
 </svelte:head>
 
 <div class="space-y-6">

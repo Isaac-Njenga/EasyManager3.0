@@ -1,4 +1,4 @@
 
 <svelte:head>
-	<title>Customers | EasyManager</title>
+	<title>Customers</title>
 </svelte:head>
