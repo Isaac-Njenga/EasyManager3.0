@@ -50,7 +50,7 @@
 		cookies.remove(authCookies.accessToken, { path: '/' });
 		cookies.remove(authCookies.refreshToken, { path: '/' });
 		cookies.remove(authCookies.user, { path: '/' });
-		goto(resolve('/login'));
+		goto(resolve('/(auth)/login'));
 	}
 </script>
 
@@ -86,7 +86,7 @@
 						<SidebarMenu>
 							{#each visibleItems as item (item.href)}
 								<!-- eslint-disable-next-line -->
-								{@const href = resolve(isSalesperson ? '/sales/new' : item.href)}
+								{@const href = resolve(isSalesperson ? '//sales/new' : item.href)}
 								{@const isActive = page.url.pathname === href}
 
 								<SidebarMenuItem>

@@ -9,8 +9,17 @@ import type {
 import type { ServiceContext } from '../api/types';
 
 export const webProductService = {
-	async fetch(): Promise<WebProduct[]> {
-		const response = await apiClient.get<WebProductListResponse>('/web-product/get-web-products');
+	async fetch(page = 1, limit = 10): Promise<WebProductListResponse> {
+		return apiClient.get<WebProductListResponse>(
+			`/web-product/get-web-products?page=${page}&limit=${limit}`
+		);
+	},
+
+	async fetchAll(context: ServiceContext): Promise<WebProduct[]> {
+		const response = await apiClient.get<WebProductListResponse>(
+			'/web-product/get-all-web-products',
+			context
+		);
 		return response.webProducts ?? [];
 	},
 

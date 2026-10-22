@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ cookies, locals }) => {
 		const sales = saleService.fetch(context);
 		const expenses = expenseService.fetch(context);
 		const products = productService.fetch(context);
-		const webProducts = webProductService.fetch();
+		const webProducts = webProductService.fetchAll(context);
 
 		const [salesData, expensesData, productsData, webProductsData] = await Promise.all([
 			sales,

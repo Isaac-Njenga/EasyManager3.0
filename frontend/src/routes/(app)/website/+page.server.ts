@@ -3,9 +3,9 @@ import type { PageServerLoad } from './$types';
 import { ApiError } from '$lib/services/api/errors';
 import { webProductService } from '$lib/services/website/website.service';
 
-export const load: PageServerLoad = async () => {
+export const load: PageServerLoad = async ({ cookies, locals }) => {
 	try {
-		const webProducts = await webProductService.fetch();
+		const webProducts = await webProductService.fetchAll({ cookies, locals });
 
 		return { webProducts, error: null };
 	} catch (err) {

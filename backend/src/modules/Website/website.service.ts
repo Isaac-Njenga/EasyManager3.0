@@ -87,21 +87,57 @@ export class WebProductService {
     return toProduct(savedProduct ?? productDoc.toObject());
   }
 
-  static async fetchProducts(): Promise<WebProductListResponse> {
-    const cacheKey = "products_all";
-
-    const cachedData = productCache.get<WebProductListResponse>(cacheKey);
-    if (cachedData) {
-      return cachedData;
+  static async fetchProducts(
+    page = 1,
+    requestedLimit = 10,
+  ): Promise<WebProductListResponse> {
+    if (!Number.isSafeInteger(page) || page < 1) {
+      throw new BadRequestError("Page must be a positive integer");
+    }
+    if (!Number.isSafeInteger(requestedLimit) || requestedLimit < 1) {
+      throw new BadRequestError("Limit must be a positive integer");
     }
 
-    const filter: Record<string, any> = {};
+    const limit = Math.min(requestedLimit, 100);
+    const skip = (page - 1) * limit;
+    if (!Number.isSafeInteger(skip)) {
+      throw new BadRequestError("Page is too large");
+    }
+
+    const cacheKey = `products_p${page}_l${limit}`;
+    const cachedData = productCache.get<WebProductListResponse>(cacheKey);
+    if (cachedData) return cachedData;
 
     const [products, totalProducts] = await Promise.all([
-      WebsiteModel.find(filter)
+      WebsiteModel.find({})
+        .skip(skip)
+        .limit(limit)
         .sort({ createdAt: -1 })
         .lean(),
-      WebsiteModel.countDocuments(filter),
+      WebsiteModel.countDocuments({}),
+    ]);
+
+    const responseData: WebProductListResponse = {
+      webProducts: products as unknown as WebProduct[],
+      totalWebProducts: totalProducts,
+      currentPage: page,
+      totalPages: Math.ceil(totalProducts / limit),
+    };
+
+    productCache.set(cacheKey, responseData);
+    return responseData;
+  }
+
+  static async fetchAllProducts(): Promise<WebProductListResponse> {
+    const cacheKey = "products_all";
+    const cachedData = productCache.get<WebProductListResponse>(cacheKey);
+    if (cachedData) return cachedData;
+
+    const [products, totalProducts] = await Promise.all([
+      WebsiteModel.find({})
+        .sort({ createdAt: -1 })
+        .lean(),
+      WebsiteModel.countDocuments({}),
     ]);
 
     const responseData: WebProductListResponse = {
@@ -111,15 +147,12 @@ export class WebProductService {
       totalPages: totalProducts > 0 ? 1 : 0,
     };
 
-    //cache response
     productCache.set(cacheKey, responseData);
     return responseData;
   }
 
   static async fetchProductById(
     productId: string,
-    // requesterId?: string,
-    // requesterRole?: string,
   ): Promise<WebProduct> {
     assertProductId(productId);
 

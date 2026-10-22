@@ -36,8 +36,8 @@ Return ONLY a valid JSON object matching this schema, with no markdown formattin
   "keyFeatures": ["string"] (maximum of 5),
   "tags": ["string"] (searchable tags that can be associated with similar products, maximum of 8)
   "slug": "string" (generate it from the product name by hyphening and lowercasing the name but try and keep it as unique as possible)
-  "metaTitle": "string" (generate it for SEO purposes)
-  "metaDescription": "string" (generate it for SEO purposes)
+  "metaTitle": "string" (generate it for SEO purposes, max length of 50 words)
+  "metaDescription": "string" (generate it for SEO purposes max length of 250 words)
 }`;
 
   try {

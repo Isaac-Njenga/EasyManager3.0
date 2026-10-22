@@ -52,7 +52,39 @@ export const createProduct = catchAsync(
 
 export const fetchProducts = catchAsync(
   async (req: AuthenticatedRequest, res: Response) => {
-    const products = await WebProductService.fetchProducts();
+    const parsePaginationParam = (
+      value: unknown,
+      defaultValue: number,
+      parameterName: string,
+    ): number => {
+      if (value === undefined) return defaultValue;
+      if (typeof value !== "string" || !/^\d+$/.test(value)) {
+        throw new BadRequestError(`${parameterName} must be a positive integer`);
+      }
+
+      const parsedValue = Number(value);
+      if (!Number.isSafeInteger(parsedValue) || parsedValue < 1) {
+        throw new BadRequestError(`${parameterName} must be a positive integer`);
+      }
+      return parsedValue;
+    };
+
+    const products = await WebProductService.fetchProducts(
+      parsePaginationParam(req.query.page, 1, "Page"),
+      parsePaginationParam(req.query.limit, 10, "Limit"),
+    );
+
+    res.status(200).json({
+      success: true,
+      data: products,
+      message: "WebProducts fetched successfully",
+    });
+  },
+);
+
+export const fetchAllProducts = catchAsync(
+  async (_req: AuthenticatedRequest, res: Response) => {
+    const products = await WebProductService.fetchAllProducts();
 
     res.status(200).json({
       success: true,
@@ -68,20 +100,8 @@ export const fetchProductById = catchAsync(
 
     const product = await WebProductService.fetchProductById(
       id,
-      // req.user!._id.toString(),
-      // req.user!.role,
     );
 
-    // Create Audit Log
-    // await createLog({
-    //   type: "webproduct",
-    //   refId: id,
-    //   action: "received",
-    //   title: "WebProduct profile retrieved",
-    //   description: `Fetched profile for webproduct ${id}`,
-    //   refModel: "webproduct",
-    //   actor: req.user?._id,
-    // });
 
     res.status(200).json({
       success: true,
