@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.searchProduct = exports.fetchProductById = exports.fetchProducts = exports.createProduct = void 0;
+exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.searchProduct = exports.fetchProductById = exports.fetchAllProducts = exports.fetchProducts = exports.createProduct = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
@@ -35,7 +35,27 @@ exports.createProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
     });
 });
 exports.fetchProducts = (0, catchAsync_1.catchAsync)(async (req, res) => {
-    const products = await website_service_1.WebProductService.fetchProducts();
+    const parsePaginationParam = (value, defaultValue, parameterName) => {
+        if (value === undefined)
+            return defaultValue;
+        if (typeof value !== "string" || !/^\d+$/.test(value)) {
+            throw new BadRequestError_1.BadRequestError(`${parameterName} must be a positive integer`);
+        }
+        const parsedValue = Number(value);
+        if (!Number.isSafeInteger(parsedValue) || parsedValue < 1) {
+            throw new BadRequestError_1.BadRequestError(`${parameterName} must be a positive integer`);
+        }
+        return parsedValue;
+    };
+    const products = await website_service_1.WebProductService.fetchProducts(parsePaginationParam(req.query.page, 1, "Page"), parsePaginationParam(req.query.limit, 10, "Limit"));
+    res.status(200).json({
+        success: true,
+        data: products,
+        message: "WebProducts fetched successfully",
+    });
+});
+exports.fetchAllProducts = (0, catchAsync_1.catchAsync)(async (_req, res) => {
+    const products = await website_service_1.WebProductService.fetchAllProducts();
     res.status(200).json({
         success: true,
         data: products,
@@ -45,16 +65,6 @@ exports.fetchProducts = (0, catchAsync_1.catchAsync)(async (req, res) => {
 exports.fetchProductById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const id = getProductIdParam(req.params.id);
     const product = await website_service_1.WebProductService.fetchProductById(id);
-    // Create Audit Log
-    // await createLog({
-    //   type: "webproduct",
-    //   refId: id,
-    //   action: "received",
-    //   title: "WebProduct profile retrieved",
-    //   description: `Fetched profile for webproduct ${id}`,
-    //   refModel: "webproduct",
-    //   actor: req.user?._id,
-    // });
     res.status(200).json({
         success: true,
         data: product,

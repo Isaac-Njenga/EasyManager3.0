@@ -62,23 +62,29 @@ class WebProductService {
         (0, exports.invalidateProductCache)();
         return toProduct(savedProduct ?? productDoc.toObject());
     }
-    static async fetchProducts() {
-        const page = Math.max(1);
-        const limit = Math.max(1, Math.min(100, 10));
+    static async fetchProducts(page = 1, requestedLimit = 10) {
+        if (!Number.isSafeInteger(page) || page < 1) {
+            throw new BadRequestError_1.BadRequestError("Page must be a positive integer");
+        }
+        if (!Number.isSafeInteger(requestedLimit) || requestedLimit < 1) {
+            throw new BadRequestError_1.BadRequestError("Limit must be a positive integer");
+        }
+        const limit = Math.min(requestedLimit, 100);
         const skip = (page - 1) * limit;
+        if (!Number.isSafeInteger(skip)) {
+            throw new BadRequestError_1.BadRequestError("Page is too large");
+        }
         const cacheKey = `products_p${page}_l${limit}`;
         const cachedData = productCache.get(cacheKey);
-        if (cachedData) {
+        if (cachedData)
             return cachedData;
-        }
-        const filter = {};
         const [products, totalProducts] = await Promise.all([
-            website_model_1.WebsiteModel.find(filter)
+            website_model_1.WebsiteModel.find({})
                 .skip(skip)
                 .limit(limit)
                 .sort({ createdAt: -1 })
                 .lean(),
-            website_model_1.WebsiteModel.countDocuments(filter),
+            website_model_1.WebsiteModel.countDocuments({}),
         ]);
         const responseData = {
             webProducts: products,
@@ -86,7 +92,26 @@ class WebProductService {
             currentPage: page,
             totalPages: Math.ceil(totalProducts / limit),
         };
-        //cache response
+        productCache.set(cacheKey, responseData);
+        return responseData;
+    }
+    static async fetchAllProducts() {
+        const cacheKey = "products_all";
+        const cachedData = productCache.get(cacheKey);
+        if (cachedData)
+            return cachedData;
+        const [products, totalProducts] = await Promise.all([
+            website_model_1.WebsiteModel.find({})
+                .sort({ createdAt: -1 })
+                .lean(),
+            website_model_1.WebsiteModel.countDocuments({}),
+        ]);
+        const responseData = {
+            webProducts: products,
+            totalWebProducts: totalProducts,
+            currentPage: 1,
+            totalPages: totalProducts > 0 ? 1 : 0,
+        };
         productCache.set(cacheKey, responseData);
         return responseData;
     }
