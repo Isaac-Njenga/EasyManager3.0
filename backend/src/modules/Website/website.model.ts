@@ -21,51 +21,62 @@ const websiteSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
+
     colours: {
       type: [String],
       trim: true,
       default: [],
     },
+
     keyFeatures: {
       type: [String],
       trim: true,
       default: [],
     },
+
     tags: {
       type: [String],
       trim: true,
       default: [],
     },
+
     price: {
       type: Number,
       required: true,
       min: [0, "Cost price cannot be negative"],
     },
+
     discount: {
       type: Number,
       required: true,
       min: [0, "Cost price cannot be negative"],
       max: [100, "Discount cannot be more than 100%"],
     },
+
     isBestSeller: {
       type: Boolean,
       required: false,
       default: false,
       index: true,
     },
+
     isNewArrival: {
       type: Boolean,
       required: false,
       default: false,
       index: true,
     },
+
     inStock: {
       type: Boolean,
       required: false,
       default: false,
     },
+
     slug: { type: String, required: true, lowercase: true },
+
     metaTitle: { type: String, trim: true, maxlength: 70 },
+
     metaDescription: { type: String, trim: true, maxlength: 320 },
   },
   { collection: "website", timestamps: true },
