@@ -89,7 +89,7 @@ export const fetchProducts = catchAsync(
   },
 );
 
-export const fetchAllProducts = catchAsync(
+export const fetchAllProducts: ReturnType<typeof catchAsync> = catchAsync(
   async (_req: AuthenticatedRequest, res: Response) => {
     const products = await WebProductService.fetchAllProducts();
 
