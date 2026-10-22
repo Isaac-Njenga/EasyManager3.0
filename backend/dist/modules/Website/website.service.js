@@ -101,9 +101,7 @@ class WebProductService {
         if (cachedData)
             return cachedData;
         const [products, totalProducts] = await Promise.all([
-            website_model_1.WebsiteModel.find({})
-                .sort({ createdAt: -1 })
-                .lean(),
+            website_model_1.WebsiteModel.find({}).sort({ createdAt: -1 }).lean(),
             website_model_1.WebsiteModel.countDocuments({}),
         ]);
         const responseData = {
@@ -129,6 +127,19 @@ class WebProductService {
         productCache.set(cacheKey, result);
         return result;
     }
+    static async fetchProductBySlug(productSlug) {
+        const cacheKey = `web_product_detail_${productSlug}`;
+        const cachedProduct = productCache.get(cacheKey);
+        if (cachedProduct)
+            return cachedProduct;
+        const product = await website_model_1.WebsiteModel.findOne({ slug: productSlug }).lean();
+        if (!product) {
+            throw new NotFoundError_1.NotFoundError("Product not found!");
+        }
+        const result = toProduct(product);
+        productCache.set(cacheKey, result);
+        return result;
+    }
     static async searchProduct(queryParams) {
         const { query, tag, category, minPrice, maxPrice } = queryParams;
         const filter = {};
@@ -138,10 +149,10 @@ class WebProductService {
         }
         // 2. Exact/Case-insensitive secondary filters
         if (tag) {
-            filter.tags = { $in: [new RegExp(`^${tag}$`, 'i')] };
+            filter.tags = { $in: [new RegExp(`^${tag}$`, "i")] };
         }
         if (category) {
-            filter.category = { $regex: new RegExp(`^${category}$`, 'i') };
+            filter.category = { $regex: new RegExp(`^${category}$`, "i") };
         }
         // 3. Price range filtering
         if (minPrice !== undefined || maxPrice !== undefined) {
@@ -152,8 +163,8 @@ class WebProductService {
                 filter.price.$lte = maxPrice;
         }
         const products = await website_model_1.WebsiteModel.find(filter)
-            .select(query ? { score: { $meta: 'textScore' } } : {})
-            .sort(query ? { score: { $meta: 'textScore' } } : { createdAt: -1 })
+            .select(query ? { score: { $meta: "textScore" } } : {})
+            .sort(query ? { score: { $meta: "textScore" } } : { createdAt: -1 })
             .lean();
         return toProduct(products);
     }

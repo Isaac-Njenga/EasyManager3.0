@@ -11,6 +11,7 @@ import {
   deleteProduct,
   fetchBestSellingProducts,
   searchProduct,
+  fetchProductBySlug,
 } from "./website.controller";
 
 export function WebProductRouter(): Router {
@@ -19,7 +20,13 @@ export function WebProductRouter(): Router {
   router.post("/create-web-product", protectRoute, adminRoute, createProduct);
   router.get("/search", searchProduct);
   router.get("/get-web-products", fetchProducts);
-  router.get("/get-all-web-products", protectRoute, adminRoute, fetchAllProducts);
+  router.get(
+    "/get-all-web-products",
+    protectRoute,
+    adminRoute,
+    fetchAllProducts,
+  );
+  router.get("/get-web-product/:slug", fetchProductBySlug);
   router.get("/get-web-product/:id", fetchProductById);
   router.get("/get-best-selling-product", fetchBestSellingProducts);
   router.get("/get-new-arrival-product", fetchNewArrivalProducts);

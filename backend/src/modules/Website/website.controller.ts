@@ -41,7 +41,10 @@ export const createProduct = catchAsync(
       actor: req.user?._id,
     });
 
-    broadcastEvent("dashboard:refresh", { resource: "website", action: "created" });
+    broadcastEvent("dashboard:refresh", {
+      resource: "website",
+      action: "created",
+    });
     res.status(201).json({
       success: true,
       data: product,
@@ -59,12 +62,16 @@ export const fetchProducts = catchAsync(
     ): number => {
       if (value === undefined) return defaultValue;
       if (typeof value !== "string" || !/^\d+$/.test(value)) {
-        throw new BadRequestError(`${parameterName} must be a positive integer`);
+        throw new BadRequestError(
+          `${parameterName} must be a positive integer`,
+        );
       }
 
       const parsedValue = Number(value);
       if (!Number.isSafeInteger(parsedValue) || parsedValue < 1) {
-        throw new BadRequestError(`${parameterName} must be a positive integer`);
+        throw new BadRequestError(
+          `${parameterName} must be a positive integer`,
+        );
       }
       return parsedValue;
     };
@@ -98,10 +105,23 @@ export const fetchProductById = catchAsync(
   async (req: AuthenticatedRequest, res: Response) => {
     const id = getProductIdParam(req.params.id);
 
-    const product = await WebProductService.fetchProductById(
-      id,
-    );
+    const product = await WebProductService.fetchProductById(id);
 
+    res.status(200).json({
+      success: true,
+      data: product,
+      message: "WebProduct retrieved successfully",
+    });
+  },
+);
+
+export const fetchProductBySlug = catchAsync(
+  async (req: AuthenticatedRequest, res: Response) => {
+    const slug = Array.isArray(req.params.slug)
+      ? req.params.slug[0]
+      : req.params.slug;
+
+    const product = await WebProductService.fetchProductBySlug(slug);
 
     res.status(200).json({
       success: true,
@@ -181,7 +201,10 @@ export const updateProduct = catchAsync(
       actor: req.user?._id,
     });
 
-    broadcastEvent("dashboard:refresh", { resource: "website", action: "updated" });
+    broadcastEvent("dashboard:refresh", {
+      resource: "website",
+      action: "updated",
+    });
     res.status(200).json({
       success: true,
       data: product,
@@ -211,7 +234,10 @@ export const deleteProduct = catchAsync(
       actor: req.user?._id,
     });
 
-    broadcastEvent("dashboard:refresh", { resource: "website", action: "deleted" });
+    broadcastEvent("dashboard:refresh", {
+      resource: "website",
+      action: "deleted",
+    });
     res.status(200).json({
       success: true,
       data: product,

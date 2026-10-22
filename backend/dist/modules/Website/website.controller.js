@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.searchProduct = exports.fetchProductById = exports.fetchAllProducts = exports.fetchProducts = exports.createProduct = void 0;
+exports.deleteProduct = exports.updateProduct = exports.fetchNewArrivalProducts = exports.fetchBestSellingProducts = exports.searchProduct = exports.fetchProductBySlug = exports.fetchProductById = exports.fetchAllProducts = exports.fetchProducts = exports.createProduct = void 0;
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const catchAsync_1 = require("../../common/utils/catchAsync");
 const logs_service_1 = require("../Logs/logs.service");
@@ -27,7 +27,10 @@ exports.createProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "webproduct",
         actor: req.user?._id,
     });
-    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "website", action: "created" });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", {
+        resource: "website",
+        action: "created",
+    });
     res.status(201).json({
         success: true,
         data: product,
@@ -65,6 +68,17 @@ exports.fetchAllProducts = (0, catchAsync_1.catchAsync)(async (_req, res) => {
 exports.fetchProductById = (0, catchAsync_1.catchAsync)(async (req, res) => {
     const id = getProductIdParam(req.params.id);
     const product = await website_service_1.WebProductService.fetchProductById(id);
+    res.status(200).json({
+        success: true,
+        data: product,
+        message: "WebProduct retrieved successfully",
+    });
+});
+exports.fetchProductBySlug = (0, catchAsync_1.catchAsync)(async (req, res) => {
+    const slug = Array.isArray(req.params.slug)
+        ? req.params.slug[0]
+        : req.params.slug;
+    const product = await website_service_1.WebProductService.fetchProductBySlug(slug);
     res.status(200).json({
         success: true,
         data: product,
@@ -119,7 +133,10 @@ exports.updateProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "webproduct",
         actor: req.user?._id,
     });
-    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "website", action: "updated" });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", {
+        resource: "website",
+        action: "updated",
+    });
     res.status(200).json({
         success: true,
         data: product,
@@ -139,7 +156,10 @@ exports.deleteProduct = (0, catchAsync_1.catchAsync)(async (req, res) => {
         refModel: "webproduct",
         actor: req.user?._id,
     });
-    (0, socket_1.broadcastEvent)("dashboard:refresh", { resource: "website", action: "deleted" });
+    (0, socket_1.broadcastEvent)("dashboard:refresh", {
+        resource: "website",
+        action: "deleted",
+    });
     res.status(200).json({
         success: true,
         data: product,
