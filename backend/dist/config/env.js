@@ -22,6 +22,7 @@ const envSchema = zod_1.z.object({
     REDIS_URL: zod_1.z.string().min(1),
     FRONTEND_URL: zod_1.z.string().min(1),
     WEBSITE_URL: zod_1.z.string().min(1),
+    DEPLOYED_WEBSITE_URL: zod_1.z.string().min(1),
     GEMINI_API_KEY: zod_1.z.string().min(1),
     PROJECT_NUMBER: zod_1.z.string().min(1),
     PROJECT_NAME: zod_1.z.string().min(1),

@@ -18,6 +18,7 @@ const envSchema = z.object({
   REDIS_URL: z.string().min(1),
   FRONTEND_URL: z.string().min(1),
   WEBSITE_URL: z.string().min(1),
+  DEPLOYED_WEBSITE_URL: z.string().min(1),
   GEMINI_API_KEY: z.string().min(1),
   PROJECT_NUMBER: z.string().min(1),
   PROJECT_NAME: z.string().min(1),

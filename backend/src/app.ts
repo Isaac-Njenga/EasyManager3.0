@@ -12,6 +12,7 @@ const allowedOrigins = [
   // "http://localhost:5174",
   ...env.FRONTEND_URL.split(","),
   ...env.WEBSITE_URL.split(","),
+  ...env.DEPLOYED_WEBSITE_URL.split(","),
 ]
   .map(normalizeOrigin)
   .filter(Boolean);
