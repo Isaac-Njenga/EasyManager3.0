@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { Shop } from '$lib/services/shop/shop.types';
 	import { goto } from '$app/navigation';
@@ -94,16 +96,18 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Item onclick={() => viewShop(shop)}>View</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => editShop(shop)}>Edit</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item onclick={() => editShop(shop)}
+				>Edit</DropdownMenu.Item
+			>{/if}
 		<DropdownMenu.Separator />
 		<DropdownMenu.Item onclick={() => transferStock(shop)}>Transfer</DropdownMenu.Item>
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => openDeleteModal(shop)}
-		>
-			Delete
-		</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item
+				class="text-destructive focus:text-destructive"
+				onclick={() => openDeleteModal(shop)}
+			>
+				Delete
+			</DropdownMenu.Item>{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
@@ -118,16 +122,16 @@
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">
-			<Button
-				size="xs"
-				variant="default"
-				disabled={!transferStore.canSubmit || isSubmitting}
-				onclick={executeTransferAction}
-				>{#if isSubmitting}
-					<Loader2Icon class="size-4 animate-spin" /> Transferring...
-				{:else}Initiate Transfer
-				{/if}</Button
-			>
+			{#if canWrite(page.data.role)}<Button
+					size="xs"
+					variant="default"
+					disabled={!transferStore.canSubmit || isSubmitting}
+					onclick={executeTransferAction}
+					>{#if isSubmitting}
+						<Loader2Icon class="size-4 animate-spin" /> Transferring...
+					{:else}Initiate Transfer
+					{/if}</Button
+				>{/if}
 			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>
 	{/snippet}

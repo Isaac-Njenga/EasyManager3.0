@@ -3,13 +3,13 @@ import cors from "cors";
 
 import { appRouter } from "./routes/routes";
 import { env } from "./config/env";
+import { globalErrorHandler } from "./middleware/error.middleware";
 
 const app = express();
 
 const normalizeOrigin = (origin: string) => origin.trim().replace(/\/$/, "");
 const allowedOrigins = [
   "http://localhost:5173",
-  // "http://localhost:5174",
   ...env.FRONTEND_URL.split(","),
   ...env.WEBSITE_URL.split(","),
   ...env.DEPLOYED_WEBSITE_URL.split(","),
@@ -32,22 +32,6 @@ app.use(
 );
 app.use(express.json());
 app.use("/api", appRouter);
+app.use(globalErrorHandler);
 
 export default app;
-
-// import express from "express";
-// import cors from "cors";
-// import { appRouter } from './routes/routes';
-
-// const app = express();
-
-// app.use(
-//   cors({
-//     origin: "*",
-//     credentials: true,
-//   })
-// );
-// app.use(express.json());
-// app.use("/api", appRouter);
-
-// export default app;

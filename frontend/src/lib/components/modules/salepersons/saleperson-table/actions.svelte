@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { Salesperson } from '$lib/services/salesperson/salesperson.types';
 	import { goto } from '$app/navigation';
@@ -67,14 +69,16 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Item onclick={() => viewSalesperson(salesperson)}>View</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => editSalesperson(salesperson)}>Edit</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item onclick={() => editSalesperson(salesperson)}
+				>Edit</DropdownMenu.Item
+			>{/if}
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => openDeleteModal(salesperson)}
-		>
-			Delete
-		</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item
+				class="text-destructive focus:text-destructive"
+				onclick={() => openDeleteModal(salesperson)}
+			>
+				Delete
+			</DropdownMenu.Item>{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
@@ -93,17 +97,21 @@
 	{#snippet footer()}
 		<div class="flex w-full flex-col gap-2">
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/salespersons/${selectedSalesperson?._id}/edit`} size="xs" class="w-full">
-					Edit Salesperson
-				</Button>
-				<Button
-					onclick={() => openDeleteModal(selectedSalesperson!)}
-					size="xs"
-					variant="destructive"
-					class="w-full"
-				>
-					Delete Salesperson
-				</Button>
+				{#if canWrite(page.data.role)}<Button
+						href={`/salespersons/${selectedSalesperson?._id}/edit`}
+						size="xs"
+						class="w-full"
+					>
+						Edit Salesperson
+					</Button>{/if}
+				{#if canWrite(page.data.role)}<Button
+						onclick={() => openDeleteModal(selectedSalesperson!)}
+						size="xs"
+						variant="destructive"
+						class="w-full"
+					>
+						Delete Salesperson
+					</Button>{/if}
 			</div>
 
 			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>

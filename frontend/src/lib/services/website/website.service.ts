@@ -4,31 +4,35 @@ import type {
 	WebProduct,
 	WebProductListResponse,
 	CreateDescriptionInput,
-	GeneratedDescriptionResponse
+	GeneratedDescriptionResponse,
+	CatalogCategory
 } from './website.types';
 import type { ServiceContext } from '../api/types';
 
 export const webProductService = {
+	async categories(context: ServiceContext): Promise<CatalogCategory[]> {
+		return apiClient.get<CatalogCategory[]>('/category', context);
+	},
 	async fetch(page = 1, limit = 10): Promise<WebProductListResponse> {
 		return apiClient.get<WebProductListResponse>(
-			`/web-product/get-web-products?page=${page}&limit=${limit}`
+			`/catalog/get-catalog-products?page=${page}&limit=${limit}`
 		);
 	},
 
 	async fetchAll(context: ServiceContext): Promise<WebProduct[]> {
 		const response = await apiClient.get<WebProductListResponse>(
-			'/web-product/get-all-web-products',
+			'/catalog/get-all-catalog-products',
 			context
 		);
-		return response.webProducts ?? [];
+		return response.catalog ?? [];
 	},
 
 	async get(context: ServiceContext, id: string): Promise<WebProduct> {
-		return apiClient.get<WebProduct>(`/web-product/get-web-product/${id}`, context);
+		return apiClient.get<WebProduct>(`/catalog/get-catalog-product-by-id/${id}`, context);
 	},
 
 	async create(context: ServiceContext, input: CreateWebProductInput): Promise<WebProduct> {
-		return apiClient.post<WebProduct>('/web-product/create-web-product', input, context);
+		return apiClient.post<WebProduct>('/catalog/create-catalog-product', input, context);
 	},
 
 	async update(
@@ -36,11 +40,11 @@ export const webProductService = {
 		id: string,
 		input: CreateWebProductInput
 	): Promise<WebProduct> {
-		return apiClient.put<WebProduct>(`/web-product/update-web-product/${id}`, input, context);
+		return apiClient.put<WebProduct>(`/catalog/update-catalog-product/${id}`, input, context);
 	},
 
 	async delete(context: ServiceContext, id: string): Promise<void> {
-		return apiClient.delete<void>(`/web-product/delete-web-product/${id}`, undefined, context);
+		return apiClient.delete<void>(`/catalog/delete-catalog-product/${id}`, undefined, context);
 	},
 	async description(
 		context: ServiceContext,

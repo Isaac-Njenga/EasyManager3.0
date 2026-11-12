@@ -7,22 +7,7 @@ export async function handleGenerateDescription(
   next: NextFunction,
 ): Promise<void> {
   try {
-    const { name, category, colours, price } = req.body;
-
-    if (!name || !category || price === undefined) {
-      res.status(400).json({
-        error:
-          "Missing required fields: name, category, and price are required.",
-      });
-      return;
-    }
-
-    const result = await generateProductDescription({
-      name,
-      category,
-      colours,
-      price: Number(price),
-    });
+    const result = await generateProductDescription(req.body);
 
     res.status(200).json({
       success: true,

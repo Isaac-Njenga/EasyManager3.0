@@ -36,7 +36,7 @@ export type SalespersonListResponse = {
 	totalPages: number;
 };
 
-export type SalespersonAccountPayload =  {
+export type SalespersonAccountPayload = {
 	firstName: string;
 	lastName: string;
 	status: SalespersonStatus;
@@ -44,6 +44,6 @@ export type SalespersonAccountPayload =  {
 	hireDate: string;
 	userId: string;
 	password: string;
-	role: 'SALESPERSON' | 'SUPER_ADMIN';
+	role: 'SALESPERSON' | 'SUPER_ADMIN' | 'AUDIT';
 	isActivated: boolean;
 };

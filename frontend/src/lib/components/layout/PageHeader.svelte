@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import { Button } from '$lib/components/ui/button';
 
 	type Props = {
@@ -11,7 +13,9 @@
 	let { title, description, actionLabel, actionHref }: Props = $props();
 </script>
 
-<div class="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between rounded-xl border bg-card p-5 shadow-sm">
+<div
+	class="flex flex-col gap-4 rounded-xl border bg-card p-5 shadow-sm sm:flex-row sm:items-center sm:justify-between"
+>
 	<div class="space-y-1">
 		<h1 class="text-2xl font-semibold tracking-tight">
 			{title}
@@ -24,7 +28,7 @@
 		{/if}
 	</div>
 
-	{#if actionLabel && actionHref}
+	{#if actionLabel && actionHref && (canWrite(page.data.role) || !/(?:^|\/)(?:new|edit)(?:\/|$)/.test(actionHref))}
 		<Button href={actionHref}>
 			{actionLabel}
 		</Button>

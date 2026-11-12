@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.resetPassword = exports.verifyPasswordResetOtp = exports.requestPasswordResetOtp = exports.changePassword = exports.login = exports.activateAccountService = exports.createAccount = void 0;
+const access_policy_1 = require("../../middleware/access-policy");
 const BadRequestError_1 = require("../../common/errors/BadRequestError");
 const activateAccount_1 = require("../../utils/activateAccount");
 const generateToken_1 = require("../../utils/generateToken");
@@ -86,6 +87,7 @@ const changePassword = async (input) => {
     if (!user) {
         throw new BadRequestError_1.BadRequestError("User not found");
     }
+    (0, access_policy_1.assertNotAuditAccount)(user.role);
     const isOldPasswordValid = await bcryptjs_1.default.compare(input.oldPassword, user.password);
     if (!isOldPasswordValid) {
         throw new BadRequestError_1.BadRequestError("Invalid old password");
@@ -112,6 +114,7 @@ const requestPasswordResetOtp = async (input) => {
     if (!user) {
         throw new BadRequestError_1.BadRequestError("User not found");
     }
+    (0, access_policy_1.assertNotAuditAccount)(user.role);
     const isOtpSent = await (0, requestOTP_1.otpRequest)(email);
     if (!isOtpSent) {
         throw new BadRequestError_1.BadRequestError("Failed to send OTP");
@@ -159,6 +162,7 @@ const resetPassword = async (input) => {
     if (!user) {
         throw new BadRequestError_1.BadRequestError("User not found");
     }
+    (0, access_policy_1.assertNotAuditAccount)(user.role);
     const newPasswordHash = await bcryptjs_1.default.hash(input.newPassword, 10);
     user.password = newPasswordHash;
     await user.save();

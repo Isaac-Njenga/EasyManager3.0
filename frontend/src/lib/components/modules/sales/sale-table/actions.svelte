@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
@@ -67,14 +69,16 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Item onclick={() => viewSale(sale)}>View</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => editSale(sale)}>Edit</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item onclick={() => editSale(sale)}
+				>Edit</DropdownMenu.Item
+			>{/if}
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => openDeleteModal(sale)}
-		>
-			Delete
-		</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item
+				class="text-destructive focus:text-destructive"
+				onclick={() => openDeleteModal(sale)}
+			>
+				Delete
+			</DropdownMenu.Item>{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
@@ -92,16 +96,19 @@
 	{#snippet footer()}
 		<div class="flex w-full flex-col gap-2">
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/sales/${selectedSale?._id}/edit`} size="xs" class="w-full">Edit Sale</Button
-				>
-				<Button
-					onclick={() => openDeleteModal(selectedSale!)}
-					size="xs"
-					variant="destructive"
-					class="w-full"
-				>
-					Delete Sale
-				</Button>
+				{#if canWrite(page.data.role)}<Button
+						href={`/sales/${selectedSale?._id}/edit`}
+						size="xs"
+						class="w-full">Edit Sale</Button
+					>{/if}
+				{#if canWrite(page.data.role)}<Button
+						onclick={() => openDeleteModal(selectedSale!)}
+						size="xs"
+						variant="destructive"
+						class="w-full"
+					>
+						Delete Sale
+					</Button>{/if}
 			</div>
 
 			<Drawer.Close class={buttonVariants({ variant: 'outline', size: 'xs', class: 'w-full' })}>

@@ -1,3 +1,4 @@
+import { assertNotAuditAccount } from "../../middleware/access-policy";
 import { BadRequestError } from "../../common/errors/BadRequestError";
 import { activateAccount } from "../../utils/activateAccount";
 import { generateTokens } from "../../utils/generateToken";
@@ -113,6 +114,7 @@ export const changePassword = async (
     throw new BadRequestError("User not found");
   }
 
+  assertNotAuditAccount(user.role);
   const isOldPasswordValid = await bcrypt.compare(
     input.oldPassword,
     user.password,
@@ -152,6 +154,7 @@ export const requestPasswordResetOtp = async (
     throw new BadRequestError("User not found");
   }
 
+  assertNotAuditAccount(user.role);
   const isOtpSent = await otpRequest(email);
   if (!isOtpSent) {
     throw new BadRequestError("Failed to send OTP");
@@ -214,6 +217,7 @@ export const resetPassword = async (
     throw new BadRequestError("User not found");
   }
 
+  assertNotAuditAccount(user.role);
   const newPasswordHash = await bcrypt.hash(input.newPassword, 10);
   user.password = newPasswordHash;
   await user.save();

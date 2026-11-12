@@ -1,4 +1,5 @@
 <script lang="ts">
+	import { isAuditReadPage } from '$lib/config/permissions';
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import { page } from '$app/state';
@@ -15,6 +16,8 @@
 		if (user?.role === 'SALESPERSON' && page.url.pathname !== '/sales/new') {
 			goto(resolve('/sales/new'), { replaceState: true });
 		}
+		if (user?.role === 'AUDIT' && !isAuditReadPage(page.url.pathname))
+			goto(resolve('/dashboard'), { replaceState: true });
 	});
 </script>
 
@@ -25,6 +28,9 @@
 		<!-- <Header /> -->
 
 		<main class="flex-1">
+			{#if page.data.role === 'AUDIT'}<p class="border-b bg-muted px-4 py-2 text-sm">
+					Audit access - Read only
+				</p>{/if}
 			<div class="mx-auto w-full max-w-[1600px] px-2 py-4 sm:px-3 lg:px-4">
 				{@render children()}
 			</div>

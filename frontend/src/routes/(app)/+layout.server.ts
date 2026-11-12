@@ -1,4 +1,5 @@
 import { redirect } from '@sveltejs/kit';
+import { isAuditReadPage } from '$lib/config/permissions';
 import { authCookies } from '$lib/config/auth';
 
 export function load({ cookies, url }) {
@@ -20,7 +21,9 @@ export function load({ cookies, url }) {
 		throw redirect(303, '/sales/new');
 	}
 
-	if (role !== 'SUPER_ADMIN' && role !== 'SALESPERSON') {
+	if (role === 'AUDIT' && !isAuditReadPage(url.pathname)) throw redirect(303, '/dashboard');
+
+	if (role !== 'SUPER_ADMIN' && role !== 'SALESPERSON' && role !== 'AUDIT') {
 		throw redirect(303, '/login');
 	}
 

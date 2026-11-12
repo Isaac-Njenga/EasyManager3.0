@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { Expense } from '$lib/services/expenses/expense.types';
 
@@ -69,14 +71,16 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Item onclick={() => viewExpense(expense)}>View</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => editExpense(expense)}>Edit</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item onclick={() => editExpense(expense)}
+				>Edit</DropdownMenu.Item
+			>{/if}
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => openDeleteModal(expense)}
-		>
-			Delete
-		</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item
+				class="text-destructive focus:text-destructive"
+				onclick={() => openDeleteModal(expense)}
+			>
+				Delete
+			</DropdownMenu.Item>{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
@@ -91,17 +95,21 @@
 		<div class="flex w-full flex-col gap-2">
 			<!-- Top row: Edit and Delete take 50% width each -->
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/expenses/${selectedExpense?._id}/edit`} size="xs" class="w-full">
-					Edit Expense
-				</Button>
-				<Button
-					onclick={() => openDeleteModal(selectedExpense!)}
-					size="xs"
-					variant="destructive"
-					class="w-full"
-				>
-					Delete Expense
-				</Button>
+				{#if canWrite(page.data.role)}<Button
+						href={`/expenses/${selectedExpense?._id}/edit`}
+						size="xs"
+						class="w-full"
+					>
+						Edit Expense
+					</Button>{/if}
+				{#if canWrite(page.data.role)}<Button
+						onclick={() => openDeleteModal(selectedExpense!)}
+						size="xs"
+						variant="destructive"
+						class="w-full"
+					>
+						Delete Expense
+					</Button>{/if}
 			</div>
 
 			<!-- Bottom row: Close takes 100% width -->

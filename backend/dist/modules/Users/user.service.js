@@ -41,7 +41,8 @@ class UserService {
     }
     static async fetchUserById(userId, requesterId, requesterRole) {
         assertUserId(userId);
-        if (!canManageUser(userId, requesterId, requesterRole)) {
+        if (requesterRole !== "AUDIT" &&
+            !canManageUser(userId, requesterId, requesterRole)) {
             throw new BadRequestError_1.BadRequestError("You can only access your own profile");
         }
         const user = await user_model_1.UserModel.findById(userId)

@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import { formatCurrency, matchesSearchQuery } from '$lib/utils';
 	import type { Product } from '$lib/services/product/product.types';
 	import type {
@@ -231,22 +233,22 @@
 						<span class="text-xs font-medium text-muted-foreground">
 							Total Products:{populatedProducts.length}
 						</span>|
-						<Button
-							size="xs"
-							class="bg-green-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-green-700"
-							disabled={isSubmitting}
-							onclick={() => {
-								distributeStock();
-							}}>Add products</Button
-						>
-						<Button
-							size="xs"
-							class="bg-purple-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-purple-700"
-							disabled={isSubmitting}
-							onclick={() => {
-								transferStock(selectedWarehouse);
-							}}>Initiate Transfer</Button
-						>
+						{#if canWrite(page.data.role)}<Button
+								size="xs"
+								class="bg-green-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-green-700"
+								disabled={isSubmitting}
+								onclick={() => {
+									distributeStock();
+								}}>Add products</Button
+							>{/if}
+						{#if canWrite(page.data.role)}<Button
+								size="xs"
+								class="bg-purple-600 font-bold text-white  transition-all duration-300 ease-in-out hover:bg-purple-700"
+								disabled={isSubmitting}
+								onclick={() => {
+									transferStock(selectedWarehouse);
+								}}>Initiate Transfer</Button
+							>{/if}
 					</div>
 				</div>
 				<Separator class="pb-0" />
@@ -261,16 +263,16 @@
 			{/if}
 		</div>
 
-		<details class="rounded-lg border bg-card p-4">
-			<summary class="cursor-pointer text-sm font-semibold">Reconcile stock quantities</summary>
-			<div class="mt-4">
-				<InventoryStockEditor
-					{products}
-					inventoryItems={selectedWarehouse.inventoryItems}
-					onAdjust={adjustStock}
-				/>
-			</div>
-		</details>
+		{#if canWrite(page.data.role)}<details class="rounded-lg border bg-card p-4">
+				<summary class="cursor-pointer text-sm font-semibold">Reconcile stock quantities</summary>
+				<div class="mt-4">
+					{#if canWrite(page.data.role)}<InventoryStockEditor
+							{products}
+							inventoryItems={selectedWarehouse.inventoryItems}
+							onAdjust={adjustStock}
+						/>{/if}
+				</div>
+			</details>{/if}
 
 		<!-- Operational Remarks & Notes -->
 		{#if selectedWarehouse.notes}
@@ -311,16 +313,16 @@
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">
-			<Button
-				size="xs"
-				variant="default"
-				disabled={!transferStore.canSubmit || isSubmitting}
-				onclick={executeTransferAction}
-				>{#if isSubmitting}
-					<Loader2Icon class="size-4 animate-spin" /> Transferring...
-				{:else}Initiate Transfer
-				{/if}</Button
-			>
+			{#if canWrite(page.data.role)}<Button
+					size="xs"
+					variant="default"
+					disabled={!transferStore.canSubmit || isSubmitting}
+					onclick={executeTransferAction}
+					>{#if isSubmitting}
+						<Loader2Icon class="size-4 animate-spin" /> Transferring...
+					{:else}Initiate Transfer
+					{/if}</Button
+				>{/if}
 			<Dialog.Close class={buttonVariants({ variant: 'outline', size: 'xs' })}>Close</Dialog.Close>
 		</div>
 	{/snippet}

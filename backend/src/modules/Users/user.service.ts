@@ -65,7 +65,10 @@ export class UserService {
   ): Promise<User> {
     assertUserId(userId);
 
-    if (!canManageUser(userId, requesterId, requesterRole)) {
+    if (
+      requesterRole !== "AUDIT" &&
+      !canManageUser(userId, requesterId, requesterRole)
+    ) {
       throw new BadRequestError("You can only access your own profile");
     }
 

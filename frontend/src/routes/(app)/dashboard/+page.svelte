@@ -155,7 +155,7 @@
 		products.filter((product) => product.status === 'Active' && product.totalQuantity <= 5).length
 	);
 	let publishedProducts = $derived(
-		webProducts.filter((product) => product.inStock !== false).length
+		webProducts.filter((product) => product.status === 'PUBLISHED').length
 	);
 
 	onMount(() => {
@@ -341,7 +341,7 @@
 			<CardContent>
 				<div class="text-2xl font-bold text-sky-600 dark:text-sky-400">{publishedProducts}</div>
 				<div class="mt-1 text-xs text-muted-foreground">
-					of {webProducts.length} products available online
+					of {webProducts.length} products published online
 				</div>
 			</CardContent>
 		</Card>

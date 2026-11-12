@@ -9,6 +9,7 @@
 		"preview": "vite preview",
 		"deploy": "npm run build && wrangler deploy",
 		"prepare": "svelte-kit sync || echo ''",
+		"test:access": "node --experimental-strip-types --test src/lib/config/permissions.test.ts",
 		"check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
 		"check:watch": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json --watch",
 		"lint": "prettier --check . && eslint .",

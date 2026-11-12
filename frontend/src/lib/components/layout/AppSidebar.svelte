@@ -1,5 +1,5 @@
 <script lang="ts">
-	import { resolve } from '$app/paths';
+	import { base, resolve } from '$app/paths';
 	import { page } from '$app/state';
 
 	import { appConfig } from '$lib/config/app';
@@ -45,6 +45,7 @@
 
 	const user = cookies.get(authCookies.user);
 	const isSalesperson = user?.role === 'SALESPERSON';
+	const isAudit = user?.role === 'AUDIT';
 
 	function handleSignOut() {
 		cookies.remove(authCookies.accessToken, { path: '/' });
@@ -77,7 +78,7 @@
 		{#each navigationGroups as group (group.label)}
 			{@const visibleItems = isSalesperson
 				? group.items.filter((item) => item.href === '/sales')
-				: group.items}
+				: group.items.filter((item) => !isAudit || item.href !== '/settings')}
 			{#if visibleItems.length > 0}
 				<SidebarGroup>
 					<SidebarGroupLabel>{group.label}</SidebarGroupLabel>
@@ -86,7 +87,7 @@
 						<SidebarMenu>
 							{#each visibleItems as item (item.href)}
 								<!-- eslint-disable-next-line -->
-								{@const href = resolve(isSalesperson ? '//sales/new' : item.href)}
+								{@const href = `${base}${isSalesperson ? '/sales/new' : item.href}`}
 								{@const isActive = page.url.pathname === href}
 
 								<SidebarMenuItem>

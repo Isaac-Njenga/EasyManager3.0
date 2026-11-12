@@ -1,6 +1,10 @@
 import { createColumnHelper, renderSnippet, renderComponent } from '@tanstack/svelte-table';
-import type { WebProduct } from '$lib/services/website/website.types';
-import { formatCurrency } from '$lib/utils';
+import {
+	catalogDiscount,
+	categoryName,
+	type WebProduct
+} from '$lib/services/website/website.types';
+import { formatCatalogPrice } from '$lib/services/website/website.types';
 import { createRawSnippet } from 'svelte';
 import type { DataTableFeatures } from '../../table-test/features.ts';
 import ImageCell from './cells/image-cell.svelte';
@@ -12,7 +16,7 @@ import DataTableActions from './actions.svelte';
 const columnHelper = createColumnHelper<DataTableFeatures, WebProduct>();
 
 export const WebProductColumns = columnHelper.columns([
-	columnHelper.accessor('image', {
+	columnHelper.accessor('images', {
 		header: () => {
 			const headerSnippet = createRawSnippet(() => ({
 				render: () => `<div class="font-semibold text-muted-foreground">Image</div>`
@@ -21,7 +25,7 @@ export const WebProductColumns = columnHelper.columns([
 		},
 		cell: ({ row }) => {
 			return renderComponent(ImageCell, {
-				image: row.original.image,
+				image: row.original.images,
 				name: row.original.name
 			});
 		}
@@ -36,12 +40,12 @@ export const WebProductColumns = columnHelper.columns([
 		cell: ({ row }) => {
 			return renderComponent(NameCell, {
 				name: row.original.name,
-				category: row.original.category ?? ''
+				category: categoryName(row.original.category)
 			});
 		}
 	}),
 
-	columnHelper.accessor('price', {
+	columnHelper.accessor('pricing.basePrice', {
 		header: () => {
 			const headerSnippet = createRawSnippet(() => ({
 				render: () => `<div class="text-left font-semibold text-muted-foreground">Price</div>`
@@ -52,29 +56,29 @@ export const WebProductColumns = columnHelper.columns([
 			const priceSnippet = createRawSnippet<[{ price: number }]>(() => ({
 				render: () =>
 					`<div class="text-left font-medium text-foreground">
-                        ${formatCurrency(row.original.price ?? 0)}
+                        ${formatCatalogPrice(row.original.pricing.basePrice ?? 0, row.original.pricing.currency)}
                     </div>`
 			}));
 			return renderSnippet(priceSnippet, {
-				price: row.original.price
+				price: row.original.pricing.basePrice
 			});
 		}
 	}),
-	columnHelper.accessor('discount', {
+	columnHelper.accessor((row) => catalogDiscount(row), {
+		id: 'discount',
 		header: () => {
 			const headerSnippet = createRawSnippet(() => ({
-				render: () =>
-					`<div class="text-left font-semibold text-muted-foreground">Discount</div>`
+				render: () => `<div class="text-left font-semibold text-muted-foreground">Discount</div>`
 			}));
 			return renderSnippet(headerSnippet);
 		},
 		cell: ({ row }) => {
 			return renderComponent(DiscountCell, {
-				discount: row.original.discount
+				discount: catalogDiscount(row.original)
 			});
 		}
 	}),
-	columnHelper.accessor('inStock', {
+	columnHelper.accessor('status', {
 		header: () => {
 			const headerSnippet = createRawSnippet(() => ({
 				render: () => `<div class="font-semibold text-muted-foreground">Status</div>`
@@ -83,7 +87,7 @@ export const WebProductColumns = columnHelper.columns([
 		},
 		cell: ({ row }) => {
 			return renderComponent(StatusCell, {
-				inStock: row.original.inStock ?? false
+				status: row.original.status
 			});
 		}
 	}),

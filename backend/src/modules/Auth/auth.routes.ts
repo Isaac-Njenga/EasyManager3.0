@@ -1,3 +1,5 @@
+import { protectRoute } from "../../middleware/auth.middleware";
+import { adminRoute } from "../../middleware/admin.middleware";
 import { Router } from "express";
 import {
   requestPasswordResetOtpController,
@@ -14,8 +16,13 @@ import {
 export function AuthRouter(): Router {
   const router = Router();
 
-  router.post("/sign-up", userRegisterController);
-  router.post("/activate-account", activateAccountController);
+  router.post("/sign-up", protectRoute, adminRoute, userRegisterController);
+  router.post(
+    "/activate-account",
+    protectRoute,
+    adminRoute,
+    activateAccountController,
+  );
   router.post("/sign-in", userLoginController);
   router.post("/change-password", changePasswordController);
   router.post("/password-reset/request-otp", requestPasswordResetOtpController);

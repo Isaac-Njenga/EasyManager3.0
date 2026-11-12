@@ -1,4 +1,4 @@
-export type UserRole = "SUPER_ADMIN" | "SALESPERSON";
+export type UserRole = "SUPER_ADMIN" | "SALESPERSON" | "AUDIT";
 
 export interface User {
   _id: string;
@@ -19,7 +19,7 @@ export interface CreateUserDTO {
   password: string;
   avatar: string;
   role: UserRole;
-  isActivated?:boolean
+  isActivated?: boolean;
 }
 
 export interface UpdateUserDTO {

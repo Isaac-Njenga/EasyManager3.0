@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { WebProduct } from '$lib/services/website/website.types';
 	import { goto } from '$app/navigation';
@@ -37,7 +39,7 @@
 
 	function openDeleteModal(webProduct: WebProduct) {
 		selectedWebProduct = webProduct;
-		isDeleteWebProductOpen = false;
+		isDeleteWebProductOpen = true;
 	}
 
 	async function deleteItem(webProduct: WebProduct) {
@@ -65,14 +67,16 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Item onclick={() => viewWebProduct(product)}>View</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => editWebProduct(product)}>Edit</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item onclick={() => editWebProduct(product)}
+				>Edit</DropdownMenu.Item
+			>{/if}
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => openDeleteModal(product)}
-		>
-			Delete
-		</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item
+				class="text-destructive focus:text-destructive"
+				onclick={() => openDeleteModal(product)}
+			>
+				Delete
+			</DropdownMenu.Item>{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
@@ -84,28 +88,28 @@
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">
-			<Button
-				size="xs"
-				variant="default"
-				onclick={() => {
-					if (selectedWebProduct) {
-						editWebProduct(selectedWebProduct);
-					}
-				}}
-			>
-				Edit
-			</Button>
-			<Button
-				size="xs"
-				variant="destructive"
-				onclick={() => {
-					if (selectedWebProduct) {
-						openDeleteModal(selectedWebProduct);
-					}
-				}}
-			>
-				Delete
-			</Button>
+			{#if canWrite(page.data.role)}<Button
+					size="xs"
+					variant="default"
+					onclick={() => {
+						if (selectedWebProduct) {
+							editWebProduct(selectedWebProduct);
+						}
+					}}
+				>
+					Edit
+				</Button>{/if}
+			{#if canWrite(page.data.role)}<Button
+					size="xs"
+					variant="destructive"
+					onclick={() => {
+						if (selectedWebProduct) {
+							openDeleteModal(selectedWebProduct);
+						}
+					}}
+				>
+					Delete
+				</Button>{/if}
 		</div>
 	{/snippet}
 </Modal>

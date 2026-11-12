@@ -13,6 +13,19 @@ async function request<T>(
 	options: RequestInit = {},
 	context?: ApiClientOptions
 ): Promise<T> {
+	const storedUser = context?.cookies?.get(authCookies.user);
+	let role: string | undefined;
+	try {
+		role = storedUser ? JSON.parse(storedUser).role : undefined;
+	} catch {
+		/* Backend validates authentication. */
+	}
+	if (
+		role === 'AUDIT' &&
+		path !== '/auth/sign-in' &&
+		!['GET', 'HEAD', 'OPTIONS'].includes((options.method ?? 'GET').toUpperCase())
+	)
+		throw new ApiError(403, 'Audit accounts have read-only access.', null);
 	const headers = new Headers(options.headers);
 
 	headers.set('Content-Type', 'application/json');

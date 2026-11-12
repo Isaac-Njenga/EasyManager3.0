@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import * as DropdownMenu from '$lib/components/ui/dropdown-menu/index.js';
 	import type { Product } from '$lib/services/product/product.types';
 	import { goto } from '$app/navigation';
@@ -66,14 +68,16 @@
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
 		<DropdownMenu.Item onclick={() => viewProduct(product)}>View</DropdownMenu.Item>
-		<DropdownMenu.Item onclick={() => editProduct(product)}>Edit</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item onclick={() => editProduct(product)}
+				>Edit</DropdownMenu.Item
+			>{/if}
 		<DropdownMenu.Separator />
-		<DropdownMenu.Item
-			class="text-destructive focus:text-destructive"
-			onclick={() => openDeleteModal(product)}
-		>
-			Delete
-		</DropdownMenu.Item>
+		{#if canWrite(page.data.role)}<DropdownMenu.Item
+				class="text-destructive focus:text-destructive"
+				onclick={() => openDeleteModal(product)}
+			>
+				Delete
+			</DropdownMenu.Item>{/if}
 	</DropdownMenu.Content>
 </DropdownMenu.Root>
 
@@ -88,17 +92,21 @@
 		<div class="flex w-full flex-col gap-2">
 			<!-- Top row: Edit and Delete take 50% width each -->
 			<div class="grid w-full grid-cols-2 gap-2">
-				<Button href={`/products/${selectedProduct?._id}`} size="xs" class="w-full">
-					Edit Product
-				</Button>
-				<Button
-					onclick={() => openDeleteModal(selectedProduct!)}
-					size="xs"
-					variant="destructive"
-					class="w-full"
-				>
-					Delete Product
-				</Button>
+				{#if canWrite(page.data.role)}<Button
+						href={`/products/${selectedProduct?._id}`}
+						size="xs"
+						class="w-full"
+					>
+						Edit Product
+					</Button>{/if}
+				{#if canWrite(page.data.role)}<Button
+						onclick={() => openDeleteModal(selectedProduct!)}
+						size="xs"
+						variant="destructive"
+						class="w-full"
+					>
+						Delete Product
+					</Button>{/if}
 			</div>
 
 			<!-- Bottom row: Close takes 100% width -->

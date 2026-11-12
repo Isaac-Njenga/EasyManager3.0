@@ -1,4 +1,6 @@
 <script lang="ts">
+	import { canWrite } from '$lib/config/permissions';
+	import { page } from '$app/state';
 	import PageHeader from '$lib/components/layout/PageHeader.svelte';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { Card, CardContent, CardHeader, CardTitle } from '$lib/components/ui/card';
@@ -16,7 +18,11 @@
 	import Modal from '$lib/components/common/Modal.svelte';
 	import ProductDetails from './WebProductDetail.svelte';
 	import { toast } from 'svelte-sonner';
-	import type { WebProduct } from '$lib/services/website/website.types';
+	import {
+		catalogDiscount,
+		categoryName,
+		type WebProduct
+	} from '$lib/services/website/website.types';
 	import type { PageProps } from './$types';
 	import { invalidateAll } from '$app/navigation';
 	import { goto } from '$app/navigation';
@@ -32,7 +38,7 @@
 
 	$effect(() => {
 		if (error) {
-			toast.error('Failed to load shops', { description: error });
+			toast.error('Failed to load catalog', { description: error });
 		}
 	});
 
@@ -51,7 +57,7 @@
 
 	function openDeleteModal(item: WebProduct) {
 		selectedItem = item;
-		isDeleteWebProductOpen = false;
+		isDeleteWebProductOpen = true;
 	}
 
 	async function deleteItem(item: WebProduct) {
@@ -70,27 +76,34 @@
 	let searchTerm = $state('');
 	let isSearching = $state(false);
 	let selectedCategory = $state('All');
-	let stockFilter = $state<'all' | 'inStock' | 'outOfStock'>('all');
+	let statusFilter = $state<'all' | 'published' | 'unpublished'>('all');
 	let viewMode = $state<'table' | 'grid'>('table');
 
 	// Calculated Metrics
 	const totalProducts = $derived(webProducts.length);
-	const outOfStockCount = $derived(webProducts.filter((p) => p.inStock === false).length);
+	const unpublishedCount = $derived(webProducts.filter((p) => p.status !== 'PUBLISHED').length);
 	const avgDiscount = $derived(
-		Math.round(webProducts.reduce((acc, p) => acc + (p.discount || 0), 0) / (totalProducts || 1))
+		Math.round(
+			webProducts.reduce((acc, p) => acc + (catalogDiscount(p) || 0), 0) / (totalProducts || 1)
+		)
 	);
-	const totalCatalogValue = $derived(webProducts.reduce((acc, p) => acc + (p.price || 0), 0));
+	const totalCatalogValue = $derived(
+		webProducts
+			.filter((p) => p.pricing.currency === 'KES')
+			.reduce((acc, p) => acc + (p.pricing.basePrice || 0), 0)
+	);
 
 	// Filtering Logic
 	let filteredContent = $derived(
 		webProducts.filter((item) => {
 			const matchesCategory =
-				selectedCategory === 'All' || item.category === `${selectedCategory} Furniture`;
+				selectedCategory === 'All' ||
+				categoryName(item.category) === `${selectedCategory} Furniture`;
 
 			const matchesStock =
-				stockFilter === 'all' ||
-				(stockFilter === 'inStock' && item.inStock !== false) ||
-				(stockFilter === 'outOfStock' && item.inStock === false);
+				statusFilter === 'all' ||
+				(statusFilter === 'published' && item.status === 'PUBLISHED') ||
+				(statusFilter === 'unpublished' && item.status !== 'PUBLISHED');
 
 			const matchesSearch = matchesSearchQuery(item, searchTerm);
 
@@ -119,18 +132,18 @@
 			</CardHeader>
 			<CardContent class="py-0">
 				<div class="text-2xl font-bold">{totalProducts}</div>
-				<p class="text-xs text-muted-foreground">Active website items</p>
+				<p class="text-xs text-muted-foreground">Catalog items</p>
 			</CardContent>
 		</Card>
 
 		<Card class="py-auto px-0">
 			<CardHeader class="flex flex-row items-center justify-between">
-				<CardTitle class="text-sm font-medium text-muted-foreground">Inventory Alerts</CardTitle>
+				<CardTitle class="text-sm font-medium text-muted-foreground">Unpublished Items</CardTitle>
 				<AlertTriangle class="size-4 text-amber-500" />
 			</CardHeader>
 			<CardContent class="py-0">
-				<div class="text-2xl font-bold text-amber-600">{outOfStockCount}</div>
-				<p class="text-xs text-muted-foreground">Currently out of stock</p>
+				<div class="text-2xl font-bold text-amber-600">{unpublishedCount}</div>
+				<p class="text-xs text-muted-foreground">Draft or archived items</p>
 			</CardContent>
 		</Card>
 
@@ -152,7 +165,7 @@
 			</CardHeader>
 			<CardContent class="py-0">
 				<div class="text-2xl font-bold">{formatCurrency(totalCatalogValue)}</div>
-				<p class="text-xs text-muted-foreground">Sum of listed retail prices</p>
+				<p class="text-xs text-muted-foreground">Sum of KES base prices</p>
 			</CardContent>
 		</Card>
 	</div>
@@ -161,30 +174,30 @@
 	<div class="space-y-4 rounded-xl border bg-card p-2 shadow-sm">
 		<div class="flex flex-row justify-between p-2 pb-0">
 			<div class="flex items-center gap-2 text-xs">
-				<span class="text-muted-foreground">Stock:</span>
+				<span class="text-muted-foreground">Publishing:</span>
 				<button
-					class="rounded px-2 py-1 font-medium transition-colors {stockFilter === 'all'
+					class="rounded px-2 py-1 font-medium transition-colors {statusFilter === 'all'
 						? 'bg-primary/10 text-primary'
 						: 'text-muted-foreground hover:bg-muted'}"
-					onclick={() => (stockFilter = 'all')}
+					onclick={() => (statusFilter = 'all')}
 				>
 					All
 				</button>
 				<button
-					class="rounded px-2 py-1 font-medium transition-colors {stockFilter === 'inStock'
+					class="rounded px-2 py-1 font-medium transition-colors {statusFilter === 'published'
 						? 'bg-emerald-500/10 text-emerald-600'
 						: 'text-muted-foreground hover:bg-muted'}"
-					onclick={() => (stockFilter = 'inStock')}
+					onclick={() => (statusFilter = 'published')}
 				>
-					In Stock
+					Published
 				</button>
 				<button
-					class="rounded px-2 py-1 font-medium transition-colors {stockFilter === 'outOfStock'
+					class="rounded px-2 py-1 font-medium transition-colors {statusFilter === 'unpublished'
 						? 'bg-destructive/10 text-destructive'
 						: 'text-muted-foreground hover:bg-muted'}"
-					onclick={() => (stockFilter = 'outOfStock')}
+					onclick={() => (statusFilter = 'unpublished')}
 				>
-					Out of Stock
+					Unpublished
 				</button>
 			</div>
 
@@ -241,28 +254,28 @@
 	{/if}
 	{#snippet footer()}
 		<div class="flex w-full flex-row items-center justify-end gap-2">
-			<Button
-				size="xs"
-				variant="default"
-				onclick={() => {
-					if (selectedItem) {
-						editWebProduct(selectedItem);
-					}
-				}}
-			>
-				Edit
-			</Button>
-			<Button
-				size="xs"
-				variant="destructive"
-				onclick={() => {
-					if (selectedItem) {
-						openDeleteModal(selectedItem);
-					}
-				}}
-			>
-				Delete
-			</Button>
+			{#if canWrite(page.data.role)}<Button
+					size="xs"
+					variant="default"
+					onclick={() => {
+						if (selectedItem) {
+							editWebProduct(selectedItem);
+						}
+					}}
+				>
+					Edit
+				</Button>{/if}
+			{#if canWrite(page.data.role)}<Button
+					size="xs"
+					variant="destructive"
+					onclick={() => {
+						if (selectedItem) {
+							openDeleteModal(selectedItem);
+						}
+					}}
+				>
+					Delete
+				</Button>{/if}
 		</div>
 	{/snippet}
 </Modal>

@@ -1,10 +1,14 @@
 <script lang="ts">
 	import { onMount, onDestroy } from 'svelte';
 	import { fade } from 'svelte/transition';
-	import { formatCurrency } from '$lib/utils';
+	import { formatCatalogPrice } from '$lib/services/website/website.types';
 	import Button from '$lib/components/ui/button/button.svelte';
 	import { ChevronLeft, ChevronRight } from '@lucide/svelte';
-	import type { WebProduct } from '$lib/services/website/website.types';
+	import {
+		catalogDiscount,
+		categoryName,
+		type WebProduct
+	} from '$lib/services/website/website.types';
 
 	type Props = {
 		item: WebProduct;
@@ -16,12 +20,10 @@
 	let activeImgIndex = $state(0);
 	let isCarouselPaused = $state(false);
 
-	const images = $derived(Array.isArray(item.image) ? item.image : [item.image]);
+	const images = $derived(Array.isArray(item.images) ? item.images : [item.images]);
 	const hasMultipleImages = $derived(images.length > 1);
-	const hasDiscount = $derived(item.discount > 0);
-	const discountedPrice = $derived(
-		hasDiscount ? item.price * (1 - item.discount / 100) : item.price
-	);
+	const hasDiscount = $derived(catalogDiscount(item) > 0);
+	const discountedPrice = $derived(item.pricing.basePrice);
 
 	const advanceImage = () => {
 		if (images.length > 1) {
@@ -112,7 +114,7 @@
 			<span
 				class="absolute top-3 left-3 z-10 rounded-md bg-primary px-2.5 py-1 text-[11px] font-extrabold tracking-wider text-primary-foreground uppercase shadow-md"
 			>
-				{item.discount}% OFF
+				{catalogDiscount(item)}% OFF
 			</span>
 		{/if}
 	</div>
@@ -129,11 +131,14 @@
 			<!-- Pricing Section -->
 			<div class="mt-2 flex items-baseline gap-2">
 				<span class="text-lg font-extrabold text-primary">
-					{formatCurrency(discountedPrice)}
+					{formatCatalogPrice(discountedPrice, item.pricing.currency)}
 				</span>
 				{#if hasDiscount}
 					<span class="text-sm font-medium text-muted-foreground line-through">
-						{formatCurrency(item.price)}
+						{formatCatalogPrice(
+							item.pricing.compareAtPrice ?? item.pricing.basePrice,
+							item.pricing.currency
+						)}
 					</span>
 				{/if}
 			</div>
