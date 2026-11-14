@@ -26,19 +26,9 @@ export function CatalogProductRouter(): Router {
   );
   router.get("/search", searchProduct);
   router.get("/get-catalog-products", fetchCatalogs);
-  router.get(
-    "/get-all-catalog-products",
-    protectRoute,
-    adminRoute,
-    fetchAllCatalogs,
-  );
+  router.get("/get-all-catalog-products", fetchAllCatalogs);
   router.get("/get-catalog-product/:slug", fetchCatalogBySlug);
-  router.get(
-    "/get-catalog-product-by-id/:id",
-    protectRoute,
-    adminRoute,
-    fetchCatalogById,
-  );
+  router.get("/get-catalog-product-by-id/:id", fetchCatalogById);
   router.get("/get-featured-products", fetchFeaturedCatalogs);
   router.get("/get-best-selling-product", fetchBestSellingCatalogProducts);
   router.get("/get-new-arrival-product", fetchNewArrivalCatalogs);
