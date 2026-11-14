@@ -28,13 +28,13 @@
 	import { goto } from '$app/navigation';
 	import { resolve } from '$app/paths';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
-	import { webProductService } from '$lib/services/website/website.service';
+	import { CatalogProductService } from '$lib/services/website/website.service';
 	import ProductCard from '$lib/components/common/ProductCard.svelte';
 
 	let { data }: PageProps = $props();
 
-	const webProducts = $derived(data.webProducts ?? []);
-	const error = $derived(data.error);
+	const webProducts = $derived(data.catalogProducts ?? []);
+		const error = $derived(data.error);
 
 	$effect(() => {
 		if (error) {
@@ -62,7 +62,7 @@
 
 	async function deleteItem(item: WebProduct) {
 		try {
-			await webProductService.delete(getBrowserServiceContext(), item._id);
+			await CatalogProductService.delete(getBrowserServiceContext(), item._id);
 			toast.success(`Item ${item.name} deleted`);
 			isDeleteWebProductOpen = false;
 			selectedItem = {} as WebProduct;
@@ -98,7 +98,7 @@
 		webProducts.filter((item) => {
 			const matchesCategory =
 				selectedCategory === 'All' ||
-				categoryName(item.category) === `${selectedCategory} Furniture`;
+				categoryName(item.category) === `${selectedCategory}`;
 
 			const matchesStock =
 				statusFilter === 'all' ||

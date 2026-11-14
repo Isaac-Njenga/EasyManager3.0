@@ -4,7 +4,7 @@ import { ApiError } from '$lib/services/api/errors';
 import { saleService } from '$lib/services/sales/sales.service';
 import { expenseService } from '$lib/services/expenses/expense.service';
 import { productService } from '$lib/services/product/product.service';
-import { webProductService } from '$lib/services/website/website.service';
+import { CatalogProductService } from '$lib/services/website/website.service';
 
 export const load: PageServerLoad = async ({ cookies, locals }) => {
 	try {
@@ -15,7 +15,7 @@ export const load: PageServerLoad = async ({ cookies, locals }) => {
 		const sales = saleService.fetch(context);
 		const expenses = expenseService.fetch(context);
 		const products = productService.fetch(context);
-		const webProducts = webProductService.fetchAll(context);
+		const webProducts = CatalogProductService.fetchAll(context);
 
 		const [salesData, expensesData, productsData, webProductsData] = await Promise.all([
 			sales,

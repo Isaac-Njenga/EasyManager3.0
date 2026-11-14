@@ -8,7 +8,7 @@
 	import { Button } from '$lib/components/ui/button';
 	import Modal from '$lib/components/common/Modal.svelte';
 
-	import { webProductService } from '$lib/services/website/website.service';
+	import { CatalogProductService } from '$lib/services/website/website.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
 	import { invalidateAll } from '$app/navigation';
 	import DeleteDialog from '$lib/components/common/DeleteDialog.svelte';
@@ -44,7 +44,7 @@
 
 	async function deleteItem(webProduct: WebProduct) {
 		try {
-			await webProductService.delete(getBrowserServiceContext(), webProduct._id);
+			await CatalogProductService.delete(getBrowserServiceContext(), webProduct._id);
 			toast.success(`Item ${webProduct.name} deleted`);
 			isDeleteWebProductOpen = false;
 			selectedWebProduct = null;

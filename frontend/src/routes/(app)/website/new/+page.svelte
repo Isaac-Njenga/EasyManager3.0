@@ -9,8 +9,22 @@
 		GeneratedDescriptionResponse
 	} from '$lib/services/website/website.types';
 	import { resolve } from '$app/paths';
-	import { webProductService } from '$lib/services/website/website.service';
+	import { CatalogProductService } from '$lib/services/website/website.service';
 	import { getBrowserServiceContext } from '$lib/services/api/browser-context';
+	import type { PageProps } from './$types';
+
+	let { data }: PageProps = $props();
+	
+	const catalogCategories = $derived(
+		Array.isArray(data.categories) ? data.categories : [data.categories]
+	);
+	const error = $derived(data.error);
+
+	$effect(() => {
+		if (error) {
+			toast.error('Failed to load catalog', { description: error });
+		}
+	});
 
 	let isSubmitting = $state(false);
 	let isGenerating = $state(false);
@@ -19,7 +33,7 @@
 		isSubmitting = true;
 
 		try {
-			await webProductService.create(getBrowserServiceContext(), payload);
+			await CatalogProductService.create(getBrowserServiceContext(), payload);
 			toast.success('Item created!');
 			goto(resolve('/website'));
 		} catch (error) {
@@ -38,7 +52,7 @@
 
 		try {
 			// console.log(payload);
-			const res = await webProductService.description(getBrowserServiceContext(), payload);
+			const res = await CatalogProductService.description(getBrowserServiceContext(), payload);
 			toast.success('Description generated');
 			return res;
 		} catch (error) {
@@ -64,5 +78,6 @@
 		onDescriptionSubmit={handleDescGeneration}
 		{isSubmitting}
 		{isGenerating}
+		{catalogCategories}
 	/>
 </div>

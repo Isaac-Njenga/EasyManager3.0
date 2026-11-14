@@ -1,10 +1,11 @@
-export type CatalogCategory = {
-	_id: string;
-	name: string;
-	slug: string;
-	image?: string;
-	status?: 'ACTIVE' | 'INACTIVE';
-};
+// export type CatalogCategory = {
+// 	_id: string;
+// 	name: string;
+// 	slug: string;
+// 	image?: string;
+// 	status?: 'ACTIVE' | 'INACTIVE';
+// };
+import type {Category} from './categories/categories.types'
 export type CatalogPricing = { currency: string; basePrice: number; compareAtPrice: number | null };
 export type CatalogMerchandising = {
 	isFeatured: boolean;
@@ -18,7 +19,7 @@ export type Catalog = {
 	name: string;
 	slug: string;
 	description: string;
-	category: string | CatalogCategory;
+	category: Category;
 	images: string[];
 	colours: string[];
 	keyFeatures: string[];
@@ -57,8 +58,19 @@ export type GeneratedDescriptionResponse = {
 	slug: string;
 	seo: Required<CatalogSEO>;
 };
+
+export type CatalogCategory =
+	| 'Office Furniture'
+	| 'Kitchen Furniture'
+	| 'Living Room Furniture'
+	| 'Outdoor Furniture'
+	| 'Second-hand Furniture'
+	| 'Second-Hand Items'
+	| 'Bedroom Furniture';
+
 export const categoryName = (category: Catalog['category']): string =>
 	typeof category === 'string' ? category : (category?.name ?? '');
+
 export const catalogDiscount = (product: Catalog): number => {
 	const compare = product.pricing.compareAtPrice;
 	return compare && compare > product.pricing.basePrice

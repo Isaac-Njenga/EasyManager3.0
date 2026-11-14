@@ -9,7 +9,7 @@ import type {
 } from './website.types';
 import type { ServiceContext } from '../api/types';
 
-export const webProductService = {
+export const CatalogProductService = {
 	async categories(context: ServiceContext): Promise<CatalogCategory[]> {
 		return apiClient.get<CatalogCategory[]>('/category', context);
 	},

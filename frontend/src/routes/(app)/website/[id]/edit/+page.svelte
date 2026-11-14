@@ -11,11 +11,13 @@
 		GeneratedDescriptionResponse
 	} from '$lib/services/website/website.types';
 	import { goto } from '$app/navigation';
-	import { webProductService } from '$lib/services/website/website.service';
+	import { CatalogProductService } from '$lib/services/website/website.service';
 
 	let { data }: PageProps = $props();
 
-	const webProduct = $derived(data.webProduct);
+	const webProduct = $derived(data.CatalogProduct);const catalogCategories = $derived(
+		Array.isArray(data.categories) ? data.categories : [data.categories]
+	);
 	const error = $derived(data.error);
 
 	let isSubmitting = $state(false);
@@ -33,7 +35,7 @@
 		isSubmitting = true;
 
 		try {
-			await webProductService.update(getBrowserServiceContext(), product._id, payload);
+			await CatalogProductService.update(getBrowserServiceContext(), product._id, payload);
 			// console.log(payload);
 
 			toast.success('Product updated');
@@ -54,7 +56,7 @@
 
 		try {
 			// console.log(payload);
-			const res = await webProductService.description(getBrowserServiceContext(), payload);
+			const res = await CatalogProductService.description(getBrowserServiceContext(), payload);
 			toast.success('Description generated');
 			return res;
 		} catch (error) {
@@ -87,6 +89,7 @@
 				onDescriptionSubmit={handleDescGeneration}
 				{isSubmitting}
 				{isGenerating}
+				{catalogCategories}
 			/>
 		{/await}
 	{/if}
