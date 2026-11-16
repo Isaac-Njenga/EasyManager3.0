@@ -9,12 +9,12 @@ import ChartNoAxesCombined from '@lucide/svelte/icons/chart-no-axes-combined';
 import Settings from '@lucide/svelte/icons/settings';
 import Store from '@lucide/svelte/icons/store';
 import Warehouse from '@lucide/svelte/icons/warehouse';
-// import Users from '@lucide/svelte/icons/users';
 import ArrowRightLeft from '@lucide/svelte/icons/arrow-right-left';
 import ClipboardClock from '@lucide/svelte/icons/clipboard-clock';
 import Contact from '@lucide/svelte/icons/contact';
-import GlobeCheck from '@lucide/svelte/icons/globe-check';
-// import TestTubeDiagonal from '@lucide/svelte/icons/test-tube-diagonal';
+import Globe from '@lucide/svelte/icons/globe';
+import ChartSpline from '@lucide/svelte/icons/chart-spline';
+import Tag from '@lucide/svelte/icons/tag';
 
 export type NavigationItem = {
 	title: string;
@@ -61,16 +61,31 @@ export const navigationGroups: NavigationGroup[] = [
 				href: '/expenses',
 				icon: Receipt
 			},
-			{
-				title: 'Website',
-				href: '/website',
-				icon: GlobeCheck
-			}
-			// {
+						// {
 			// 	title: 'Customers',
 			// 	href: '/customers',
-			// 	icon: GlobeCheck
+			// 	icon: Globe
 			// },
+		]
+	},
+	{
+		label: 'Storefront',
+		items: [{
+				title: 'EasyDeal Website',
+				href: '/website',
+				icon: Globe
+			},
+			// { title: 'Catalog', href: '/catalog', icon: Globe },
+			{
+				title: 'Website Analytics',
+				href: '/analytics',
+				icon: ChartSpline
+			},	
+			{
+				title: 'Promos',
+				href: '/promos',
+				icon: Tag 
+			}
 		]
 	},
 	{
