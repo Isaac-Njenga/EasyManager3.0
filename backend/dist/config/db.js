@@ -8,6 +8,7 @@ const dotenv_1 = __importDefault(require("dotenv"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const env_1 = require("./env");
 const product_model_1 = require("../modules/Products/product.model");
+const analytics_model_1 = require("../modules/Website/Analytics/analytics.model");
 dotenv_1.default.config();
 const uri = env_1.env.URI || "";
 async function connectToDB() {
@@ -40,6 +41,7 @@ async function connectToDB() {
             }
         }
         await product_model_1.ProductModel.createIndexes();
+        await analytics_model_1.AnalyticsEventModel.createIndexes();
         console.log("Database connected");
     }
     catch (error) {

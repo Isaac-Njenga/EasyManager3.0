@@ -18,6 +18,7 @@ const transfer_routes_1 = require("../modules/Transfers/transfer.routes");
 const gemini_routes_1 = require("../modules/Gemini/gemini.routes");
 const cohere_routes_1 = require("../modules/Cohere/cohere.routes");
 const logs_routes_1 = require("../modules/Logs/logs.routes");
+const analytics_routes_1 = require("../modules/Website/Analytics/analytics.routes");
 function createRoutes() {
     const router = (0, express_1.Router)();
     router.use(auth_middleware_1.restrictAuditWrites);
@@ -35,6 +36,7 @@ function createRoutes() {
     router.use("/gemini-model", (0, gemini_routes_1.GeminiModelRouter)());
     router.use("/cohere-model", (0, cohere_routes_1.CohereModelRouter)());
     router.use("/logs", (0, logs_routes_1.LogsRouter)());
+    router.use("/analytics", (0, analytics_routes_1.AnalyticsRouter)());
     return router;
 }
 exports.appRouter = createRoutes();

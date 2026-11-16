@@ -10,6 +10,7 @@
     "seed:audit": "tsx src/scripts/seed-audit.ts",
     "test:access": "tsx --test src/tests/access.test.ts",
     "test:catalog": "tsx --test src/tests/catalog.test.ts",
+    "test:analytics": "tsx --test src/tests/analytics.test.ts",
     "migrate:categories":"tsx src/scripts/migrate-categories.ts",
     "dev": "nodemon --watch src --ext ts --exec \"npm run build && node dist/index.js\""
   },

@@ -2,6 +2,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import { env } from "./env";
 import { ProductModel } from "../modules/Products/product.model";
+import { AnalyticsEventModel } from "../modules/Website/Analytics/analytics.model";
 
 dotenv.config();
 
@@ -46,6 +47,7 @@ export async function connectToDB() {
     }
 
     await ProductModel.createIndexes();
+    await AnalyticsEventModel.createIndexes();
     console.log("Database connected");
   } catch (error) {
     console.error("Database connection failed!:", error);
